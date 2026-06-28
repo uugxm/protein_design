@@ -1,0 +1,5 @@
+START=2026-06-29T00:31:48+08:00
+Downloading the CCD data to /public/home/yinyifan/protein_design/weights/boltz/mols.tar. This may take a bit of time. You may change the cache directory with the --cache flag.
+ABORTED_AT=2026-06-29T00:33:33+08:00
+STATUS=aborted_no_cache_files_written
+REASON=login prefetch did not create mols.tar; compute-node jobs failed with Network is unreachable

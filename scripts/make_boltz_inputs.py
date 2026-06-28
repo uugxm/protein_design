@@ -48,6 +48,8 @@ def write_boltz_yaml(payload: Dict, stage1: Dict[tuple, Dict[str, str]], out_pat
         msa_path = msa_row.get("unpaired_msa") or msa_row.get("paired_msa") or ""
         if msa_path:
             lines.append("      msa: %s" % quote_yaml(msa_path))
+        else:
+            lines.append("      msa: empty")
     lines.append("properties: []")
     out_path.write_text("\n".join(lines) + "\n")
 

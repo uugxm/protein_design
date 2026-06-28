@@ -18,18 +18,20 @@ DESIGN_ID="${DESIGN_ID:-prediction_batch}"
 CANONICAL_MANIFEST="${CANONICAL_MANIFEST:?Set CANONICAL_MANIFEST=/path/to/canonical_manifest.tsv}"
 AF3_STAGE1_ASSET_MANIFEST="${AF3_STAGE1_ASSET_MANIFEST:-}"
 BOLTZ_INPUT_DIR="${BOLTZ_INPUT_DIR:-$PWD/prediction_inputs/boltz}"
-PRED_DIR="${PRED_DIR:-$PWD/boltz_predictions}"
+PRED_DIR="${PRED_DIR:-$PWD/predictions_boltz}"
 PRED_FLAT_DIR="${PRED_FLAT_DIR:-$PWD/predictions_flat/boltz}"
 BOLTZ_ENV="${BOLTZ_ENV:-$BASE/envs/boltz}"
+BOLTZ_CACHE="${BOLTZ_CACHE:-$BASE/weights/boltz}"
 BOLTZ_CMD="${BOLTZ_CMD:-boltz}"
 BOLTZ_EXTRA_ARGS="${BOLTZ_EXTRA_ARGS:-}"
 
-mkdir -p logs "$BOLTZ_INPUT_DIR" "$PRED_DIR" "$PRED_FLAT_DIR"
+mkdir -p logs "$BOLTZ_INPUT_DIR" "$PRED_DIR" "$PRED_FLAT_DIR" "$BOLTZ_CACHE"
 module purge || true
 module load cuda/12.4 || true
 if [ -d "$BOLTZ_ENV/bin" ]; then
   export PATH="$BOLTZ_ENV/bin:$PATH"
 fi
+export BOLTZ_CACHE
 nvidia-smi -L
 
 ADAPTER_ARGS=(--canonical_manifest "$CANONICAL_MANIFEST" --out_dir "$BOLTZ_INPUT_DIR" --manifest "$BOLTZ_INPUT_DIR/manifest.tsv")
@@ -38,7 +40,7 @@ if [ -n "$AF3_STAGE1_ASSET_MANIFEST" ]; then
 fi
 "$PYTHON_BIN" "$BASE/scripts/make_boltz_inputs.py" "${ADAPTER_ARGS[@]}"
 
-"$BOLTZ_CMD" predict "$BOLTZ_INPUT_DIR" --out_dir "$PRED_DIR" $BOLTZ_EXTRA_ARGS
+"$BOLTZ_CMD" predict "$BOLTZ_INPUT_DIR" --out_dir "$PRED_DIR" --cache "$BOLTZ_CACHE" $BOLTZ_EXTRA_ARGS
 
 "$PYTHON_BIN" "$BASE/scripts/collect_prediction_outputs.py" \
   --predictor boltz \

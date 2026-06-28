@@ -1,0 +1,13 @@
+2026-06-28T23:46:32+08:00
+Install target: /public/home/yinyifan/protein_design/weights/foundry
+
+Installing rf3: latest RF3 checkpoint trained with data until 1/2024 (expect 
+best performance)
+  Downloading rf3_foundry_01_24_latest_remapped.ckpt ━━━━━━ 3.0/3… 12.8   0:00:…
+                                                            GB     MB/s         
+✓ Successfully installed rf3 to 
+/public/home/yinyifan/protein_design/weights/foundry/rf3_foundry_01_24_latest_re
+mapped.ckpt
+
+Installation complete!
+EXIT_STATUS=0

@@ -3,4 +3,5 @@ sequences:
   - protein:
       id: "A"
       sequence: "VVYKGEFEYKGKKYELKVSKSGKGTITNKETGEKYELSEEEVNKIKSALLSTNKAVVSLTLNFKEKVEVDVLVEKIIE"
+      msa: empty
 properties: []

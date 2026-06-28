@@ -2,9 +2,8 @@
 
 Date: 2026-06-28
 
-Scope: decouple prediction inputs from model-specific formats. AF3 remains the
-primary prediction backend. Foundry RF3 and Boltz are optional cross-validation
-backends for AF3 top candidates only.
+Scope: AF3 remains the primary prediction backend. Foundry RF3 and Boltz are
+optional cross-validation backends that run only on AF3 top candidates.
 
 ## Boundary
 
@@ -12,148 +11,84 @@ AF3 `*_data.json` is not a cross-model interchange format.
 
 - AF3 Stage 1 writes AF3-internal `*_data.json`.
 - AF3 Stage 2 may consume those files with `--run_data_pipeline=False`.
-- RF3 and Boltz inputs must be generated from canonical prediction inputs plus
+- RF3 and Boltz inputs are generated from canonical prediction inputs plus
   optional extracted MSA/template assets.
-- RF3/Boltz adapters must not directly read AF3 `*_data.json` internals.
+- RF3/Boltz adapters do not read AF3 internal data JSON.
 
-## Canonical Prediction Input Layer
+## Runtime State
 
-New script:
+Foundry RF3:
 
-```bash
-scripts/make_canonical_prediction_inputs.py
-```
+- env: `/public/home/yinyifan/protein_design/envs/foundry-rfd3`
+- repo: `/public/home/yinyifan/protein_design/repos/foundry`
+- checkpoint: `/public/home/yinyifan/protein_design/weights/foundry/rf3_foundry_01_24_latest_remapped.ckpt`
+- size: `3038876446` bytes
+- sha256: `364ef592fd8042a9cf4176d045015190f8322f961ccca38d891b20ca578d3bb0`
+- install command:
+  `FOUNDRY_CHECKPOINT_DIRS=/public/home/yinyifan/protein_design/weights/foundry foundry install rf3 --checkpoint-dir /public/home/yinyifan/protein_design/weights/foundry`
+- registry: `foundry list-installed` recognizes the RF3 checkpoint.
 
-Inputs:
+Boltz:
 
-- ProteinMPNN FASTA
-- optional chain metadata TSV
-- reference PDB
-- motif TSV
-- optional generated backbone PDB
+- env: `/public/home/yinyifan/protein_design/envs/boltz`
+- repo: `/public/home/yinyifan/protein_design/repos/boltz`
+- package: `boltz 2.2.1`
+- Python: `3.11.15`
+- PyTorch: `2.6.0+cu124`
+- install command:
+  `/public/apps/miniconda/24.4.0/bin/conda create -p .../envs/boltz python=3.11 pip`;
+  `pip install --index-url https://download.pytorch.org/whl/cu124 torch==2.6.0`;
+  `pip install -e /public/home/yinyifan/protein_design/repos/boltz`
+- cache path: `/public/home/yinyifan/protein_design/weights/boltz`
+- cache status: not populated. GPU compute nodes cannot reach the Boltz
+  download URLs, and login-node prefetch did not create `mols.tar`.
 
-Outputs:
+## Templates
 
-- `canonical/fasta/<job>.fasta`
-- `canonical/json/<job>.json`
-- `canonical/cif/<job>.cif`
-- `canonical_manifest.tsv`
-- `chain_metadata.tsv`
-
-Canonical schema: `protein_design.canonical_prediction_input.v1`.
-
-The canonical JSON stores stable design metadata, chain sequence records,
-reference/motif provenance, and paths to canonical FASTA/CIF assets. It does not
-copy AF3-specific fields such as `unpairedMsa`, `pairedMsa`, or `templates`.
-
-## AF3 Stage 1 Asset Extraction
-
-New script:
+RF3 prediction uses only the RF3 folding entrypoint:
 
 ```bash
-scripts/extract_af3_stage1_assets.py
+rf3 fold inputs=<rf3_input_json_or_dir> out_dir=<out_dir> ckpt_path=<checkpoint>
 ```
 
-It scans AF3 Stage 1 output for `*_data.json`, keeps a raw copy for AF3 Stage 2,
-and writes `af3_stage1_asset_manifest.tsv` with:
+`scripts/slurm_templates/run_rf3_predict.sbatch` rejects RFD3 design overrides
+such as `diffusion_batch_size`, `n_batches`, and
+`inference_sampler.num_timesteps`.
 
-- `job_name`
-- `chain_id`
-- `sequence`
-- `unpaired_msa`
-- `paired_msa`
-- `template_metadata`
-- `raw_af3_data_json`
-- `parse_status`
-
-If AF3 fields shift, the extractor still records a manifest row and keeps the
-raw AF3 data JSON as AF3-only input.
-
-## Model-Specific Adapters
-
-New scripts:
+Boltz prediction uses native Boltz YAML inputs:
 
 ```bash
-scripts/make_rf3_json_inputs.py
-scripts/make_boltz_inputs.py
+boltz predict prediction_inputs/boltz --out_dir predictions_boltz --cache /public/home/yinyifan/protein_design/weights/boltz
 ```
 
-RF3 adapter output:
+If no MSA is available, `scripts/make_boltz_inputs.py` writes `msa: empty`,
+which is Boltz's documented single-sequence mode.
 
-```json
-{
-  "name": "<job>",
-  "components": [
-    {
-      "seq": "<sequence>",
-      "chain_id": "A",
-      "msa_path": "<optional a3m>"
-    }
-  ]
-}
-```
+## Smoke Tests
 
-Boltz adapter output:
+RF3 smoke:
 
-```yaml
-version: 1
-sequences:
-  - protein:
-      id: "A"
-      sequence: "<sequence>"
-      msa: "<optional a3m>"
-properties: []
-```
+- job: `123384`
+- input: `models/rf3/tests/data/5vht_from_json.json`
+- status: COMPLETED, `00:01:15`, exit `0:0`
+- GPU check: `torch.cuda.is_available=True`, RTX3090
+- output: `examples/epitope_scaffold/rf3_smoke_5vht_20260628/rf3_predictions/5vht_from_json/5vht_from_json_model.cif`
+- confidence: `5vht_from_json_summary_confidences.json`
+- pTM: `0.9055707454681396`, above the README expectation of `>0.8`
+- collector: generated flat CIF/PDB/JSON in `predictions_flat/rf3/`
 
-Both adapters read canonical JSON/manifest plus optional
-`af3_stage1_asset_manifest.tsv`; neither consumes AF3 internal data JSON.
+Boltz smoke:
 
-## SLURM Templates
+- job: `123385`
+- status: FAILED, `00:02:33`, exit `1:0`
+- GPU check before failure: `torch.cuda.is_available=True`, RTX3090
+- failure: `urllib.error.URLError: <urlopen error [Errno 101] Network is unreachable>`
+- point of failure: automatic download of `mols.tar` / Boltz model cache
+- interpretation: Boltz runtime is installed, but prediction cannot run on
+  compute nodes until `/public/home/yinyifan/protein_design/weights/boltz` is
+  populated offline or from a network-enabled host.
 
-Added templates:
-
-```text
-scripts/slurm_templates/run_af3_stage1.sbatch
-scripts/slurm_templates/run_af3_inference.sbatch
-scripts/slurm_templates/run_rf3_predict.sbatch
-scripts/slurm_templates/run_boltz_predict.sbatch
-```
-
-Partition policy:
-
-- `run_af3_stage1.sbatch`: AMD, `--run_inference=False`
-- `run_af3_inference.sbatch`: RTX3090, `--run_data_pipeline=False`
-- `run_rf3_predict.sbatch`: RTX3090, `rf3 fold inputs=<native RF3 JSON dir>`
-- `run_boltz_predict.sbatch`: RTX3090, `boltz predict <native Boltz input dir>`
-
-`run_epitope_scaffold_array.sbatch` now creates canonical prediction inputs
-before dispatching `PREDICTOR=af3`, `PREDICTOR=rf3`, or `PREDICTOR=boltz`.
-
-## Collector
-
-`scripts/collect_prediction_outputs.py` now supports:
-
-```text
---predictor af3
---predictor rf3
---predictor boltz
-```
-
-It writes a flat manifest plus JSON/PDB/CIF outputs where available. CIF and
-CIF.GZ structures are converted to PDB for `filter_designs.py`, while the flat
-CIF is preserved for traceability.
-
-Consensus merger:
-
-```bash
-scripts/compare_prediction_backends.py
-```
-
-It merges AF3/RF3/Boltz filter summaries into `consensus_summary.csv`, preserving
-predictor-specific confidence, motif RMSD, clash counts, output paths, and
-failure reasons.
-
-## Top-3 Cross-Validation Test
+## Top-3 Cross-Validation
 
 Run directory:
 
@@ -161,97 +96,59 @@ Run directory:
 examples/epitope_scaffold/cross_model_prediction_top3_5tpn_20260628/
 ```
 
-Input candidates: top 3 AF3-ranked RFdiffusion v1 designs from:
+Inputs:
 
-```text
-examples/epitope_scaffold/backend_comparison_5tpn_foundry_20260628_213554/rfdiffusion_v1/reports/top_designs.csv
-```
+- `canonical/canonical_manifest.tsv`
+- `prediction_inputs/rf3/*.rf3.json`
+- `prediction_inputs/boltz/*.boltz.yaml`
+- `reports/af3_filter_summary.csv`
 
-Candidates:
+Jobs:
 
-| design_id | AF3 pass | AF3 pLDDT | AF3 PAE | AF3 motif RMSD | AF3 clashes |
-| --- | --- | ---: | ---: | ---: | ---: |
-| design_9 | PASS | 91.4301 | 2.6374 | 1.04193 | 0 |
-| design_1 | PASS | 90.4390 | 2.72235 | 0.721181 | 0 |
-| design_4 | PASS | 87.2266 | 3.35261 | 1.84953 | 0 |
+| job | id | state | elapsed | exit |
+| --- | ---: | --- | ---: | --- |
+| RF3 smoke | 123384 | COMPLETED | 00:01:15 | 0:0 |
+| Boltz smoke | 123385 | FAILED | 00:02:33 | 1:0 |
+| RF3 top-3 | 123386 | COMPLETED | 00:01:51 | 0:0 |
+| Boltz top-3 | 123387 | FAILED | 00:02:33 | 1:0 |
+| final merge | 123391 | COMPLETED | 00:00:03 | 0:0 |
 
-Generated assets:
+Summary:
 
-```text
-canonical/canonical_manifest.tsv
-canonical/chain_metadata.tsv
-prediction_inputs/rf3/*.rf3.json
-prediction_inputs/boltz/*.boltz.yaml
-reports/af3_filter_summary.csv
-reports/rf3_filter_summary.csv
-reports/boltz_filter_summary.csv
-reports/consensus_summary.csv
-reports/run_report.json
-logs/*.out
-logs/*.err
-job_ids.env
-```
+- AF3 primary predictions: 3/3 successful, 3/3 PASS.
+- RF3 optional predictions: 3/3 successful structure outputs, 0/3 PASS.
+- Boltz optional predictions: 0/3 successful; all failed before structure
+  output because compute nodes have no outbound network for cache download.
+- Designs with AF3/RF3/Boltz motif RMSD all passing: 0.
+- High-confidence consensus designs: none.
+- AF3-only positives to downgrade: `design_1`, `design_4`, `design_9`.
+- Model conflicts: `design_1`, `design_4`, `design_9`.
 
-SLURM jobs:
+RF3 produced structures for all three candidates, but motif RMSD was not
+interpretable with the current motif mapping: the RF3 folded sequence outputs
+are numbered from the folded chain, while the motif TSV still refers to 5TPN
+residues `A163-181`. The RF3 rows therefore have `motif_atoms_missing=76`.
+Next RF3 adapter work should preserve or emit a residue-mapping file from
+canonical design positions to original motif residues before RF3 is used for
+motif-RMSD gating.
 
-| backend | job id | result | reason |
-| --- | ---: | --- | --- |
-| RF3 first attempt | 123381 | FAILED | invalid Hydra override copied from RFD3-style config |
-| RF3 retry | 123383 | FAILED | missing checkpoint `weights/foundry/rf3_foundry_01_24_latest_remapped.ckpt` |
-| Boltz | 123382 | FAILED | `boltz: command not found` |
+Primary result files:
 
-Important: RF3 and Boltz input generation succeeded. Prediction did not produce
-structures because the optional backend runtimes are incomplete.
-
-Summary file:
-
-```text
-examples/epitope_scaffold/cross_model_prediction_top3_5tpn_20260628/reports/consensus_summary.csv
-```
-
-Current interpretation:
-
-- AF3 primary predictions are available and pass filters for all top 3 designs.
-- RF3 native JSON inputs are ready, but RF3 requires the missing Foundry RF3
-  checkpoint before prediction can run.
-- Boltz native YAML inputs are ready, but a Boltz runtime environment still
-  needs to be installed before prediction can run.
+- `reports/consensus_summary.csv`
+- `reports/consensus_summary.json`
+- `reports/run_report.json`
+- `reports/rf3_filter_summary.csv`
+- `reports/boltz_filter_summary.csv`
+- `predictions_flat/rf3/*.pdb`
+- `predictions_flat/rf3/*.cif`
 
 ## Next Steps
 
-1. Install/configure Foundry RF3 checkpoint:
-
-```bash
-cd ~/protein_design
-foundry install rf3 --checkpoint-dir ~/protein_design/weights/foundry
-```
-
-or place/symlink:
-
-```text
-~/protein_design/weights/foundry/rf3_foundry_01_24_latest_remapped.ckpt
-```
-
-2. Install Boltz in an isolated environment:
-
-```bash
-cd ~/protein_design
-# create envs/boltz without modifying base conda
-```
-
-3. Rerun only optional cross-validation:
-
-```bash
-cd ~/protein_design
-RUN=examples/epitope_scaffold/cross_model_prediction_top3_5tpn_20260628
-sbatch --chdir "$RUN" \
-  --export=ALL,PROTEIN_DESIGN_HOME=$PWD,CANONICAL_MANIFEST=$PWD/$RUN/canonical/canonical_manifest.tsv,DESIGN_ID=cross_model_top3 \
-  scripts/slurm_templates/run_rf3_predict.sbatch
-
-sbatch --chdir "$RUN" \
-  --export=ALL,PROTEIN_DESIGN_HOME=$PWD,CANONICAL_MANIFEST=$PWD/$RUN/canonical/canonical_manifest.tsv,DESIGN_ID=cross_model_top3 \
-  scripts/slurm_templates/run_boltz_predict.sbatch
-```
-
-Then run `filter_designs.py` on each predictor's flat outputs and regenerate
-`reports/consensus_summary.csv` with `compare_prediction_backends.py`.
+1. Populate Boltz cache offline:
+   `/public/home/yinyifan/protein_design/weights/boltz/mols.tar`,
+   extracted `mols/`, `boltz2_conf.ckpt`, and any required affinity checkpoint
+   if affinity mode is used.
+2. Rerun only `run_boltz_predict.sbatch` and the final merge after cache is in
+   place.
+3. Add an RF3 motif mapping adapter before treating RF3 motif RMSD as a hard
+   design gate.

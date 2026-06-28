@@ -1,0 +1,13 @@
+[
+  {
+    "design_id": "rf3_smoke_5vht",
+    "flat_cif": "/public/home/yinyifan/protein_design/examples/epitope_scaffold/rf3_smoke_5vht_20260628/predictions_flat/rf3/rf3_smoke_5vht.cif",
+    "flat_json": "/public/home/yinyifan/protein_design/examples/epitope_scaffold/rf3_smoke_5vht_20260628/predictions_flat/rf3/rf3_smoke_5vht.json",
+    "flat_pdb": "/public/home/yinyifan/protein_design/examples/epitope_scaffold/rf3_smoke_5vht_20260628/predictions_flat/rf3/rf3_smoke_5vht.pdb",
+    "json_action": "copied_json",
+    "predictor": "rf3",
+    "source_json": "/public/home/yinyifan/protein_design/examples/epitope_scaffold/rf3_smoke_5vht_20260628/rf3_predictions/5vht_from_json/5vht_from_json_confidences.json",
+    "source_structure": "/public/home/yinyifan/protein_design/examples/epitope_scaffold/rf3_smoke_5vht_20260628/rf3_predictions/5vht_from_json/5vht_from_json_model.cif",
+    "structure_action": "converted_cif_to_pdb"
+  }
+]

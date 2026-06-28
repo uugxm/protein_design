@@ -285,10 +285,11 @@ examples/epitope_scaffold/cross_model_prediction_top3_5tpn_20260628/
 ```
 
 AF3 primary predictions passed for `design_9`, `design_1`, and `design_4`.
-RF3/Boltz native inputs were generated successfully. RF3 prediction is blocked
-until `weights/foundry/rf3_foundry_01_24_latest_remapped.ckpt` exists; Boltz is
-blocked until an isolated Boltz runtime provides the `boltz` command. Details
-are in `docs/cross_model_prediction_report.md`.
+Foundry RF3 is installed and produced structures for all top-3 candidates.
+Boltz is installed, but compute-node prediction is blocked until its model/CCD
+cache is populated under `weights/boltz`; the current failure is outbound
+network unavailability on RTX3090 compute nodes, not an input-format issue.
+Details are in `docs/cross_model_prediction_report.md`.
 
 ## Binder Design
 

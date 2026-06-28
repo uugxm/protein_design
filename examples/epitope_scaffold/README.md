@@ -106,8 +106,11 @@ ProteinMPNN FASTA records are converted automatically into AF3 query-only JSON
 under `array_work/<design_id>/prediction_inputs/af3/`. AF3 output is collected
 into flat files under `array_work/<design_id>/predictions_flat/`.
 
-Boltz input preparation is also wired through `PREDICTOR=boltz`, but the Boltz
-runtime is intentionally not installed in this step.
+Boltz input preparation is wired through `PREDICTOR=boltz`; when no MSA is
+available, the adapter writes `msa: empty` for Boltz single-sequence mode.
+Current TYL status: the Boltz environment exists, but GPU jobs cannot download
+the Boltz cache because compute nodes have no outbound network. Populate
+`~/protein_design/weights/boltz` offline before rerunning Boltz prediction.
 
 ## 4. Motif RMSD / confidence / clash filtering
 

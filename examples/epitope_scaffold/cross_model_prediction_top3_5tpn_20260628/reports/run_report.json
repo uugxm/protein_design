@@ -1,21 +1,48 @@
 {
-  "af3_source": "examples/epitope_scaffold/backend_comparison_5tpn_foundry_20260628_213554/rfdiffusion_v1",
   "af3_status": "existing_primary_predictions_reused",
-  "boltz_jobs": [
-    "123382"
-  ],
-  "boltz_required_command": "boltz",
-  "boltz_status": "failed_command_not_found",
-  "rf3_jobs": [
-    "123381",
-    "123383"
-  ],
-  "rf3_required_checkpoint": "/public/home/yinyifan/protein_design/weights/foundry/rf3_foundry_01_24_latest_remapped.ckpt",
-  "rf3_status": "failed_missing_checkpoint_after_retry",
-  "run_dir": "examples/epitope_scaffold/cross_model_prediction_top3_5tpn_20260628",
-  "top_designs": [
-    "design_9",
-    "design_1",
-    "design_4"
-  ]
+  "boltz_failure_reason": "urllib.error.URLError: <urlopen error [Errno 101] Network is unreachable> while downloading Boltz CCD/model cache on RTX3090 compute node",
+  "boltz_status": "failed_network_unreachable_during_cache_download",
+  "job_ids_file": "/public/home/yinyifan/protein_design/examples/epitope_scaffold/cross_model_prediction_top3_5tpn_20260628/job_ids.env",
+  "rf3_status": "completed",
+  "run_dir": "/public/home/yinyifan/protein_design/examples/epitope_scaffold/cross_model_prediction_top3_5tpn_20260628",
+  "summary": {
+    "af3_only_positive_designs": [
+      "design_1",
+      "design_4",
+      "design_9"
+    ],
+    "all_three_motif_rmsd_pass_count": 0,
+    "all_three_motif_rmsd_pass_designs": [],
+    "boltz_success_count": 0,
+    "high_confidence_consensus_designs": [],
+    "model_conflict_designs": [
+      "design_1",
+      "design_4",
+      "design_9"
+    ],
+    "predictors": {
+      "af3": {
+        "failed": 0,
+        "missing": 0,
+        "pass": 3,
+        "success": 3,
+        "total_designs": 3
+      },
+      "boltz": {
+        "failed": 3,
+        "missing": 0,
+        "pass": 0,
+        "success": 0,
+        "total_designs": 3
+      },
+      "rf3": {
+        "failed": 0,
+        "missing": 0,
+        "pass": 0,
+        "success": 3,
+        "total_designs": 3
+      }
+    },
+    "rf3_success_count": 3
+  }
 }
