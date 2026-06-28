@@ -1,0 +1,32 @@
+{
+  "backbone_pdb": "/public/home/yinyifan/protein_design/examples/epitope_scaffold/backend_comparison_5tpn_foundry_20260628_213554/rfdiffusion_v1/rfdiffusion_outputs/design_4.pdb",
+  "canonical_cif": "/public/home/yinyifan/protein_design/examples/epitope_scaffold/cross_model_prediction_top3_5tpn_20260628/canonical/design_4/cif/design_4_T_0.1_sample_2_score_1.0856_global_score_1.4332_seq_recovery_0.0488.cif",
+  "canonical_fasta": "/public/home/yinyifan/protein_design/examples/epitope_scaffold/cross_model_prediction_top3_5tpn_20260628/canonical/design_4/fasta/design_4_T_0.1_sample_2_score_1.0856_global_score_1.4332_seq_recovery_0.0488.fasta",
+  "chains": [
+    {
+      "chain_id": "A",
+      "molecule_type": "protein",
+      "mpnn_score": "1.0856",
+      "role": "designed_scaffold",
+      "sequence": "AAKVITVKGKSLDEVIEKLKKKYNLTEEEVNKIKSALLSTNKAVVSLSSTGELINVEIVP",
+      "sequence_length": "60",
+      "source_fasta_header": "T=0.1, sample=2, score=1.0856, global_score=1.4332, seq_recovery=0.0488"
+    }
+  ],
+  "design_id": "design_4",
+  "job_name": "design_4_T_0.1_sample_2_score_1.0856_global_score_1.4332_seq_recovery_0.0488",
+  "motif_rows": [
+    {
+      "chain": "A",
+      "description": "RSV-F site 5 motif from RFdiffusion example 5TPN",
+      "end": "181",
+      "start": "163"
+    }
+  ],
+  "motif_tsv": "/public/home/yinyifan/protein_design/examples/epitope_scaffold/motif_residues.tsv",
+  "mpnn_score": 1.0856,
+  "reference_pdb": "/public/home/yinyifan/protein_design/examples/epitope_scaffold/input/5TPN.pdb",
+  "schema": "protein_design.canonical_prediction_input.v1",
+  "source_fasta": "/public/home/yinyifan/protein_design/examples/epitope_scaffold/backend_comparison_5tpn_foundry_20260628_213554/rfdiffusion_v1/array_work/design_4/mpnn_outputs/seqs/design_4.fa",
+  "source_fasta_header": "T=0.1, sample=2, score=1.0856, global_score=1.4332, seq_recovery=0.0488"
+}

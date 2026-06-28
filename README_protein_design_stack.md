@@ -313,6 +313,18 @@ It clusters passing candidates by global fold, motif-local geometry, and
 sequence diversity, then writes `reports/fold_clustering/diverse_shortlist.csv`.
 Details are in `docs/fold_clustering_report.md`.
 
+Final expression-ready 5TPN candidate packages are under:
+
+```text
+examples/epitope_scaffold/final_candidates_5tpn_20260629/
+```
+
+The final shortlist is
+`examples/epitope_scaffold/final_candidates_5tpn_20260629/reports/final_expression_shortlist.csv`.
+RF3 backup validation for AF3-only diverse candidates is under
+`examples/epitope_scaffold/rf3_backup_validation_5tpn_20260629/`.
+Details are in `docs/final_candidate_selection_report.md`.
+
 ## Binder Design
 
 Goal: design a new protein binder against a target surface/hotspot. This must stay separate from epitope scaffolding.
