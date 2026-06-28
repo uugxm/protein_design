@@ -47,15 +47,24 @@ Goal: stabilize and display a known motif/epitope on a new scaffold. This is not
 Primary path:
 
 1. RFdiffusion motif scaffolding or partial diffusion.
-2. ProteinMPNN sequence design with motif positions fixed.
-3. AF2/AF3/Boltz prediction and filtering.
-4. Motif RMSD, pLDDT, pTM/ipTM, PAE, clash and interface-contact checks.
+2. ProteinMPNN sequence design with motif positions fixed from RFdiffusion `.trb` mappings.
+3. AF2/AF3/Boltz prediction.
+4. Motif RMSD, pLDDT, pTM/ipTM, PAE and clash filtering to `filter_summary.csv`.
 
 Minimal launch:
 
 ```bash
 cd ~/protein_design/examples/epitope_scaffold
 sbatch ../../scripts/slurm_templates/run_rfdiffusion_epitope.sbatch
+```
+
+Then generate a task list and run fixed-position ProteinMPNN as an array:
+
+```bash
+find "$PWD/rfdiffusion_outputs" -maxdepth 1 -name '*.pdb' | sort > backbone_list.txt
+TASK_LIST=$PWD/backbone_list.txt STAGE=mpnn \
+  sbatch --array=1-$(wc -l < backbone_list.txt) \
+  ../../scripts/slurm_templates/run_epitope_scaffold_array.sbatch
 ```
 
 Key environment detail: RFdiffusion must use its env library path:
@@ -77,6 +86,9 @@ PDB_DIR=$PWD/backbones OUT_DIR=$PWD/mpnn_outputs \
 ```
 
 For fixed motif residues, generate ProteinMPNN fixed-position JSONL with the helper scripts in `repos/ProteinMPNN/helper_scripts/`.
+This stack adds `scripts/make_fixed_positions_jsonl.py`, which reads the motif
+TSV plus RFdiffusion `.trb` files and writes ProteinMPNN-compatible fixed
+positions automatically.
 
 ## Structure Prediction / Filtering
 
@@ -99,10 +111,15 @@ Unified filtering script:
 ```bash
 python ~/protein_design/scripts/filter_designs.py \
   --input_dir predictions \
+  --pdb_dir predictions \
+  --reference_pdb examples/epitope_scaffold/input/5TPN.pdb \
+  --motif_tsv examples/epitope_scaffold/motif_residues.tsv \
+  --trb_dir examples/epitope_scaffold/rfdiffusion_outputs \
   --output_csv filter_summary.csv
 ```
 
-The current script extracts common JSON confidence fields and reserves columns for interface PAE, motif RMSD, clashes, and contacts.
+The current script extracts common JSON confidence fields and computes motif RMSD
+and clash count from predicted PDB files.
 
 ## Binder Design
 
