@@ -330,6 +330,52 @@ Artifacts retained under:
 examples/epitope_scaffold/batch_stability_5tpn_20260628/
 ```
 
+Artifact paths in the committed example bundle:
+
+```text
+examples/epitope_scaffold/batch_stability_5tpn_20260628/run_params.json
+examples/epitope_scaffold/batch_stability_5tpn_20260628/job_ids.env
+examples/epitope_scaffold/batch_stability_5tpn_20260628/logs/
+examples/epitope_scaffold/batch_stability_5tpn_20260628/reports/job_accounting.tsv
+examples/epitope_scaffold/batch_stability_5tpn_20260628/reports/all_filter_summary.csv
+examples/epitope_scaffold/batch_stability_5tpn_20260628/reports/top_designs.csv
+examples/epitope_scaffold/batch_stability_5tpn_20260628/reports/run_report.json
+examples/epitope_scaffold/batch_stability_5tpn_20260628/array_work/design_*/filter_summary.csv
+```
+
+Merged reports are stored in the `reports/` subdirectory rather than duplicated
+at the run root. This keeps summary artifacts separate from per-design
+`array_work/` directories and raw RFdiffusion outputs.
+
+Formal batch template added:
+
+```bash
+cd ~/protein_design
+NUM_DESIGNS=20 NUM_SEQ=4 PREDICT_MAX_RECORDS=2 \
+  bash scripts/slurm_templates/submit_epitope_scaffold_batch.sh
+```
+
+Supported production range: RFdiffusion `NUM_DESIGNS=10-50`, ProteinMPNN
+`NUM_SEQ=4-8`, AF3 `PREDICT_MAX_RECORDS=2` top scored sequences per backbone.
+The template submits a resource-specific dependency DAG:
+
+```text
+RFdiffusion GPU job -> ProteinMPNN GPU array -> AF3 GPU array -> CPU filter array -> CPU merge/ranking job
+```
+
+AF3 failure retry operation:
+
+```bash
+cd ~/protein_design
+RUN_ROOT=/path/to/batch_run PRED_JOB=<first-pass-af3-array-job-id> \
+  bash scripts/retry_failed_af3_predictions.sh
+```
+
+This helper uses `sacct` to find failed AF3 array tasks, resubmits only those
+indices, reruns CPU filtering for retried designs, and refreshes
+`reports/all_filter_summary.csv`, `reports/top_designs.csv`, and
+`reports/run_report.json`.
+
 ## Recommendations
 
 1. Use original RFdiffusion as the stable backbone/motif generator and keep `LD_LIBRARY_PATH` wrapper in all launch scripts.

@@ -77,3 +77,36 @@ Canonical summary files:
 - `reports/run_report.json`
 - `reports/batch_stability_summary.json`
 - `reports/job_accounting.tsv`
+
+Submitted evidence checklist:
+
+- `run_params.json`: batch parameters and ranking thresholds.
+- `job_ids.env`: original jobs plus cancelled/superseded jobs and AF3 retry IDs.
+- `reports/job_accounting.tsv`: Slurm accounting summary for all recorded jobs.
+- `logs/`: stdout/stderr files for RFdiffusion, MPNN, AF3 first pass, AF3 retry, CPU filter, and CPU merge.
+- `array_work/design_*/filter_summary.csv`: per-design filtering output for all 10 designs.
+- `reports/all_filter_summary.csv`: merged filter table.
+- `reports/top_designs.csv`: ranked design table.
+- `reports/run_report.json`: merge/report completeness summary.
+
+The requested merged outputs are intentionally kept under `reports/` rather
+than duplicated at the example root, so the run directory has one canonical
+summary location and the per-design directories remain under `array_work/`.
+
+## AF3 Failure Retry Pattern
+
+For this test, AF3 task `123137_6` failed because JAX inside the AF3 container
+did not see a CUDA device on `gpu15`. The failed array index was retried as
+`123160_6`, which completed on `gpu14`. Production runs should use the same
+pattern:
+
+```bash
+cd ~/protein_design
+RUN_ROOT=/path/to/batch_run PRED_JOB=<first-pass-af3-array-job-id> \
+  bash scripts/retry_failed_af3_predictions.sh
+```
+
+That helper reads failed AF3 array indices from `sacct`, resubmits only those
+prediction tasks, reruns CPU filtering for the retried indices, and submits a
+fresh CPU merge job so `reports/all_filter_summary.csv`,
+`reports/top_designs.csv`, and `reports/run_report.json` reflect the retry.

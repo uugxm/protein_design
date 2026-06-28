@@ -73,6 +73,49 @@ Key environment detail: RFdiffusion must use its env library path:
 export LD_LIBRARY_PATH=~/protein_design/envs/rfdiffusion-se3nv/lib:$LD_LIBRARY_PATH
 ```
 
+Batch stability / production launch:
+
+```bash
+cd ~/protein_design
+NUM_DESIGNS=20 NUM_SEQ=4 PREDICT_MAX_RECORDS=2 \
+  bash scripts/slurm_templates/submit_epitope_scaffold_batch.sh
+```
+
+The formal batch template supports `NUM_DESIGNS=10-50`, `NUM_SEQ=4-8`, and AF3
+top-2 predictions per backbone by default. It writes `run_params.json`,
+`job_ids.env`, `backbone_list.txt`, logs, per-design `filter_summary.csv`
+files, and merged ranking outputs under one run directory:
+
+```text
+reports/all_filter_summary.csv
+reports/top_designs.csv
+reports/run_report.json
+```
+
+The Slurm shape is a dependency DAG, not one long monolithic allocation:
+
+```text
+RFdiffusion GPU job
+  -> ProteinMPNN GPU array
+  -> AF3 GPU array
+  -> CPU filter array
+  -> CPU merge/ranking job
+```
+
+AF3 retry mechanism:
+
+```bash
+cd ~/protein_design
+RUN_ROOT=/path/to/batch_run PRED_JOB=<first-pass-af3-array-job-id> \
+  bash scripts/retry_failed_af3_predictions.sh
+```
+
+The retry helper uses `sacct` to find failed AF3 array indices, resubmits only
+those prediction tasks, reruns CPU filtering for the retried indices, and
+submits a fresh CPU merge job. This is intended for transient JAX/CUDA visibility
+or node-local AF3 failures; persistent input errors should be fixed before
+retrying.
+
 ## ProteinMPNN Sequence Design
 
 ProteinMPNN is reused from the existing legacy repo and runs with the cluster PyTorch module:
