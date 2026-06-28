@@ -8,10 +8,10 @@
   "design_startnum": 0,
   "v1_repo": "/public/home/yinyifan/protein_design/repos/RFdiffusion",
   "v1_contigs": "[10-40/A163-181/10-40]",
-  "rf3_repo": "/public/home/yinyifan/protein_design/repos/rf_diffusion_all_atom",
-  "rf3_sif": "/public/home/yinyifan/protein_design/containers/rf_se3_diffusion.sif",
-  "rf3_weights": "/public/home/yinyifan/protein_design/weights/RFDiffusionAA_paper_weights.pt",
-  "rf3_contigs": "["10-40,A163-181,10-40"]",
-  "rf3_T": "100",
+  "legacy_aa_repo": "/public/home/yinyifan/protein_design/repos/rf_diffusion_all_atom",
+  "legacy_aa_sif": "/public/home/yinyifan/protein_design/containers/rf_se3_diffusion.sif",
+  "legacy_aa_weights": "/public/home/yinyifan/protein_design/weights/RFDiffusionAA_paper_weights.pt",
+  "legacy_aa_contigs": "[\"10-40,A163-181,10-40\"]",
+  "legacy_aa_T": "100",
   "backbone_list": "/public/home/yinyifan/protein_design/examples/epitope_scaffold/backend_comparison_20260628_195056/rfdiffusion_v1/backbone_list.txt"
 }

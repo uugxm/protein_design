@@ -120,9 +120,12 @@ retrying. On TYL Slurm the helper parses `sacct --format=JobID,State`, because
 ## Backbone Backend Comparison
 
 RFdiffusion v1 is the stable baseline backend for epitope scaffold work. The
-new all-atom backend is experimental and is named `rfdiffusion_all_atom` in this
-stack. `BACKBONE_BACKEND=rf3` is accepted only as a short alias for that
-experimental backend.
+older Baker `rf_diffusion_all_atom` integration is retained as
+`rfdiffusion_all_atom_legacy`; it is not Foundry RFD3 and should not be called
+RF3/RFD3. The new Foundry generation backend is `foundry_rfd3`; it passed smoke
+testing and a small 5TPN comparison, but remains experimental pending broader
+benchmarking. Foundry `foundry_rf3` is a folding / prediction backend, not a
+backbone generator.
 
 Unified backbone launcher:
 
@@ -132,12 +135,16 @@ BACKBONE_BACKEND=rfdiffusion_v1 NUM_DESIGNS=1 \
   RUN_ROOT=$PWD/v1_smoke \
   sbatch ../../scripts/slurm_templates/run_backbone_generation.sbatch
 
-BACKBONE_BACKEND=rf3 NUM_DESIGNS=1 \
-  RUN_ROOT=$PWD/rfdiffusion_all_atom_smoke \
+BACKBONE_BACKEND=rfdiffusion_all_atom_legacy NUM_DESIGNS=1 \
+  RUN_ROOT=$PWD/rfdiffusion_aa_legacy_smoke \
+  sbatch ../../scripts/slurm_templates/run_backbone_generation.sbatch
+
+BACKBONE_BACKEND=foundry_rfd3 NUM_DESIGNS=1 \
+  RUN_ROOT=$PWD/foundry_rfd3_smoke \
   sbatch ../../scripts/slurm_templates/run_backbone_generation.sbatch
 ```
 
-Both backends normalize outputs to:
+All backends normalize outputs to:
 
 ```text
 rfdiffusion_outputs/design_0.pdb
@@ -151,13 +158,15 @@ Formal backend comparison:
 
 ```bash
 cd ~/protein_design
-NUM_DESIGNS=10 NUM_SEQ=4 PREDICT_MAX_RECORDS=2 \
+BACKENDS="rfdiffusion_v1 rfdiffusion_all_atom_legacy foundry_rfd3" \
+NUM_DESIGNS=10 NUM_SEQ=4 PREDICT_MAX_RECORDS=1 \
+FOUNDRY_RFD3_TIMESTEPS=50 FOUNDRY_RFD3_BATCH_SIZE=2 \
   bash scripts/slurm_templates/submit_backbone_backend_comparison.sh
 ```
 
-The comparison runs RFdiffusion v1 and `rfdiffusion_all_atom` through the same
-ProteinMPNN fixed-position design, AF3 prediction, filter, and merge/ranking
-pipeline. It writes:
+The comparison runs all selected backends through the same ProteinMPNN
+fixed-position design, AF3 prediction, filter, and merge/ranking pipeline. It
+writes:
 
 ```text
 reports/backend_comparison.csv
@@ -165,17 +174,18 @@ reports/backend_comparison.md
 ```
 
 The 5TPN comparison run saved in
-`examples/epitope_scaffold/backend_comparison_5tpn_20260628/` completed with
-10/10 backbones, 10/10 ProteinMPNN tasks, and 10/10 AF3 predictions for both
-backends after targeted AF3 retries. RFdiffusion v1 passed 9/10 filters; the
-experimental all-atom backend passed 0/10 in this ligand-free motif test because
-motif RMSD stayed above threshold. Keep RFdiffusion v1 as the stable baseline
-for production epitope scaffolding.
+`examples/epitope_scaffold/backend_comparison_5tpn_foundry_20260628_213554/`
+completed with 10/10 backbones, 10/10 ProteinMPNN tasks, and 10/10 AF3
+predictions for all three backends after targeted AF3 retries. RFdiffusion v1
+passed 9/10 filters; `rfdiffusion_all_atom_legacy` passed 0/10 in this
+ligand-free motif test because motif RMSD stayed above threshold; `foundry_rfd3`
+passed 4/10. Keep RFdiffusion v1 as the stable baseline for production epitope
+scaffolding, and use Foundry RFD3 for side-by-side experimental comparisons.
 
 The RFDiffusionAA smoke-test artifact bundle is saved in
-`examples/epitope_scaffold/rfdiffusion_all_atom_smoke_5tpn_20260628/`. See
-`docs/rf3_backend_report.md` for upstream source, license, commit hashes,
-runtime paths, known fallback behavior, and comparison metrics.
+`examples/epitope_scaffold/rfdiffusion_aa_legacy_smoke_5tpn_20260628/`. See
+`docs/rfdiffusion_aa_legacy_backend_report.md` for legacy all-atom provenance and
+`docs/foundry_rfd3_backend_report.md` for the true Foundry RFD3 integration.
 
 ## ProteinMPNN Sequence Design
 
@@ -260,7 +270,7 @@ Use separate envs/containers:
 | Module | Suggested isolation |
 | --- | --- |
 | LigandMPNN | own conda/env or Apptainer image |
-| RFdiffusion all-atom / RFdiffusion3-style interfaces | separate from original RFdiffusion |
+| RFDiffusionAA legacy / Foundry RFD3 | separate containers or envs; do not mix with RFdiffusion v1 |
 | ColabDesign | separate JAX/AF2 env/container |
 | BindCraft | container or project env pinned to its release |
 | RFantibody | antibody-specific env/container |

@@ -1,0 +1,12 @@
+{
+  "expected_backbones": 10,
+  "failure_rate_rows": 0.6,
+  "failure_rows": 6,
+  "missing_filter_summaries": 0,
+  "output_csv": "/public/home/yinyifan/protein_design/examples/epitope_scaffold/backend_comparison_5tpn_foundry_20260628_213554/foundry_rfd3/reports/all_filter_summary.csv",
+  "pass_rows": 4,
+  "rows": 10,
+  "summary_files": 10,
+  "top_csv": "/public/home/yinyifan/protein_design/examples/epitope_scaffold/backend_comparison_5tpn_foundry_20260628_213554/foundry_rfd3/reports/top_designs.csv",
+  "work_root": "/public/home/yinyifan/protein_design/examples/epitope_scaffold/backend_comparison_5tpn_foundry_20260628_213554/foundry_rfd3/array_work"
+}

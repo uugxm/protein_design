@@ -1,0 +1,75 @@
+{
+    "diffused_index_map": {
+        "A1": "A1",
+        "A2": "A2",
+        "A3": "A3",
+        "A4": "A4",
+        "A5": "A5",
+        "A6": "A6",
+        "A7": "A7",
+        "A8": "A8",
+        "A9": "A9",
+        "A10": "A10",
+        "B15": "B1",
+        "B16": "B2",
+        "B17": "B3",
+        "B18": "B4",
+        "B19": "B5",
+        "B20": "B6",
+        "B21": "B7",
+        "B22": "B8",
+        "B23": "B9",
+        "B24": "B10"
+    },
+    "metrics": {
+        "max_ca_deviation": 5.7540483474731445,
+        "n_chainbreaks": 66,
+        "n_clashing.interresidue_clashes_w_sidechain": 69,
+        "n_clashing.interresidue_clashes_w_backbone": 17,
+        "non_loop_fraction": 0.0,
+        "loop_fraction": 1.0,
+        "helix_fraction": 0.0,
+        "sheet_fraction": 0.0,
+        "num_ss_elements": 0,
+        "radius_of_gyration": 14.531623079834105,
+        "alanine_content": 0.0,
+        "glycine_content": 0.047244094488188976,
+        "num_residues": 127,
+        "diffused_com": [
+            3.197819232940674,
+            0.15656505525112152,
+            0.5174173712730408
+        ],
+        "fixed_com": [
+            -9.169221878051758,
+            1.469300389289856,
+            2.0301742553710938
+        ]
+    },
+    "specification": {
+        "input": "/public/home/yinyifan/protein_design/repos/foundry/models/rfd3/docs/input_pdbs/1bna.pdb",
+        "contig": "A1-10,/0,B15-24,/0,120-130",
+        "length": "140-150",
+        "extra": {
+            "example": "dsDNA_basic",
+            "task_name": "demo_dsDNA_basic",
+            "sampled_contig": "A1,A2,A3,A4,A5,A6,A7,A8,A9,A10,/0,B15,B16,B17,B18,B19,B20,B21,B22,B23,B24,/0,127P",
+            "num_tokens_in": 147,
+            "num_residues_in": 147,
+            "num_chains": 3,
+            "num_atoms": 1042,
+            "num_residues": 130,
+            "example_id": "demo_dsDNA_basic_0"
+        },
+        "select_fixed_atoms": true,
+        "select_unfixed_sequence": false,
+        "ori_token": [
+            24.0,
+            20.0,
+            10.0
+        ],
+        "is_non_loopy": true
+    },
+    "ckpt_path": "/public/home/yinyifan/protein_design/weights/foundry/rfd3_latest.ckpt",
+    "seed": null
+}

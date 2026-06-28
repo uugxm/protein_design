@@ -1,0 +1,2 @@
+job_name	source_name	mpnn_score	chain_id	sequence_length	json_path
+design_9_T_0.1_sample_3_score_0.8908_global_score_1.3650_seq_recovery_0.3953	T=0.1, sample=3, score=0.8908, global_score=1.3650, seq_recovery=0.3953	0.8908	A	62	/public/home/yinyifan/protein_design/examples/epitope_scaffold/backend_comparison_5tpn_foundry_20260628_213554/foundry_rfd3/array_work/design_9/prediction_inputs/af3/design_9_T_0.1_sample_3_score_0.8908_global_score_1.3650_seq_recovery_0.3953.json

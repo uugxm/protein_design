@@ -1,8 +1,8 @@
 # Protein Design Environment Report
 
-Checked on: 2026-06-28 16:35-16:45 Asia/Shanghai  
-Cluster: TYL SLURM cluster via `ssh tyl-cluster`  
-Deployment root: `/public/home/yinyifan/protein_design`  
+Checked on: 2026-06-28 16:35-16:45 Asia/Shanghai
+Cluster: TYL SLURM cluster via `ssh tyl-cluster`
+Deployment root: `/public/home/yinyifan/protein_design`
 Legacy reusable root: `/public/home/yinyifan/protein-design`
 
 ## Summary
@@ -20,6 +20,7 @@ Fully smoke-tested today:
 | RFdiffusion GPU torch | PASS | Existing env `torch 1.9.1+cu111` reported `cuda_available True`; CUDA tensor sum succeeded. |
 | ProteinMPNN | PASS | System `module load pytorch/2.3.1 cuda/12.4`; two example PDBs generated one sequence each. |
 | AlphaFold3 interface | PASS interface only | `/public/apps/alphafold3/alphafold3/alphafold3.sif` help works; no database/model overwrite attempted. |
+| Foundry RFD3 | PASS experimental | Isolated micromamba env with `rc-foundry 0.2.0`, Python 3.12.13, torch `2.6.0+cu124`; official demo and 5TPN smoke completed. |
 | Boltz repo | CLONED only | `~/protein_design/repos/boltz` at commit `b1ebfc46ecf57f5414e0d1a6f9027bbb122c53bc`; environment not installed yet. |
 
 Source retrieval update after using the GitHub mirror fallback script:
@@ -29,7 +30,8 @@ Source retrieval update after using the GitHub mirror fallback script:
 | LigandMPNN | SOURCE CLONED | Repo present at commit `26ec57ac976ade5379920dbd43c7f97a91cf82de`; install in isolated env/container before use. |
 | BindCraft | SOURCE CLONED | Repo present at commit `b971db42ba6e091afab63ccb30ae02215150a990`; install in isolated env/container before use. |
 | RFantibody | SOURCE CLONED | Repo present at commit `8fe311415754e0276d1a39c87c57e69c88927a2d`; install in isolated env/container before use. |
-| RFdiffusion all-atom | SOURCE CLONED | Repo present at commit `f913a19e16f30858ce7a724fe028475b1871319c`; keep separate from stable original RFdiffusion. |
+| RFDiffusionAA legacy | EXPERIMENTAL LEGACY | Repo present at commit `f913a19e16f30858ce7a724fe028475b1871319c`; use backend name `rfdiffusion_all_atom_legacy`, not RF3/RFD3. |
+| Foundry RFD3 | INSTALLED EXPERIMENTAL | RosettaCommons/foundry source staged at commit `62eba661f809120f0c5b3776837c61463e554c4c`; active runtime is isolated micromamba env. |
 | ColabDesign local | SOURCE CLONED | Repo present at commit `e31a56fe1d9b4de25c8697f3a28b75892941cc72`; prefer separate JAX/AF2 env/container. |
 | Rosetta/PyRosetta | NOT CONFIGURED | License-dependent; no existing path found in this pass. |
 | Foldseek/MMseqs2/US-align/DSSP | NOT ON PATH in login check | `check_installation.sh` reports these as warnings; install via conda/container or load site modules if added later. |
@@ -91,7 +93,10 @@ Guardrail: do not run compute on `admin1`. Use `Interactive` for short probes an
 | LigandMPNN repo | `/public/home/yinyifan/protein_design/repos/LigandMPNN` | Source cloned; environment not installed. |
 | BindCraft repo | `/public/home/yinyifan/protein_design/repos/BindCraft` | Source cloned; environment not installed. |
 | RFantibody repo | `/public/home/yinyifan/protein_design/repos/RFantibody` | Source cloned; environment not installed. |
-| RFdiffusion all-atom repo | `/public/home/yinyifan/protein_design/repos/rf_diffusion_all_atom` | Source cloned; environment not installed. |
+| RFDiffusionAA legacy repo | `/public/home/yinyifan/protein_design/repos/rf_diffusion_all_atom` | Legacy Baker all-atom backend; use stack name `rfdiffusion_all_atom_legacy`, not RF3/RFD3. |
+| Foundry RFD3 repo | `/public/home/yinyifan/protein_design/repos/foundry` | Source staged from RosettaCommons/foundry commit `62eba661f809120f0c5b3776837c61463e554c4c`. |
+| Foundry RFD3 env | `/public/home/yinyifan/protein_design/envs/foundry-rfd3` | Isolated micromamba env; `rc-foundry 0.2.0`, Python 3.12.13, torch `2.6.0+cu124`. |
+| Foundry RFD3 weights | `/public/home/yinyifan/protein_design/weights/foundry/rfd3_latest.ckpt` | Installed by `foundry install rfd3`; no duplicate copies. |
 | ColabDesign repo | `/public/home/yinyifan/protein_design/repos/ColabDesign` | Source cloned; environment not installed. |
 
 ## Smoke Test Commands And Output Summary
@@ -376,10 +381,36 @@ indices, reruns CPU filtering for retried designs, and refreshes
 `reports/all_filter_summary.csv`, `reports/top_designs.csv`, and
 `reports/run_report.json`.
 
+## Foundry RFD3 Backend Update
+
+Foundry was installed in an isolated user-space micromamba runtime without
+touching the stable RFdiffusion v1 or ProteinMPNN environments.
+
+```text
+Install job: 123260
+Torch CUDA repair job: 123262
+Official Foundry RFD3 demo smoke: 123263, completed
+5TPN Foundry RFD3 backbone smoke: 123264, completed
+5TPN downstream smoke: ProteinMPNN 123265, AF3 123266, filter 123267, merge 123268
+```
+
+Three-way 5TPN comparison:
+
+```text
+Run root: /public/home/yinyifan/protein_design/examples/epitope_scaffold/backend_comparison_5tpn_foundry_20260628_213554
+Backends: rfdiffusion_v1, rfdiffusion_all_atom_legacy, foundry_rfd3
+Final PASS rates: rfdiffusion_v1 9/10, rfdiffusion_all_atom_legacy 0/10, foundry_rfd3 4/10
+Reports: reports/backend_comparison.csv, reports/backend_comparison.md, reports/run_report.json
+```
+
+Details are in `docs/foundry_rfd3_backend_report.md`.
+
 ## Recommendations
 
 1. Use original RFdiffusion as the stable backbone/motif generator and keep `LD_LIBRARY_PATH` wrapper in all launch scripts.
 2. Use the system `pytorch/2.3.1` module for ProteinMPNN unless a dedicated conda env is later needed.
 3. Treat AlphaFold3 as a configured site interface only; verify database/model paths with the cluster owner before production runs.
-4. Install BindCraft, RFantibody, LigandMPNN, RFdiffusion all-atom, and ColabDesign from the cloned source trees only in separate envs/containers.
-5. Do not duplicate AF/RF databases or weights on `/public`, which is already 94% used.
+4. Treat Foundry RFD3 as an experimental backbone backend and compare it side-by-side with RFdiffusion v1 before production use.
+5. Keep `rfdiffusion_all_atom_legacy` as a legacy all-atom backend; do not call it RF3/RFD3.
+6. Install BindCraft, RFantibody, LigandMPNN, and ColabDesign from the cloned source trees only in separate envs/containers.
+7. Do not duplicate AF/RF databases or weights on `/public`, which is already 94% used.

@@ -151,12 +151,22 @@ Current status: RFantibody source is cloned under `~/protein_design/repos/RFanti
 
 ## Optional Modules To Install Later
 
+## Backbone Backend Status
+
+RFdiffusion v1 is the stable epitope scaffold baseline. The old
+`rf_diffusion_all_atom` integration is retained only as
+`rfdiffusion_all_atom_legacy`; it is not Foundry RF3/RFD3. Foundry RFD3 is
+available as experimental `BACKBONE_BACKEND=foundry_rfd3` through the unified
+backbone launcher. The 5TPN three-way comparison is saved under
+`examples/epitope_scaffold/backend_comparison_5tpn_foundry_20260628_213554/`;
+details are in `docs/foundry_rfd3_backend_report.md`.
+
 Use separate envs/containers:
 
 | Module | Suggested isolation |
 | --- | --- |
 | LigandMPNN | own conda/env or Apptainer image |
-| RFdiffusion all-atom / RFdiffusion3-style interfaces | separate from original RFdiffusion |
+| RFDiffusionAA legacy / Foundry RFD3 | separate from original RFdiffusion |
 | ColabDesign | separate JAX/AF2 env/container |
 | BindCraft | container or project env pinned to its release |
 | RFantibody | antibody-specific env/container |
