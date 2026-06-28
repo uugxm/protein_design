@@ -1,0 +1,11 @@
+
+repo commits
+alphafold3_system	a3cf058e92e492fcd8769d49842410f2a6b7eba0	https://github.com/google-deepmind/alphafold3.git
+BindCraft	b971db42ba6e091afab63ccb30ae02215150a990	https://github.com/martinpacesa/BindCraft.git
+boltz	b1ebfc46ecf57f5414e0d1a6f9027bbb122c53bc	https://github.com/jwohlwend/boltz
+ColabDesign	e31a56fe1d9b4de25c8697f3a28b75892941cc72	https://github.com/sokrypton/ColabDesign.git
+LigandMPNN	26ec57ac976ade5379920dbd43c7f97a91cf82de	https://github.com/dauparas/LigandMPNN.git
+ProteinMPNN	symlink	/public/home/yinyifan/protein-design/apps/ProteinMPNN
+RFantibody	8fe311415754e0276d1a39c87c57e69c88927a2d	https://github.com/RosettaCommons/RFantibody.git
+RFdiffusion	symlink	/public/home/yinyifan/protein-design/apps/RFdiffusion
+rf_diffusion_all_atom	f913a19e16f30858ce7a724fe028475b1871319c	https://github.com/baker-laboratory/rf_diffusion_all_atom.git

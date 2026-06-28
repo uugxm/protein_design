@@ -1,0 +1,30 @@
+protein_design_home	/public/home/yinyifan/protein_design
+legacy_home	/public/home/yinyifan/protein-design
+host	admin1
+date	2026-06-28T16:51:22+08:00
+PASS	slurm_sinfo	/opt/slurm/24.05.0/bin/sinfo
+PASS	slurm_sbatch	/opt/slurm/24.05.0/bin/sbatch
+PASS	apptainer	/usr/bin/apptainer
+PASS	singularity	/usr/bin/singularity
+PASS	git	/usr/bin/git
+PASS	curl	/usr/bin/curl
+PASS	wget	/usr/bin/wget
+PASS	python3	/usr/bin/python3
+PASS	modules	Modules Release 5.4.0 (2024-02-20)
+PASS	rfdiffusion_import	torch 1.9.1+cu111 cuda 11.1 available False
+PASS	rfdiffusion_repo	found
+PASS	proteinmpnn_repo	found
+PASS	proteinmpnn_runtime	torch 2.3.1 cuda_available False
+numpy 1.26.4
+WARN	LigandMPNN	repo not installed; see docs/failure_log.md and retry commands
+WARN	BindCraft	repo not installed; see docs/failure_log.md and retry commands
+WARN	RFantibody	repo not installed; see docs/failure_log.md and retry commands
+WARN	rf_diffusion_all_atom	repo not installed; see docs/failure_log.md and retry commands
+WARN	ColabDesign	repo not installed; see docs/failure_log.md and retry commands
+PASS	boltz	b1ebfc4
+PASS	alphafold3_container	found
+WARN	foldseek	not on PATH
+WARN	mmseqs2	not on PATH
+WARN	usalign_tmalign	not on PATH
+WARN	mkdssp	not on PATH
+done	check_installation

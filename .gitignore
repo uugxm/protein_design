@@ -1,0 +1,26 @@
+# Large or site-local artifacts must not be committed.
+containers/*.sif
+containers/*.simg
+containers/*.sqsh
+databases/*
+!databases/README.md
+weights/*
+!weights/README.md
+repos/*
+envs/*/
+logs/
+*.out
+*.err
+*.pt
+*.pth
+*.ckpt
+*.params
+*.npz
+*.pkl
+*.tar
+*.tar.gz
+*.tgz
+*.zip
+__pycache__/
+.DS_Store
+
