@@ -32,7 +32,7 @@ if ! command -v sacct >/dev/null 2>&1; then
 fi
 
 FAILED_TASKS="$(
-  sacct -n -P -j "$PRED_JOB" --format=JobIDRaw,State |
+  sacct -n -P -j "$PRED_JOB" --format=JobID,State |
     awk -F'|' -v job="$PRED_JOB" '
       $1 ~ "^" job "_" && $1 !~ /\./ && $2 !~ /^COMPLETED/ {
         split($1, parts, "_");

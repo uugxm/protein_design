@@ -10,6 +10,7 @@ import argparse
 import json
 import math
 import os
+import pickle
 from collections import OrderedDict
 
 try:
@@ -152,7 +153,11 @@ def load_rfdiffusion_trb_mapping(path):
     if not path or not os.path.exists(path):
         return {}
     require_numpy("RFdiffusion .trb mapping")
-    payload = np.load(path, allow_pickle=True)
+    try:
+        payload = np.load(path, allow_pickle=True)
+    except Exception:
+        with open(path, "rb") as handle:
+            payload = pickle.load(handle)
     if "con_ref_pdb_idx" not in payload or "con_hal_pdb_idx" not in payload:
         return {}
     ref = payload["con_ref_pdb_idx"]

@@ -1,0 +1,5 @@
+I0628 20:25:48.919209 22590964782208 xla_bridge.py:895] Unable to initialize backend 'rocm': module 'jaxlib.xla_extension' has no attribute 'GpuAllocatorConfig'
+I0628 20:25:48.933913 22590964782208 xla_bridge.py:895] Unable to initialize backend 'tpu': INTERNAL: Failed to open libtpu.so: libtpu.so: cannot open shared object file: No such file or directory
+I0628 20:25:59.226089 22590964782208 pipeline.py:164] processing design_4_T_0.1_sample_3_score_1.2235_global_score_1.4427_seq_recovery_0.0175, random_seed=1
+I0628 20:25:59.243009 22590964782208 pipeline.py:257] Calculating bucket size for input with 76 tokens.
+I0628 20:25:59.243227 22590964782208 pipeline.py:263] Got bucket size 256 for input with 76 tokens, resulting in 180 padded tokens.

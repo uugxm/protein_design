@@ -1,0 +1,19 @@
+{
+  "compare_root": "/public/home/yinyifan/protein_design/examples/epitope_scaffold/backend_comparison_20260628_195056",
+  "input_pdb": "/public/home/yinyifan/protein_design/examples/epitope_scaffold/input/5TPN.pdb",
+  "reference_pdb": "/public/home/yinyifan/protein_design/examples/epitope_scaffold/input/5TPN.pdb",
+  "motif_tsv": "/public/home/yinyifan/protein_design/examples/epitope_scaffold/motif_residues.tsv",
+  "num_designs_per_backend": 10,
+  "proteinmpnn_sequences_per_backbone": 4,
+  "af3_predictions_per_backbone": 1,
+  "v1_contigs": "[10-40/A163-181/10-40]",
+  "rf3_backend_name": "rfdiffusion_all_atom",
+  "rf3_contigs": "["10-40,A163-181,10-40"]",
+  "rf3_T": "100",
+  "filter_thresholds": {
+    "min_plddt": 70,
+    "max_pae": 10,
+    "max_motif_rmsd": 2.5,
+    "max_clashes": 20
+  }
+}

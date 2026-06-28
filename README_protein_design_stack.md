@@ -114,7 +114,68 @@ The retry helper uses `sacct` to find failed AF3 array indices, resubmits only
 those prediction tasks, reruns CPU filtering for the retried indices, and
 submits a fresh CPU merge job. This is intended for transient JAX/CUDA visibility
 or node-local AF3 failures; persistent input errors should be fixed before
-retrying.
+retrying. On TYL Slurm the helper parses `sacct --format=JobID,State`, because
+`JobIDRaw` is the internal numeric job id and does not retain the array index.
+
+## Backbone Backend Comparison
+
+RFdiffusion v1 is the stable baseline backend for epitope scaffold work. The
+new all-atom backend is experimental and is named `rfdiffusion_all_atom` in this
+stack. `BACKBONE_BACKEND=rf3` is accepted only as a short alias for that
+experimental backend.
+
+Unified backbone launcher:
+
+```bash
+cd ~/protein_design/examples/epitope_scaffold
+BACKBONE_BACKEND=rfdiffusion_v1 NUM_DESIGNS=1 \
+  RUN_ROOT=$PWD/v1_smoke \
+  sbatch ../../scripts/slurm_templates/run_backbone_generation.sbatch
+
+BACKBONE_BACKEND=rf3 NUM_DESIGNS=1 \
+  RUN_ROOT=$PWD/rfdiffusion_all_atom_smoke \
+  sbatch ../../scripts/slurm_templates/run_backbone_generation.sbatch
+```
+
+Both backends normalize outputs to:
+
+```text
+rfdiffusion_outputs/design_0.pdb
+rfdiffusion_outputs/design_0.trb
+backbone_list.txt
+run_params.json
+backend_logs/backend.env
+```
+
+Formal backend comparison:
+
+```bash
+cd ~/protein_design
+NUM_DESIGNS=10 NUM_SEQ=4 PREDICT_MAX_RECORDS=2 \
+  bash scripts/slurm_templates/submit_backbone_backend_comparison.sh
+```
+
+The comparison runs RFdiffusion v1 and `rfdiffusion_all_atom` through the same
+ProteinMPNN fixed-position design, AF3 prediction, filter, and merge/ranking
+pipeline. It writes:
+
+```text
+reports/backend_comparison.csv
+reports/backend_comparison.md
+```
+
+The 5TPN comparison run saved in
+`examples/epitope_scaffold/backend_comparison_5tpn_20260628/` completed with
+10/10 backbones, 10/10 ProteinMPNN tasks, and 10/10 AF3 predictions for both
+backends after targeted AF3 retries. RFdiffusion v1 passed 9/10 filters; the
+experimental all-atom backend passed 0/10 in this ligand-free motif test because
+motif RMSD stayed above threshold. Keep RFdiffusion v1 as the stable baseline
+for production epitope scaffolding.
+
+The RFDiffusionAA smoke-test artifact bundle is saved in
+`examples/epitope_scaffold/rfdiffusion_all_atom_smoke_5tpn_20260628/`. See
+`docs/rf3_backend_report.md` for upstream source, license, commit hashes,
+runtime paths, known fallback behavior, and comparison metrics.
 
 ## ProteinMPNN Sequence Design
 
