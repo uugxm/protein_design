@@ -174,6 +174,24 @@ def collect_one(job_root, out_dir, flat_id, predictor):
     return manifest
 
 
+def boltz_job_roots(root):
+    prediction_roots = []
+    for pred_dir in sorted(root.glob("**/predictions")):
+        for candidate in sorted(pred_dir.iterdir()):
+            if candidate.is_dir() and choose_structure(candidate):
+                prediction_roots.append(candidate)
+    if prediction_roots:
+        return prediction_roots
+    return [p for p in sorted(root.iterdir()) if p.is_dir()] or [root]
+
+
+def boltz_flat_id(path):
+    name = path.name
+    if name.endswith(".boltz"):
+        name = name[:-len(".boltz")]
+    return safe_name(name)
+
+
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--predictor", default="af3", choices=["af3", "rf3", "boltz"])
@@ -187,13 +205,19 @@ def main():
     out_dir.mkdir(parents=True, exist_ok=True)
     design_id = safe_name(args.design_id)
 
-    job_roots = [p for p in sorted(root.iterdir()) if p.is_dir()]
-    if not job_roots:
-        job_roots = [root]
+    if args.predictor == "boltz":
+        job_roots = boltz_job_roots(root)
+    else:
+        job_roots = [p for p in sorted(root.iterdir()) if p.is_dir()]
+        if not job_roots:
+            job_roots = [root]
 
     manifests = []
     for idx, job_root in enumerate(job_roots, start=1):
-        flat_id = design_id if len(job_roots) == 1 else safe_name(job_root.name)
+        if args.predictor == "boltz" and len(job_roots) > 1:
+            flat_id = boltz_flat_id(job_root)
+        else:
+            flat_id = design_id if len(job_roots) == 1 else safe_name(job_root.name)
         if flat_id in [item["design_id"] for item in manifests]:
             flat_id = "%s_%d" % (flat_id, idx)
         manifest = collect_one(job_root, out_dir, flat_id, args.predictor)

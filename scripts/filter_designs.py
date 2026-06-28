@@ -36,13 +36,21 @@ def _get_any(payload: Dict[str, Any], keys: List[str]) -> Any:
     return None
 
 
+def _normalize_plddt(value: Optional[float]) -> Optional[float]:
+    if value is None:
+        return None
+    if 0.0 <= value <= 1.0:
+        return value * 100.0
+    return value
+
+
 def parse_json(path: Path) -> Dict[str, Any]:
     try:
         payload = json.loads(path.read_text())
     except Exception as exc:
         return {"confidence_file": str(path), "parse_error": repr(exc)}
 
-    plddt = _mean_value(_get_any(payload, ["plddt", "atom_plddts", "confidenceScore"]))
+    plddt = _normalize_plddt(_mean_value(_get_any(payload, ["plddt", "atom_plddts", "confidenceScore"])))
     ptm = _mean_value(_get_any(payload, ["ptm", "ptm_score", "predicted_tm_score", "chain_ptm"]))
     iptm = _mean_value(_get_any(payload, ["iptm", "iptm_score", "ranking_confidence"]))
     pae = _mean_value(_get_any(payload, ["pae", "predicted_aligned_error"]))

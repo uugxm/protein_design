@@ -285,10 +285,12 @@ examples/epitope_scaffold/cross_model_prediction_top3_5tpn_20260628/
 ```
 
 AF3 primary predictions passed for `design_9`, `design_1`, and `design_4`.
-Foundry RF3 is installed and produced structures for all top-3 candidates.
-Boltz is installed, but compute-node prediction is blocked until its model/CCD
-cache is populated under `weights/boltz`; the current failure is outbound
-network unavailability on RTX3090 compute nodes, not an input-format issue.
+Foundry RF3 is installed, produced structures for all top-3 candidates, and
+passes motif RMSD after sequence-derived motif mapping. Boltz is installed and
+its cache is populated under `weights/boltz`; Boltz smoke and top-3 prediction
+now complete on RTX3090. In the current no-MSA single-sequence top-3 run, Boltz
+produces structures for all candidates but flags all three as model conflicts
+because pLDDT is below threshold and motif RMSD is very large.
 Details are in `docs/cross_model_prediction_report.md`.
 
 ## Binder Design

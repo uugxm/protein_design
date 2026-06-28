@@ -17,10 +17,12 @@ REF=$BASE/examples/epitope_scaffold/input/5TPN.pdb
 MOTIF=$BASE/examples/epitope_scaffold/motif_residues.tsv
 MANIFEST=$RUN_DIR/canonical/canonical_manifest.tsv
 cd "$RUN_DIR"
-mkdir -p reports logs predictions_flat/boltz
-"$PYTHON" $BASE/scripts/filter_designs.py --input_dir predictions_flat/rf3 --pdb_dir predictions_flat/rf3 --reference_pdb "$REF" --motif_tsv "$MOTIF" --output_csv reports/rf3_filter_summary.csv --min_plddt 70 --max_pae 10 --max_motif_rmsd 2.0 --max_clashes 20
+mkdir -p reports logs predictions_flat/boltz predictions_flat/rf3_mappings predictions_flat/boltz_mappings
+"$PYTHON" $BASE/scripts/make_motif_mapping_from_sequence.py --reference_pdb "$REF" --motif_tsv "$MOTIF" --pdb_dir predictions_flat/rf3 --out_dir predictions_flat/rf3_mappings
+"$PYTHON" $BASE/scripts/filter_designs.py --input_dir predictions_flat/rf3 --pdb_dir predictions_flat/rf3 --trb_dir predictions_flat/rf3_mappings --reference_pdb "$REF" --motif_tsv "$MOTIF" --output_csv reports/rf3_filter_summary.csv --min_plddt 70 --max_pae 10 --max_motif_rmsd 2.0 --max_clashes 20
 if find predictions_flat/boltz -maxdepth 1 -type f \( -name "*.json" -o -name "*.pdb" -o -name "*.cif" \) | grep -q .; then
-  "$PYTHON" $BASE/scripts/filter_designs.py --input_dir predictions_flat/boltz --pdb_dir predictions_flat/boltz --reference_pdb "$REF" --motif_tsv "$MOTIF" --output_csv reports/boltz_filter_summary.csv --min_plddt 70 --max_pae 10 --max_motif_rmsd 2.0 --max_clashes 20
+  "$PYTHON" $BASE/scripts/make_motif_mapping_from_sequence.py --reference_pdb "$REF" --motif_tsv "$MOTIF" --pdb_dir predictions_flat/boltz --out_dir predictions_flat/boltz_mappings
+  "$PYTHON" $BASE/scripts/filter_designs.py --input_dir predictions_flat/boltz --pdb_dir predictions_flat/boltz --trb_dir predictions_flat/boltz_mappings --reference_pdb "$REF" --motif_tsv "$MOTIF" --output_csv reports/boltz_filter_summary.csv --min_plddt 70 --max_pae 10 --max_motif_rmsd 2.0 --max_clashes 20
 else
   "$PYTHON" - <<"PY"
 import csv, pathlib
@@ -49,10 +51,11 @@ report={
   "af3_status": "existing_primary_predictions_reused",
   "rf3_status": "completed" if summary["rf3_success_count"] else "no_successful_outputs",
   "boltz_status": "failed_network_unreachable_during_cache_download" if not summary["boltz_success_count"] else "completed",
-  "boltz_failure_reason": "urllib.error.URLError: <urlopen error [Errno 101] Network is unreachable> while downloading Boltz CCD/model cache on RTX3090 compute node",
   "summary": summary,
   "job_ids_file": str(run/"job_ids.env"),
 }
+if not summary["boltz_success_count"]:
+    report["boltz_failure_reason"] = "urllib.error.URLError: <urlopen error [Errno 101] Network is unreachable> while downloading Boltz CCD/model cache on RTX3090 compute node"
 (run/"reports/run_report.json").write_text(json.dumps(report, indent=2, sort_keys=True)+"\n")
 print(json.dumps(report, sort_keys=True))
 PY

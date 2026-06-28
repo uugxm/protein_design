@@ -1,0 +1,21 @@
+Boltz cache file summary, generated after AMD cache-prep job 123393.
+
+Cache root:
+/public/home/yinyifan/protein_design/weights/boltz
+
+Required top-level files:
+/public/home/yinyifan/protein_design/weights/boltz/mols.tar
+/public/home/yinyifan/protein_design/weights/boltz/boltz2_conf.ckpt
+/public/home/yinyifan/protein_design/weights/boltz/boltz2_aff.ckpt
+
+Extracted CCD cache:
+/public/home/yinyifan/protein_design/weights/boltz/mols/
+
+Observed extracted mol entry count:
+45228 pkl files
+
+Observed total cache size after extraction:
+7.5G
+
+SHA256 records:
+docs/install_logs/boltz_cache_sha256_20260629.txt

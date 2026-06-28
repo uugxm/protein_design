@@ -1,6 +1,6 @@
 # Cross-Model Prediction Backend Report
 
-Date: 2026-06-28
+Date: 2026-06-29
 
 Scope: AF3 remains the primary prediction backend. Foundry RF3 and Boltz are
 optional cross-validation backends that run only on AF3 top candidates.
@@ -40,8 +40,19 @@ Boltz:
   `pip install --index-url https://download.pytorch.org/whl/cu124 torch==2.6.0`;
   `pip install -e /public/home/yinyifan/protein_design/repos/boltz`
 - cache path: `/public/home/yinyifan/protein_design/weights/boltz`
-- cache status: not populated. GPU compute nodes cannot reach the Boltz
-  download URLs, and login-node prefetch did not create `mols.tar`.
+- cache status: populated offline, then unpacked on AMD job `123393`.
+
+Boltz cache files:
+
+| file | size bytes | sha256 |
+| --- | ---: | --- |
+| `mols.tar` | `1855662080` | `39e076d96dbec6b4e86982bbda16f3a53a2a60c9bdc17828d88f6f9a0c7d1fd7` |
+| `boltz2_conf.ckpt` | `2286561469` | `090e82ac8c92f5e943fa1b39e7410a44027bea7243c0bbb3caa67a77fc1428e1` |
+| `boltz2_aff.ckpt` | `2062139170` | `dcc5cd3722b1c9eaa34267e4ae32f55cbbf1963f4c19319381ccfa30fdd2ca9e` |
+
+The cache directory is about 7.5G after extracting `mols/`. The large cache
+files are not tracked in git; only `docs/install_logs/boltz_cache_sha256_20260629.txt`
+and `docs/install_logs/boltz_cache_files_20260629.txt` are tracked.
 
 ## Templates
 
@@ -64,6 +75,17 @@ boltz predict prediction_inputs/boltz --out_dir predictions_boltz --cache /publi
 If no MSA is available, `scripts/make_boltz_inputs.py` writes `msa: empty`,
 which is Boltz's documented single-sequence mode.
 
+`scripts/slurm_templates/run_boltz_predict.sbatch` now:
+
+- fails fast if `mols.tar`, extracted `mols/`, `boltz2_conf.ckpt`, or
+  `boltz2_aff.ckpt` are missing;
+- writes `boltz_manifest.tsv` outside `prediction_inputs/boltz/`, because
+  Boltz parses every file in the input directory;
+- supports batch directory input and clears stale flat outputs before collection.
+
+`scripts/collect_prediction_outputs.py` now treats Boltz batch outputs as
+multiple per-design prediction roots under `predictions/*/*.boltz/`.
+
 ## Smoke Tests
 
 RF3 smoke:
@@ -79,14 +101,14 @@ RF3 smoke:
 
 Boltz smoke:
 
-- job: `123385`
-- status: FAILED, `00:02:33`, exit `1:0`
-- GPU check before failure: `torch.cuda.is_available=True`, RTX3090
-- failure: `urllib.error.URLError: <urlopen error [Errno 101] Network is unreachable>`
-- point of failure: automatic download of `mols.tar` / Boltz model cache
-- interpretation: Boltz runtime is installed, but prediction cannot run on
-  compute nodes until `/public/home/yinyifan/protein_design/weights/boltz` is
-  populated offline or from a network-enabled host.
+- previous failed job: `123385`, failed while compute-node network tried to
+  download cache files.
+- cache prep job: `123393`, COMPLETED, exit `0:0`; unpacked `mols/` and
+  verified checkpoint SHA256.
+- successful smoke job: `123394`, COMPLETED, `00:00:48`, exit `0:0`
+- GPU check: `torch.cuda.is_available=True`, RTX3090
+- output: `examples/epitope_scaffold/boltz_smoke_single_chain_20260628/predictions_flat/boltz/boltz_smoke_single_chain.pdb`
+- collector: generated flat CIF/PDB/JSON and manifest.
 
 ## Top-3 Cross-Validation
 
@@ -103,34 +125,52 @@ Inputs:
 - `prediction_inputs/boltz/*.boltz.yaml`
 - `reports/af3_filter_summary.csv`
 
-Jobs:
+Relevant jobs:
 
 | job | id | state | elapsed | exit |
 | --- | ---: | --- | ---: | --- |
 | RF3 smoke | 123384 | COMPLETED | 00:01:15 | 0:0 |
-| Boltz smoke | 123385 | FAILED | 00:02:33 | 1:0 |
 | RF3 top-3 | 123386 | COMPLETED | 00:01:51 | 0:0 |
-| Boltz top-3 | 123387 | FAILED | 00:02:33 | 1:0 |
-| final merge | 123391 | COMPLETED | 00:00:03 | 0:0 |
+| RF3 mapping/finalize fix | 123392 | COMPLETED | 00:00:03 | 0:0 |
+| Boltz cache prep | 123393 | COMPLETED | 00:00:50 | 0:0 |
+| Boltz smoke after cache | 123394 | COMPLETED | 00:00:48 | 0:0 |
+| Boltz top-3 after cache | 123397 | COMPLETED | 00:00:43 | 0:0 |
+| Boltz batch recollect | 123399 | COMPLETED | 00:00:01 | 0:0 |
+| final merge with RF3/Boltz mappings | 123401 | COMPLETED | 00:00:03 | 0:0 |
 
-Summary:
+Summary from `reports/consensus_summary.csv`:
 
 - AF3 primary predictions: 3/3 successful, 3/3 PASS.
-- RF3 optional predictions: 3/3 successful structure outputs, 0/3 PASS.
-- Boltz optional predictions: 0/3 successful; all failed before structure
-  output because compute nodes have no outbound network for cache download.
+- RF3 optional predictions: 3/3 successful, 3/3 PASS.
+- Boltz optional predictions: 3/3 successful, 0/3 PASS.
 - Designs with AF3/RF3/Boltz motif RMSD all passing: 0.
 - High-confidence consensus designs: none.
-- AF3-only positives to downgrade: `design_1`, `design_4`, `design_9`.
+- AF3-only positives to downgrade: none.
 - Model conflicts: `design_1`, `design_4`, `design_9`.
 
-RF3 produced structures for all three candidates, but motif RMSD was not
-interpretable with the current motif mapping: the RF3 folded sequence outputs
-are numbered from the folded chain, while the motif TSV still refers to 5TPN
-residues `A163-181`. The RF3 rows therefore have `motif_atoms_missing=76`.
-Next RF3 adapter work should preserve or emit a residue-mapping file from
-canonical design positions to original motif residues before RF3 is used for
-motif-RMSD gating.
+RF3 motif mapping is now generated from the conserved motif sequence
+`EVNKIKSALLSTNKAVVSL` in the folded output PDBs. RF3 motif RMSD values are:
+
+| design | RF3 pLDDT | RF3 PAE | RF3 motif RMSD | RF3 pass |
+| --- | ---: | ---: | ---: | --- |
+| `design_1` | 86.3269 | 1.72056 | 0.750603 | PASS |
+| `design_4` | 73.9715 | 7.40633 | 1.67975 | PASS |
+| `design_9` | 89.6143 | 1.37633 | 1.04981 | PASS |
+
+Boltz produced valid structures for all three candidates, but single-sequence
+Boltz did not preserve the 5TPN motif geometry. Boltz motif RMSD values are
+about 546-552 A and confidence is below the pLDDT threshold:
+
+| design | Boltz pLDDT | Boltz pTM | Boltz motif RMSD | Boltz pass |
+| --- | ---: | ---: | ---: | --- |
+| `design_1` | 65.4649 | 0.2995 | 552.226 | FAIL |
+| `design_4` | 59.2929 | 0.28141 | 546.501 | FAIL |
+| `design_9` | 69.1138 | 0.297341 | 549.851 | FAIL |
+
+Interpretation: AF3 and RF3 agree that the top candidates preserve the motif
+under the current thresholds. Boltz, run in no-MSA single-sequence mode, strongly
+disagrees and should be treated as an optional conflict flag rather than a hard
+primary filter.
 
 Primary result files:
 
@@ -140,15 +180,15 @@ Primary result files:
 - `reports/rf3_filter_summary.csv`
 - `reports/boltz_filter_summary.csv`
 - `predictions_flat/rf3/*.pdb`
-- `predictions_flat/rf3/*.cif`
+- `predictions_flat/boltz/*.pdb`
+- `predictions_flat/rf3_mappings/*.trb`
+- `predictions_flat/boltz_mappings/*.trb`
 
 ## Next Steps
 
-1. Populate Boltz cache offline:
-   `/public/home/yinyifan/protein_design/weights/boltz/mols.tar`,
-   extracted `mols/`, `boltz2_conf.ckpt`, and any required affinity checkpoint
-   if affinity mode is used.
-2. Rerun only `run_boltz_predict.sbatch` and the final merge after cache is in
-   place.
-3. Add an RF3 motif mapping adapter before treating RF3 motif RMSD as a hard
-   design gate.
+1. Keep AF3 as the primary prediction backend and RF3/Boltz as optional
+   cross-validation on AF3 top candidates.
+2. Treat Boltz single-sequence conflicts as deprioritization evidence, not as
+   replacement for AF3 filtering.
+3. If Boltz is used more broadly, add MSA/template assets through the canonical
+   asset manifest before interpreting motif RMSD as a hard gate.

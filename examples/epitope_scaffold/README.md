@@ -108,9 +108,13 @@ into flat files under `array_work/<design_id>/predictions_flat/`.
 
 Boltz input preparation is wired through `PREDICTOR=boltz`; when no MSA is
 available, the adapter writes `msa: empty` for Boltz single-sequence mode.
-Current TYL status: the Boltz environment exists, but GPU jobs cannot download
-the Boltz cache because compute nodes have no outbound network. Populate
-`~/protein_design/weights/boltz` offline before rerunning Boltz prediction.
+Current TYL status: the Boltz environment and offline cache are available under
+`~/protein_design/weights/boltz`. The GPU template checks for `mols.tar`,
+extracted `mols/`, `boltz2_conf.ckpt`, and `boltz2_aff.ckpt` before launching;
+this avoids wasting RTX3090 jobs when compute nodes cannot reach external
+download URLs. The top-3 no-MSA cross-validation run completed, but Boltz
+disagreed with AF3/RF3 on all three candidates and should be treated as an
+optional conflict flag.
 
 ## 4. Motif RMSD / confidence / clash filtering
 

@@ -1,0 +1,13 @@
+[
+  {
+    "design_id": "boltz_smoke_single_chain",
+    "flat_cif": "/public/home/yinyifan/protein_design/examples/epitope_scaffold/boltz_smoke_single_chain_20260628/predictions_flat/boltz/boltz_smoke_single_chain.cif",
+    "flat_json": "/public/home/yinyifan/protein_design/examples/epitope_scaffold/boltz_smoke_single_chain_20260628/predictions_flat/boltz/boltz_smoke_single_chain.json",
+    "flat_pdb": "/public/home/yinyifan/protein_design/examples/epitope_scaffold/boltz_smoke_single_chain_20260628/predictions_flat/boltz/boltz_smoke_single_chain.pdb",
+    "json_action": "copied_json",
+    "predictor": "boltz",
+    "source_json": "/public/home/yinyifan/protein_design/examples/epitope_scaffold/boltz_smoke_single_chain_20260628/predictions_boltz/boltz_results_input.boltz/processed/manifest.json",
+    "source_structure": "/public/home/yinyifan/protein_design/examples/epitope_scaffold/boltz_smoke_single_chain_20260628/predictions_boltz/boltz_results_input.boltz/predictions/input.boltz/input.boltz_model_0.cif",
+    "structure_action": "converted_cif_to_pdb"
+  }
+]
