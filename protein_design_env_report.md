@@ -164,6 +164,56 @@ apptainer exec /public/apps/alphafold3/alphafold3/alphafold3.sif \
 
 Summary: help printed successfully. Defaults show `--db_dir=/public/home/yinyifan/public_databases` and `--model_dir=/public/home/yinyifan/models`. Databases/model weights were not downloaded or overwritten.
 
+## Epitope Scaffold Closed-Loop Update
+
+Added on 2026-06-28:
+
+- `scripts/make_fixed_positions_jsonl.py`: generates ProteinMPNN fixed-position JSONL from motif TSV plus optional RFdiffusion `.trb` mapping.
+- `scripts/pdb_metrics.py`: parses PDB files, computes motif Kabsch RMSD, mean PDB b-factor pLDDT proxy, and simple heavy-atom clash counts.
+- `scripts/filter_designs.py`: merges AF/AF3/Boltz-style JSON confidence outputs with predicted PDB geometry metrics and writes `filter_summary.csv`.
+- `scripts/make_af3_json_inputs.py`: converts ProteinMPNN FASTA records into AF3 JSON jobs.
+- `scripts/slurm_templates/run_epitope_scaffold_array.sbatch`: array template for per-backbone fixed-position ProteinMPNN and per-design filtering.
+
+Local syntax and synthetic closed-loop test:
+
+```bash
+python3 -m py_compile scripts/*.py
+for f in scripts/slurm_templates/*.sbatch; do bash -n "$f"; done
+python3 scripts/make_fixed_positions_jsonl.py \
+  --pdb_dir ../test_epitope_loop/backbones \
+  --motif_tsv ../test_epitope_loop/motif.tsv \
+  --output_jsonl ../test_epitope_loop/fixed_positions.jsonl \
+  --strict
+python3 scripts/filter_designs.py \
+  --input_dir ../test_epitope_loop/predictions \
+  --pdb_dir ../test_epitope_loop/predictions \
+  --reference_pdb ../test_epitope_loop/reference.pdb \
+  --motif_tsv ../test_epitope_loop/motif.tsv \
+  --min_plddt 70 --max_pae 10 --max_motif_rmsd 0.1 --max_clashes 20 \
+  --output_csv ../test_epitope_loop/summary.csv
+```
+
+Summary: syntax checks passed; fixed-position JSONL was `{"design_0": {"A": [1, 2, 3]}}`; motif RMSD was approximately `1.1e-15`; summary CSV marked the design `PASS`.
+
+TYL lightweight validation on `admin1`:
+
+```bash
+ln -sfn ~/protein_design/repos/RFdiffusion/examples/input_pdbs/5TPN.pdb \
+  ~/protein_design/examples/epitope_scaffold/input/5TPN.pdb
+cd ~/protein_design
+module purge >/dev/null 2>&1 || true
+module load pytorch/2.3.1 cuda/12.4 >/dev/null 2>&1 || true
+PYTHONDONTWRITEBYTECODE=1 python -m py_compile scripts/*.py
+for f in scripts/slurm_templates/*.sbatch; do bash -n "$f"; done
+PYTHONDONTWRITEBYTECODE=1 python scripts/make_fixed_positions_jsonl.py \
+  --pdb_dir examples/epitope_scaffold/input \
+  --motif_tsv examples/epitope_scaffold/motif_residues.tsv \
+  --output_jsonl /tmp/epitope_fixed_positions_test.jsonl \
+  --strict
+```
+
+Summary: scripts compiled; SLURM templates parsed; real `5TPN.pdb` motif `A163-181` generated ProteinMPNN fixed positions `A:109-127` with empty fixed-position lists for chains `H` and `L`. No RFdiffusion/ProteinMPNN/AF3 production compute was run on the login node.
+
 ## Recommendations
 
 1. Use original RFdiffusion as the stable backbone/motif generator and keep `LD_LIBRARY_PATH` wrapper in all launch scripts.
