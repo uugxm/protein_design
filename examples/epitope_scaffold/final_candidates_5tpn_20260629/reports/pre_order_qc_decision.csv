@@ -1,0 +1,8 @@
+design_id,QC_status,main_risks,recommended_expression_priority,recommended_expression_system_placeholder,order_now,reason
+design_1,caution,low_motif_exposure_proxy;boltz_no_msa_warning,high,TBD_by_user,yes,AF3/RF3 consensus acceptable; review caution flags before ordering: low_motif_exposure_proxy;boltz_no_msa_warning.
+design_9,caution,low_motif_exposure_proxy;boltz_no_msa_warning,high,TBD_by_user,yes,AF3/RF3 consensus acceptable; review caution flags before ordering: low_motif_exposure_proxy;boltz_no_msa_warning.
+design_4,caution,nxs_t_glycosylation_motif;low_motif_exposure_proxy;boltz_no_msa_warning,medium,TBD_by_user,yes,AF3/RF3 consensus acceptable; review caution flags before ordering: nxs_t_glycosylation_motif;low_motif_exposure_proxy;boltz_no_msa_warning.
+design_0,caution,low_motif_exposure_proxy,medium,TBD_by_user,yes,AF3/RF3 consensus acceptable; review caution flags before ordering: low_motif_exposure_proxy.
+design_7,caution,nxs_t_glycosylation_motif;low_motif_exposure_proxy,medium,TBD_by_user,yes,AF3/RF3 consensus acceptable; review caution flags before ordering: nxs_t_glycosylation_motif;low_motif_exposure_proxy.
+design_2,caution,low_motif_exposure_proxy,medium,TBD_by_user,yes,AF3/RF3 consensus acceptable; review caution flags before ordering: low_motif_exposure_proxy.
+design_3,caution,nxs_t_glycosylation_motif;low_motif_exposure_proxy,medium,TBD_by_user,yes,AF3/RF3 consensus acceptable; review caution flags before ordering: nxs_t_glycosylation_motif;low_motif_exposure_proxy.

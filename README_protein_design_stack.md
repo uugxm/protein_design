@@ -325,6 +325,17 @@ RF3 backup validation for AF3-only diverse candidates is under
 `examples/epitope_scaffold/rf3_backup_validation_5tpn_20260629/`.
 Details are in `docs/final_candidate_selection_report.md`.
 
+Pre-order QC, run before any cloning-ready order sheet is prepared, is under:
+
+```text
+examples/epitope_scaffold/final_candidates_5tpn_20260629/reports/pre_order_sequence_qc.csv
+examples/epitope_scaffold/final_candidates_5tpn_20260629/reports/pre_order_structure_qc.csv
+examples/epitope_scaffold/final_candidates_5tpn_20260629/reports/pre_order_qc_decision.csv
+examples/epitope_scaffold/final_candidates_5tpn_20260629/reports/cloning_ready_constructs.csv
+```
+
+Details are in `docs/pre_order_qc_report.md`.
+
 ## Binder Design
 
 Goal: design a new protein binder against a target surface/hotspot. This must stay separate from epitope scaffolding.
