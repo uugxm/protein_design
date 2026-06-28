@@ -269,6 +269,67 @@ clash_count=0
 pass=PASS
 ```
 
+## 5TPN Batch Stability Test
+
+Run directory:
+
+```text
+/public/home/yinyifan/protein_design/examples/epitope_scaffold/batch_stability_20260628_182526
+```
+
+Parameters:
+
+```text
+RFdiffusion backbones: 10
+ProteinMPNN sequences per backbone: 4
+AF3 predictions per backbone: top 1 by ProteinMPNN score
+Filter thresholds: pLDDT >= 70, PAE <= 10, motif RMSD <= 2.5 A, clash_count <= 20
+```
+
+Resource routing:
+
+- RFdiffusion: one GPU job, `123135`.
+- ProteinMPNN: GPU array, `123136_[1-10]`.
+- AF3: GPU array, `123137_[1-10]`, with targeted retry `123160_6`.
+- Filtering: CPU/AMD array, `123161_[1-10]`.
+- Merge/ranking: CPU/AMD job, `123162`.
+
+The initial filter submission reused the GPU array template. It was cancelled
+before running and replaced with `scripts/slurm_templates/run_epitope_scaffold_filter.sbatch`,
+which uses the AMD partition and no GPU request. This is the preferred Slurm
+shape for the heterogeneous pipeline: use dependencies and arrays, but request
+resources by stage instead of holding one large allocation for all stages.
+
+Stability outcome:
+
+```text
+RFdiffusion outputs: 10 / 10
+ProteinMPNN FASTA outputs: 10 / 10
+AF3 first pass: 9 / 10 completed, 1 / 10 failed
+AF3 retry: 1 / 1 completed
+Final prediction outputs: 10 / 10
+Filter summaries: 10 / 10
+Filter PASS rows: 9 / 10
+Filter FAIL rows: 1 / 10
+```
+
+First-pass AF3 failure: `123137_6` failed on `gpu15` because JAX inside the AF3
+container reported no visible CUDA device, even though `nvidia-smi` in the job
+could see a GPU. A targeted retry, `123160_6`, completed on `gpu14`.
+
+Top design by pLDDT descending, PAE ascending, motif RMSD ascending, and
+clash_count ascending:
+
+```text
+design_0: pLDDT=89.8871, PAE=2.9344, motif RMSD=0.9535, clash_count=0, PASS
+```
+
+Artifacts retained under:
+
+```text
+examples/epitope_scaffold/batch_stability_5tpn_20260628/
+```
+
 ## Recommendations
 
 1. Use original RFdiffusion as the stable backbone/motif generator and keep `LD_LIBRARY_PATH` wrapper in all launch scripts.

@@ -1,0 +1,11 @@
+[
+  {
+    "design_id": "design_1",
+    "flat_json": "/public/home/yinyifan/protein_design/examples/epitope_scaffold/batch_stability_20260628_182526/array_work/design_1/predictions_flat/design_1.json",
+    "flat_pdb": "/public/home/yinyifan/protein_design/examples/epitope_scaffold/batch_stability_20260628_182526/array_work/design_1/predictions_flat/design_1.pdb",
+    "predictor": "af3",
+    "source_json": "/public/home/yinyifan/protein_design/examples/epitope_scaffold/batch_stability_20260628_182526/array_work/design_1/predictions/design_1_t_0.1_sample_1_score_1.1123_global_score_1.4173_seq_recovery_0.0541/design_1_t_0.1_sample_1_score_1.1123_global_score_1.4173_seq_recovery_0.0541_confidences.json",
+    "source_structure": "/public/home/yinyifan/protein_design/examples/epitope_scaffold/batch_stability_20260628_182526/array_work/design_1/predictions/design_1_t_0.1_sample_1_score_1.1123_global_score_1.4173_seq_recovery_0.0541/design_1_t_0.1_sample_1_score_1.1123_global_score_1.4173_seq_recovery_0.0541_model.cif",
+    "structure_action": "converted_cif_to_pdb"
+  }
+]

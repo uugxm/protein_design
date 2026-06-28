@@ -125,6 +125,29 @@ def convert_structure_to_pdb(structure_path, out_pdb):
     return "converted_cif_to_pdb"
 
 
+def collect_one(job_root, out_dir, flat_id, predictor):
+    json_path = choose_json(job_root)
+    structure_path = choose_structure(job_root)
+    manifest = {
+        "predictor": predictor,
+        "design_id": flat_id,
+        "source_json": str(json_path) if json_path else "",
+        "source_structure": str(structure_path) if structure_path else "",
+        "flat_json": "",
+        "flat_pdb": "",
+    }
+
+    if json_path:
+        flat_json = out_dir / (flat_id + ".json")
+        shutil.copy2(json_path, flat_json)
+        manifest["flat_json"] = str(flat_json)
+    if structure_path:
+        flat_pdb = out_dir / (flat_id + ".pdb")
+        manifest["structure_action"] = convert_structure_to_pdb(structure_path, flat_pdb)
+        manifest["flat_pdb"] = str(flat_pdb)
+    return manifest
+
+
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--predictor", default="af3", choices=["af3", "boltz"])
@@ -138,31 +161,24 @@ def main():
     out_dir.mkdir(parents=True, exist_ok=True)
     design_id = safe_name(args.design_id)
 
-    json_path = choose_json(root)
-    structure_path = choose_structure(root)
-    manifest = {
-        "predictor": args.predictor,
-        "design_id": design_id,
-        "source_json": str(json_path) if json_path else "",
-        "source_structure": str(structure_path) if structure_path else "",
-        "flat_json": "",
-        "flat_pdb": "",
-    }
+    job_roots = [p for p in sorted(root.iterdir()) if p.is_dir()]
+    if not job_roots:
+        job_roots = [root]
 
-    if json_path:
-        flat_json = out_dir / (design_id + ".json")
-        shutil.copy2(json_path, flat_json)
-        manifest["flat_json"] = str(flat_json)
-    if structure_path:
-        flat_pdb = out_dir / (design_id + ".pdb")
-        manifest["structure_action"] = convert_structure_to_pdb(structure_path, flat_pdb)
-        manifest["flat_pdb"] = str(flat_pdb)
+    manifests = []
+    for idx, job_root in enumerate(job_roots, start=1):
+        flat_id = design_id if len(job_roots) == 1 else safe_name(job_root.name)
+        if flat_id in [item["design_id"] for item in manifests]:
+            flat_id = "%s_%d" % (flat_id, idx)
+        manifest = collect_one(job_root, out_dir, flat_id, args.predictor)
+        manifests.append(manifest)
 
     manifest_path = out_dir / (design_id + ".prediction_manifest.json")
-    manifest_path.write_text(json.dumps(manifest, indent=2, sort_keys=True) + "\n")
-    print(json.dumps(manifest, sort_keys=True))
-    if not json_path or not structure_path:
-        raise SystemExit("prediction output incomplete: json=%s structure=%s" % (bool(json_path), bool(structure_path)))
+    manifest_path.write_text(json.dumps(manifests, indent=2, sort_keys=True) + "\n")
+    print(json.dumps(manifests, sort_keys=True))
+    bad = [m for m in manifests if not m["source_json"] or not m["source_structure"]]
+    if bad:
+        raise SystemExit("prediction output incomplete for %d/%d jobs" % (len(bad), len(manifests)))
 
 
 if __name__ == "__main__":

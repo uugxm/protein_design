@@ -1,0 +1,21 @@
+gpu14
+GPU 0: NVIDIA GeForce RTX 3090 (UUID: GPU-dbc901ed-fa05-988a-b95b-bb0fc9183da0)
+----------------------------------------
+chain_id_jsonl is NOT loaded
+----------------------------------------
+pssm_jsonl is NOT loaded
+----------------------------------------
+omit_AA_jsonl is NOT loaded
+----------------------------------------
+bias_AA_jsonl is NOT loaded
+----------------------------------------
+tied_positions_jsonl is NOT loaded
+----------------------------------------
+bias by residue dictionary is not loaded, or not provided
+----------------------------------------
+discarded {'bad_chars': 0, 'too_long': 0, 'bad_seq_length': 0}
+----------------------------------------
+Number of edges: 48
+Training noise level: 0.2A
+Generating sequences for: design_0
+4 sequences of length 60 generated in 0.7688 seconds

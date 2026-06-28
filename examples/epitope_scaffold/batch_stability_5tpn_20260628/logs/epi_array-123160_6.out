@@ -1,0 +1,35 @@
+gpu14
+GPU 0: NVIDIA GeForce RTX 3090 (UUID: GPU-dbc901ed-fa05-988a-b95b-bb0fc9183da0)
+Wrote 1 AF3 JSON input files to /public/home/yinyifan/protein_design/examples/epitope_scaffold/batch_stability_20260628_182526/array_work/design_5/prediction_inputs/af3
+
+Running AlphaFold 3. Please note that standard AlphaFold 3 model parameters are
+only available under terms of use provided at
+https://github.com/google-deepmind/alphafold3/blob/main/WEIGHTS_TERMS_OF_USE.md.
+If you do not agree to these terms and are using AlphaFold 3 derived model
+parameters, cancel execution of AlphaFold 3 inference with CTRL-C, and do not
+use the model parameters.
+
+Found local devices: [CudaDevice(id=0)], using device 0: cuda:0
+Building model from scratch...
+Checking that model parameters can be loaded...
+
+Running fold job design_5_T_0.1_sample_2_score_1.1185_global_score_1.3625_seq_recovery_0.0339...
+Output will be written in /public/home/yinyifan/protein_design/examples/epitope_scaffold/batch_stability_20260628_182526/array_work/design_5/predictions/design_5_t_0.1_sample_2_score_1.1185_global_score_1.3625_seq_recovery_0.0339
+Skipping data pipeline...
+Writing model input JSON to /public/home/yinyifan/protein_design/examples/epitope_scaffold/batch_stability_20260628_182526/array_work/design_5/predictions/design_5_t_0.1_sample_2_score_1.1185_global_score_1.3625_seq_recovery_0.0339/design_5_t_0.1_sample_2_score_1.1185_global_score_1.3625_seq_recovery_0.0339_data.json
+Predicting 3D structure for design_5_T_0.1_sample_2_score_1.1185_global_score_1.3625_seq_recovery_0.0339 with 1 seed(s)...
+Featurising data with 1 seed(s)...
+Featurising data with seed 1.
+Featurising data with seed 1 took 1.02 seconds.
+Featurising data with 1 seed(s) took 6.04 seconds.
+Running model inference and extracting output structure samples with 1 seed(s)...
+Running model inference with seed 1...
+Running model inference with seed 1 took 51.05 seconds.
+Extracting output structure samples with seed 1...
+Extracting 5 output structure samples with seed 1 took 0.09 seconds.
+Running model inference and extracting output structures with 1 seed(s) took 51.13 seconds.
+Writing outputs with 1 seed(s)...
+Fold job design_5_T_0.1_sample_2_score_1.1185_global_score_1.3625_seq_recovery_0.0339 done, output written to /public/home/yinyifan/protein_design/examples/epitope_scaffold/batch_stability_20260628_182526/array_work/design_5/predictions/design_5_t_0.1_sample_2_score_1.1185_global_score_1.3625_seq_recovery_0.0339
+
+Done running 1 fold jobs.
+[{"design_id": "design_5", "flat_json": "/public/home/yinyifan/protein_design/examples/epitope_scaffold/batch_stability_20260628_182526/array_work/design_5/predictions_flat/design_5.json", "flat_pdb": "/public/home/yinyifan/protein_design/examples/epitope_scaffold/batch_stability_20260628_182526/array_work/design_5/predictions_flat/design_5.pdb", "predictor": "af3", "source_json": "/public/home/yinyifan/protein_design/examples/epitope_scaffold/batch_stability_20260628_182526/array_work/design_5/predictions/design_5_t_0.1_sample_2_score_1.1185_global_score_1.3625_seq_recovery_0.0339/design_5_t_0.1_sample_2_score_1.1185_global_score_1.3625_seq_recovery_0.0339_confidences.json", "source_structure": "/public/home/yinyifan/protein_design/examples/epitope_scaffold/batch_stability_20260628_182526/array_work/design_5/predictions/design_5_t_0.1_sample_2_score_1.1185_global_score_1.3625_seq_recovery_0.0339/design_5_t_0.1_sample_2_score_1.1185_global_score_1.3625_seq_recovery_0.0339_model.cif", "structure_action": "converted_cif_to_pdb"}]

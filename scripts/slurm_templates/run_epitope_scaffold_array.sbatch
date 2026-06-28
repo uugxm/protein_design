@@ -28,6 +28,7 @@ MAX_CLASHES="${MAX_CLASHES:-20}"
 PREDICTOR="${PREDICTOR:-af3}"
 PREDICT_MAX_RECORDS="${PREDICT_MAX_RECORDS:-1}"
 PREDICT_SKIP_FIRST="${PREDICT_SKIP_FIRST:-1}"
+PREDICT_SORT_BY_SCORE="${PREDICT_SORT_BY_SCORE:-1}"
 AF3_SIF="${AF3_SIF:-/public/apps/alphafold3/alphafold3/alphafold3.0.1.sif}"
 AF3_MODEL_DIR="${AF3_MODEL_DIR:-/public/shared/alphafold3/models}"
 AF3_DB_DIR="${AF3_DB_DIR:-/public/shared/alphafold3}"
@@ -99,6 +100,9 @@ case "$STAGE" in
         AF3_JSON_ARGS=(--fasta "$FASTA_PATH" --out_dir "$AF3_INPUT_DIR" --max_records "$PREDICT_MAX_RECORDS" --name_prefix "$DESIGN_ID" --manifest "$AF3_INPUT_DIR/manifest.tsv" --query_only)
         if [ "$PREDICT_SKIP_FIRST" = "1" ]; then
           AF3_JSON_ARGS+=(--skip_first)
+        fi
+        if [ "$PREDICT_SORT_BY_SCORE" = "1" ]; then
+          AF3_JSON_ARGS+=(--sort_by_score)
         fi
         "$PYTHON_BIN" "$BASE/scripts/make_af3_json_inputs.py" "${AF3_JSON_ARGS[@]}"
         if [ ! -e "$AF3_SIF" ]; then

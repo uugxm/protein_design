@@ -11,6 +11,13 @@ def sanitize_name(text):
     return re.sub(r"[^A-Za-z0-9_.-]+", "_", text).strip("_")[:120] or "design"
 
 
+def parse_mpnn_score(header):
+    match = re.search(r"(?:^|[, ])score=([-+]?[0-9]*\.?[0-9]+)", header)
+    if not match:
+        return None
+    return float(match.group(1))
+
+
 def read_fasta(path):
     name = None
     chunks = []
@@ -22,7 +29,7 @@ def read_fasta(path):
             if line.startswith(">"):
                 if name and chunks:
                     yield name, "".join(chunks)
-                name = line[1:].split()[0]
+                name = line[1:].strip()
                 chunks = []
             else:
                 chunks.append(line.strip())
@@ -41,14 +48,21 @@ def main():
     parser.add_argument("--name_prefix", default="", help="Optional prefix for generated job names.")
     parser.add_argument("--manifest", default="", help="Optional TSV manifest path to write.")
     parser.add_argument("--query_only", action="store_true", help="Embed empty MSA/template fields so AF3 can run with --run_data_pipeline=False.")
+    parser.add_argument("--sort_by_score", action="store_true", help="Sort ProteinMPNN design records by ascending score before taking max_records.")
     args = parser.parse_args()
 
     os.makedirs(args.out_dir, exist_ok=True)
     count = 0
     manifest_rows = []
+    records = []
     for idx, (name, sequence) in enumerate(read_fasta(args.fasta)):
         if args.skip_first and idx == 0:
             continue
+        records.append((name, sequence, parse_mpnn_score(name)))
+    if args.sort_by_score:
+        records.sort(key=lambda row: (row[2] is None, row[2] if row[2] is not None else 999999.0, row[0]))
+
+    for name, sequence, score in records:
         if args.max_records and count >= args.max_records:
             break
         prefix = args.name_prefix + "_" if args.name_prefix else ""
@@ -67,13 +81,14 @@ def main():
         with open(out_path, "w") as handle:
             json.dump(payload, handle, indent=2, sort_keys=True)
             handle.write("\n")
-        manifest_rows.append((job_name, name, args.chain_id, len(sequence), out_path))
+        score_text = "" if score is None else str(score)
+        manifest_rows.append((job_name, name, score_text, args.chain_id, len(sequence), out_path))
         count += 1
     if args.manifest:
         with open(args.manifest, "w") as handle:
-            handle.write("job_name\tsource_name\tchain_id\tsequence_length\tjson_path\n")
+            handle.write("job_name\tsource_name\tmpnn_score\tchain_id\tsequence_length\tjson_path\n")
             for row in manifest_rows:
-                handle.write("%s\t%s\t%s\t%s\t%s\n" % row)
+                handle.write("%s\t%s\t%s\t%s\t%s\t%s\n" % row)
     print("Wrote %d AF3 JSON input files to %s" % (count, args.out_dir))
     if count == 0:
         raise SystemExit("no FASTA records were written to AF3 JSON")
