@@ -9,9 +9,13 @@ Example motif: RFdiffusion's RSV-F motif example from `5TPN.pdb`, residues
 
 ## 0. Prepare input on TYL
 
+The repository example includes `input/5TPN.pdb` so local diagnostics can be
+reproduced from a fresh checkout. On TYL, this file can also be refreshed from
+the RFdiffusion repository copy:
+
 ```bash
 mkdir -p ~/protein_design/examples/epitope_scaffold/input
-ln -sfn ~/protein_design/repos/RFdiffusion/examples/input_pdbs/5TPN.pdb \
+cp -f ~/protein_design/repos/RFdiffusion/examples/input_pdbs/5TPN.pdb \
   ~/protein_design/examples/epitope_scaffold/input/5TPN.pdb
 ```
 

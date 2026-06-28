@@ -144,9 +144,22 @@ Summary from `reports/consensus_summary.csv`:
 - RF3 optional predictions: 3/3 successful, 3/3 PASS.
 - Boltz optional predictions: 3/3 successful, 0/3 PASS.
 - Designs with AF3/RF3/Boltz motif RMSD all passing: 0.
-- High-confidence consensus designs: none.
+- AF3/RF3 recommended designs: `design_1`, `design_9`, `design_4`.
 - AF3-only positives to downgrade: none.
 - Model conflicts: `design_1`, `design_4`, `design_9`.
+
+Top design recommendation uses AF3+RF3 consensus as the main decision layer.
+Boltz single-sequence disagreement is recorded as a warning, not as a hard
+filter:
+
+| rank | design | AF3 motif RMSD | RF3 motif RMSD | mean AF3/RF3 pLDDT | mean AF3/RF3 PAE | Boltz warning |
+| ---: | --- | ---: | ---: | ---: | ---: | --- |
+| 1 | `design_1` | 0.721181 | 0.750603 | 88.3829 | 2.22146 | low pLDDT; high motif RMSD |
+| 2 | `design_9` | 1.04193 | 1.04981 | 90.5222 | 2.00686 | low pLDDT; high motif RMSD |
+| 3 | `design_4` | 1.84953 | 1.67975 | 80.5991 | 5.37947 | low pLDDT; high motif RMSD; one missing motif atom |
+
+The machine-readable recommendation table is
+`reports/top_consensus_designs.csv`.
 
 RF3 motif mapping is now generated from the conserved motif sequence
 `EVNKIKSALLSTNKAVVSL` in the folded output PDBs. RF3 motif RMSD values are:
@@ -172,13 +185,34 @@ under the current thresholds. Boltz, run in no-MSA single-sequence mode, strongl
 disagrees and should be treated as an optional conflict flag rather than a hard
 primary filter.
 
+Boltz disagreement diagnostics were run for `design_1` and `design_9`.
+
+- Both sampled Boltz outputs have complete motif sequence-derived mappings:
+  76 backbone motif atoms compared, 0 missing.
+- The collector selected the expected Boltz CIFs recorded in
+  `predictions_flat/boltz/cross_model_top3.prediction_manifest.json`.
+- The original Boltz CIF coordinates already have hundreds-of-Angstrom
+  coordinate ranges, so the disagreement is not introduced by CIF-to-PDB
+  conversion.
+- Consecutive CA distances are hundreds of Angstroms in the full chain and
+  inside the mapped motif.
+
+Conclusion: Boltz no-MSA mode is not reliable as a hard gate for this de novo
+motif scaffold task. It should remain an optional conflict flag until
+MSA/template-enabled validation is tested.
+
 Primary result files:
 
 - `reports/consensus_summary.csv`
 - `reports/consensus_summary.json`
 - `reports/run_report.json`
+- `reports/top_consensus_designs.csv`
+- `reports/boltz_disagreement_diagnostics.md`
 - `reports/rf3_filter_summary.csv`
 - `reports/boltz_filter_summary.csv`
+- `reports/boltz_motif_diagnostics/*.tsv`
+- `reports/boltz_motif_diagnostics/*_aligned.pdb`
+- `reports/boltz_motif_diagnostics/*.pml`
 - `predictions_flat/rf3/*.pdb`
 - `predictions_flat/boltz/*.pdb`
 - `predictions_flat/rf3_mappings/*.trb`

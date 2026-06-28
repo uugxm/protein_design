@@ -290,7 +290,10 @@ passes motif RMSD after sequence-derived motif mapping. Boltz is installed and
 its cache is populated under `weights/boltz`; Boltz smoke and top-3 prediction
 now complete on RTX3090. In the current no-MSA single-sequence top-3 run, Boltz
 produces structures for all candidates but flags all three as model conflicts
-because pLDDT is below threshold and motif RMSD is very large.
+because pLDDT is below threshold and motif RMSD is very large. Use
+`reports/top_consensus_designs.csv` for AF3+RF3 recommendation ranking; Boltz is
+an optional warning signal, not a hard gate, until MSA/template-enabled Boltz
+validation is tested.
 Details are in `docs/cross_model_prediction_report.md`.
 
 ## Binder Design
