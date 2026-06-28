@@ -296,6 +296,23 @@ an optional warning signal, not a hard gate, until MSA/template-enabled Boltz
 validation is tested.
 Details are in `docs/cross_model_prediction_report.md`.
 
+Fold/diversity selection is a separate downstream step after filtering and
+consensus ranking:
+
+```bash
+python scripts/cluster_fold_diversity.py \
+  --summary_csv examples/epitope_scaffold/cross_model_prediction_top3_5tpn_20260628/reports/consensus_summary.csv \
+  --pdb_dir examples/epitope_scaffold/backend_comparison_5tpn_foundry_20260628_213554/rfdiffusion_v1 \
+  --reference_pdb examples/epitope_scaffold/input/5TPN.pdb \
+  --motif_tsv examples/epitope_scaffold/motif_residues.tsv \
+  --out_dir examples/epitope_scaffold/cross_model_prediction_top3_5tpn_20260628/reports/fold_clustering \
+  --predictor consensus
+```
+
+It clusters passing candidates by global fold, motif-local geometry, and
+sequence diversity, then writes `reports/fold_clustering/diverse_shortlist.csv`.
+Details are in `docs/fold_clustering_report.md`.
+
 ## Binder Design
 
 Goal: design a new protein binder against a target surface/hotspot. This must stay separate from epitope scaffolding.
