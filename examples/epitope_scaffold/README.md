@@ -75,48 +75,57 @@ python ../../scripts/make_fixed_positions_jsonl.py \
   --strict
 ```
 
-## 3. AF3 / AF2 / Boltz prediction input
+## 3. AF3 / AF2 / Boltz prediction
 
-Prepare AF3 JSON jobs from ProteinMPNN FASTA output:
-
-```bash
-mkdir -p af3_inputs
-python ../../scripts/make_af3_json_inputs.py \
-  --fasta mpnn_outputs/seqs/design.fa \
-  --out_dir af3_inputs
-```
-
-Run prediction with the available site interface. Do not download or overwrite
-AF3 databases or model weights:
+Run AF3 prediction through the array template:
 
 ```bash
-apptainer exec ~/protein_design/containers/alphafold3.sif \
-  python /app/alphafold/run_alphafold.py \
-    --input_dir "$PWD/af3_inputs" \
-    --output_dir "$PWD/predictions" \
-    --model_dir /public/home/yinyifan/models \
-    --db_dir /public/home/yinyifan/public_databases
+cd ~/protein_design/examples/epitope_scaffold
+TASK_LIST=$PWD/backbone_list.txt \
+WORK_ROOT=$PWD/array_work \
+MOTIF_TSV=$PWD/motif_residues.tsv \
+STAGE=predict \
+PREDICTOR=af3 \
+PREDICT_MAX_RECORDS=1 \
+PREDICT_SKIP_FIRST=1 \
+  sbatch --array=1-4 ../../scripts/slurm_templates/run_epitope_scaffold_array.sbatch
 ```
 
-If using ColabFold/AF2 or Boltz later, place predicted PDB/CIF and JSON
-confidence files under `predictions/` before running the same filter step.
+The template uses the TYL AF3 3.0.1 container and explicit bind path recorded in
+GBrain:
+
+```text
+AF3_SIF=/public/apps/alphafold3/alphafold3/alphafold3.0.1.sif
+AF3_MODEL_DIR=/public/shared/alphafold3/models
+AF3_DB_DIR=/public/shared/alphafold3
+AF3_BIND=/public/shared/alphafold3:/public/shared/alphafold3
+AF3_EXTRA_ARGS=--run_data_pipeline=False
+```
+
+ProteinMPNN FASTA records are converted automatically into AF3 query-only JSON
+under `array_work/<design_id>/prediction_inputs/af3/`. AF3 output is collected
+into flat files under `array_work/<design_id>/predictions_flat/`.
+
+Boltz input preparation is also wired through `PREDICTOR=boltz`, but the Boltz
+runtime is intentionally not installed in this step.
 
 ## 4. Motif RMSD / confidence / clash filtering
 
 ```bash
-python ../../scripts/filter_designs.py \
-  --input_dir predictions \
-  --pdb_dir predictions \
-  --reference_pdb input/5TPN.pdb \
-  --motif_tsv motif_residues.tsv \
-  --trb_dir rfdiffusion_outputs \
-  --min_plddt 70 \
-  --max_pae 10 \
-  --max_motif_rmsd 1.5 \
-  --max_clashes 20 \
-  --output_csv filter_summary.csv
+TASK_LIST=$PWD/backbone_list.txt \
+WORK_ROOT=$PWD/array_work \
+MOTIF_TSV=$PWD/motif_residues.tsv \
+STAGE=filter \
+MIN_PLDDT=70 \
+MAX_PAE=10 \
+MAX_MOTIF_RMSD=1.5 \
+MAX_CLASHES=20 \
+  sbatch --array=1-4 ../../scripts/slurm_templates/run_epitope_scaffold_array.sbatch
 ```
 
 Required interpretation: pass designs only if the motif aligns back to the input
 motif with acceptable RMSD and the predicted scaffold has acceptable confidence
 and clash metrics.
+
+See `e2e_5tpn_20260628/` for a completed one-design RFdiffusion -> ProteinMPNN
+-> AF3 -> filter test with logs and output artifacts.

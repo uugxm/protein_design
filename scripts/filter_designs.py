@@ -40,12 +40,14 @@ def parse_json(path: Path) -> Dict[str, Any]:
     try:
         payload = json.loads(path.read_text())
     except Exception as exc:
-        return {"file": str(path), "parse_error": repr(exc)}
+        return {"confidence_file": str(path), "parse_error": repr(exc)}
 
     plddt = _mean_value(_get_any(payload, ["plddt", "atom_plddts", "confidenceScore"]))
-    ptm = _mean_value(_get_any(payload, ["ptm", "ptm_score", "predicted_tm_score"]))
+    ptm = _mean_value(_get_any(payload, ["ptm", "ptm_score", "predicted_tm_score", "chain_ptm"]))
     iptm = _mean_value(_get_any(payload, ["iptm", "iptm_score", "ranking_confidence"]))
     pae = _mean_value(_get_any(payload, ["pae", "predicted_aligned_error"]))
+    ranking_score = _mean_value(_get_any(payload, ["ranking_score", "ranking_confidence"]))
+    has_clash = _mean_value(_get_any(payload, ["has_clash"]))
 
     return {
         "confidence_file": str(path),
@@ -53,6 +55,8 @@ def parse_json(path: Path) -> Dict[str, Any]:
         "ptm": ptm,
         "iptm": iptm,
         "pae_mean": pae,
+        "ranking_score": ranking_score,
+        "prediction_has_clash": has_clash,
         "parse_error": "",
     }
 
@@ -62,6 +66,9 @@ def collect_json_metrics(input_dir: Optional[Path]) -> Dict[str, Dict[str, Any]]
     if not input_dir:
         return metrics
     for path in sorted(input_dir.rglob("*.json")):
+        lower_name = path.name.lower()
+        if "manifest" in lower_name or lower_name.endswith("_input.json"):
+            continue
         row = parse_json(path)
         stem = path.stem
         metrics[stem] = row
@@ -143,6 +150,8 @@ def main() -> int:
             "ptm": None,
             "iptm": None,
             "pae_mean": None,
+            "ranking_score": None,
+            "prediction_has_clash": None,
             "motif_rmsd": None,
             "motif_atoms_compared": None,
             "motif_atoms_missing": None,
@@ -184,6 +193,8 @@ def main() -> int:
             "ptm": None,
             "iptm": None,
             "pae_mean": None,
+            "ranking_score": None,
+            "prediction_has_clash": None,
             "motif_rmsd": None,
             "motif_atoms_compared": None,
             "motif_atoms_missing": None,
@@ -196,7 +207,8 @@ def main() -> int:
     output.parent.mkdir(parents=True, exist_ok=True)
     fieldnames = [
         "design_id", "confidence_file", "model_pdb", "plddt_mean", "ptm", "iptm",
-        "pae_mean", "motif_rmsd", "motif_atoms_compared", "motif_atoms_missing",
+        "pae_mean", "ranking_score", "prediction_has_clash",
+        "motif_rmsd", "motif_atoms_compared", "motif_atoms_missing",
         "clash_count", "pass", "parse_error",
     ]
     with output.open("w", newline="") as handle:

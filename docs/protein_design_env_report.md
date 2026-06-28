@@ -214,6 +214,61 @@ PYTHONDONTWRITEBYTECODE=1 python scripts/make_fixed_positions_jsonl.py \
 
 Summary: scripts compiled; SLURM templates parsed; real `5TPN.pdb` motif `A163-181` generated ProteinMPNN fixed positions `A:109-127` with empty fixed-position lists for chains `H` and `L`. No RFdiffusion/ProteinMPNN/AF3 production compute was run on the login node.
 
+## 5TPN End-to-End Epitope Scaffold Test
+
+Run directory:
+
+```text
+/public/home/yinyifan/protein_design/examples/epitope_scaffold/e2e_20260628_180440
+```
+
+Submitted Slurm chain:
+
+```text
+RFdiffusion 123129 -> ProteinMPNN 123130 -> AF3 predict 123133 -> filter 123134
+```
+
+An initial AF3 prediction attempt, `123131`, failed because the AF3 container
+could not see `/public/shared/alphafold3/models`. The live filesystem and GBrain
+record agreed that the models exist at `/public/shared/alphafold3/models`; the
+fix was to add explicit Apptainer binding:
+
+```text
+AF3_BIND=/public/shared/alphafold3:/public/shared/alphafold3
+AF3_SIF=/public/apps/alphafold3/alphafold3/alphafold3.0.1.sif
+AF3_MODEL_DIR=/public/shared/alphafold3/models
+AF3_DB_DIR=/public/shared/alphafold3
+AF3_EXTRA_ARGS=--run_data_pipeline=False
+```
+
+Final job status:
+
+```text
+123129 rfdiff_epitope COMPLETED 00:01:34 gpu14
+123130_1 epi_array COMPLETED 00:00:08 gpu14
+123133_1 epi_array COMPLETED 00:01:14 gpu14
+123134_1 epi_array COMPLETED 00:00:02 gpu14
+```
+
+Artifacts retained in the repo under:
+
+```text
+examples/epitope_scaffold/e2e_5tpn_20260628/
+```
+
+Key result from `filter_summary.csv`:
+
+```text
+design_id=design_0
+plddt_mean=82.34062381852551
+pae_mean=5.001297577854671
+motif_rmsd=1.8237526412014622
+motif_atoms_compared=76
+motif_atoms_missing=0
+clash_count=0
+pass=PASS
+```
+
 ## Recommendations
 
 1. Use original RFdiffusion as the stable backbone/motif generator and keep `LD_LIBRARY_PATH` wrapper in all launch scripts.

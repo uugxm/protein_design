@@ -36,16 +36,30 @@ def main():
     parser.add_argument("--out_dir", required=True, help="Directory for AF3 JSON input files.")
     parser.add_argument("--chain_id", default="A")
     parser.add_argument("--seed", type=int, default=1)
+    parser.add_argument("--skip_first", action="store_true", help="Skip the first FASTA record, usually the input backbone/native sequence in ProteinMPNN output.")
+    parser.add_argument("--max_records", type=int, default=0, help="Maximum records to write after skipping; 0 means no limit.")
+    parser.add_argument("--name_prefix", default="", help="Optional prefix for generated job names.")
+    parser.add_argument("--manifest", default="", help="Optional TSV manifest path to write.")
+    parser.add_argument("--query_only", action="store_true", help="Embed empty MSA/template fields so AF3 can run with --run_data_pipeline=False.")
     args = parser.parse_args()
 
     os.makedirs(args.out_dir, exist_ok=True)
     count = 0
-    for name, sequence in read_fasta(args.fasta):
-        job_name = sanitize_name(name)
+    manifest_rows = []
+    for idx, (name, sequence) in enumerate(read_fasta(args.fasta)):
+        if args.skip_first and idx == 0:
+            continue
+        if args.max_records and count >= args.max_records:
+            break
+        prefix = args.name_prefix + "_" if args.name_prefix else ""
+        job_name = sanitize_name(prefix + name)
+        protein = {"id": args.chain_id, "sequence": sequence}
+        if args.query_only:
+            protein.update({"unpairedMsa": "", "pairedMsa": "", "templates": []})
         payload = {
             "name": job_name,
             "modelSeeds": [args.seed],
-            "sequences": [{"protein": {"id": args.chain_id, "sequence": sequence}}],
+            "sequences": [{"protein": protein}],
             "dialect": "alphafold3",
             "version": 1,
         }
@@ -53,8 +67,16 @@ def main():
         with open(out_path, "w") as handle:
             json.dump(payload, handle, indent=2, sort_keys=True)
             handle.write("\n")
+        manifest_rows.append((job_name, name, args.chain_id, len(sequence), out_path))
         count += 1
+    if args.manifest:
+        with open(args.manifest, "w") as handle:
+            handle.write("job_name\tsource_name\tchain_id\tsequence_length\tjson_path\n")
+            for row in manifest_rows:
+                handle.write("%s\t%s\t%s\t%s\t%s\n" % row)
     print("Wrote %d AF3 JSON input files to %s" % (count, args.out_dir))
+    if count == 0:
+        raise SystemExit("no FASTA records were written to AF3 JSON")
 
 
 if __name__ == "__main__":
