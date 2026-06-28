@@ -48,7 +48,7 @@ Primary path:
 
 1. RFdiffusion motif scaffolding or partial diffusion.
 2. ProteinMPNN sequence design with motif positions fixed from RFdiffusion `.trb` mappings.
-3. AF2/AF3/Boltz prediction.
+3. AF3 primary prediction, with RF3/Boltz optional cross-validation for AF3 top candidates.
 4. Motif RMSD, pLDDT, pTM/ipTM, PAE and clash filtering to `filter_summary.csv`.
 
 Minimal launch:
@@ -234,6 +234,61 @@ python ~/protein_design/scripts/filter_designs.py \
 
 The current script extracts common JSON confidence fields and computes motif RMSD
 and clash count from predicted PDB files.
+
+### Prediction Backend Decoupling
+
+AF3 is the primary prediction backend. Foundry RF3 and Boltz are optional
+cross-validation backends for AF3 top candidates only.
+
+Do not use AF3 `*_data.json` as a cross-model common format. AF3 Stage 1
+`*_data.json` files are AF3-internal assets for AF3 Stage 2
+`--run_data_pipeline=False`. RF3 and Boltz inputs are generated from the
+canonical prediction layer plus optional extracted MSA/template assets.
+
+Canonical input layer:
+
+```bash
+python scripts/make_canonical_prediction_inputs.py \
+  --fasta array_work/design_9/mpnn_outputs/seqs/design_9.fa \
+  --out_dir prediction_inputs/canonical \
+  --design_id design_9 \
+  --reference_pdb examples/epitope_scaffold/input/5TPN.pdb \
+  --motif_tsv examples/epitope_scaffold/motif_residues.tsv \
+  --backbone_pdb rfdiffusion_outputs/design_9.pdb \
+  --skip_first --sort_by_score --max_records 1
+```
+
+AF3 two-stage templates:
+
+```bash
+CANONICAL_MANIFEST=/path/to/canonical_manifest.tsv \
+  sbatch scripts/slurm_templates/run_af3_stage1.sbatch
+
+AF3_DATA_INPUT_DIR=/path/to/af3_stage1/raw_stage1 \
+  sbatch scripts/slurm_templates/run_af3_inference.sbatch
+```
+
+Optional RF3/Boltz cross-validation templates:
+
+```bash
+CANONICAL_MANIFEST=/path/to/canonical_manifest.tsv \
+  sbatch scripts/slurm_templates/run_rf3_predict.sbatch
+
+CANONICAL_MANIFEST=/path/to/canonical_manifest.tsv \
+  sbatch scripts/slurm_templates/run_boltz_predict.sbatch
+```
+
+Current top-3 cross-validation artifact:
+
+```text
+examples/epitope_scaffold/cross_model_prediction_top3_5tpn_20260628/
+```
+
+AF3 primary predictions passed for `design_9`, `design_1`, and `design_4`.
+RF3/Boltz native inputs were generated successfully. RF3 prediction is blocked
+until `weights/foundry/rf3_foundry_01_24_latest_remapped.ckpt` exists; Boltz is
+blocked until an isolated Boltz runtime provides the `boltz` command. Details
+are in `docs/cross_model_prediction_report.md`.
 
 ## Binder Design
 

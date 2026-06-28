@@ -405,6 +405,53 @@ Reports: reports/backend_comparison.csv, reports/backend_comparison.md, reports/
 
 Details are in `docs/foundry_rfd3_backend_report.md`.
 
+## Prediction Backend Decoupling Update
+
+AF3 remains the primary prediction backend. The stack now has a predictor-neutral
+canonical input layer and optional RF3/Boltz adapters for AF3 top candidates.
+AF3 `*_data.json` files are explicitly treated as AF3 Stage 2 assets only, not
+as cross-model interchange files.
+
+New scripts and templates:
+
+```text
+scripts/make_canonical_prediction_inputs.py
+scripts/extract_af3_stage1_assets.py
+scripts/make_rf3_json_inputs.py
+scripts/make_boltz_inputs.py
+scripts/compare_prediction_backends.py
+scripts/slurm_templates/run_af3_stage1.sbatch
+scripts/slurm_templates/run_af3_inference.sbatch
+scripts/slurm_templates/run_rf3_predict.sbatch
+scripts/slurm_templates/run_boltz_predict.sbatch
+```
+
+Top-3 5TPN cross-validation test:
+
+```text
+Run root: examples/epitope_scaffold/cross_model_prediction_top3_5tpn_20260628
+AF3 status: existing primary predictions reused; design_9/design_1/design_4 all PASS
+RF3 jobs: 123381 failed due invalid override; 123383 retried and failed due missing RF3 checkpoint
+Boltz job: 123382 failed because the boltz command/environment is not installed
+Consensus: reports/consensus_summary.csv
+```
+
+RF3 and Boltz native input generation passed:
+
+```text
+prediction_inputs/rf3/*.rf3.json
+prediction_inputs/boltz/*.boltz.yaml
+```
+
+Optional cross-validation is blocked until:
+
+```text
+RF3: ~/protein_design/weights/foundry/rf3_foundry_01_24_latest_remapped.ckpt exists
+Boltz: an isolated env/container provides the boltz command
+```
+
+Details are in `docs/cross_model_prediction_report.md`.
+
 ## Recommendations
 
 1. Use original RFdiffusion as the stable backbone/motif generator and keep `LD_LIBRARY_PATH` wrapper in all launch scripts.

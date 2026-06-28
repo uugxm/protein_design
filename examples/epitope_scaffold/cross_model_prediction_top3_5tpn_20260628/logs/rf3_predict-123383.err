@@ -1,0 +1,74 @@
+Environment variable CCD_MIRROR_PATH not set. Will not be able to use function requiring this variable. To set it you may:
+  (1) add the line 'export VAR_NAME=path/to/variable' to your .bashrc or .zshrc file
+  (2) set it in your current shell with 'export VAR_NAME=path/to/variable'
+  (3) write it to a .env file in the root of the atomworks.io repository
+Environment variable PDB_MIRROR_PATH not set. Will not be able to use function requiring this variable. To set it you may:
+  (1) add the line 'export VAR_NAME=path/to/variable' to your .bashrc or .zshrc file
+  (2) set it in your current shell with 'export VAR_NAME=path/to/variable'
+  (3) write it to a .env file in the root of the atomworks.io repository
+23:20:59 DEBUG transforms: Debug mode is on
+23:21:04 WARNING atomworks.constants: Environment variable LOCAL_MSA_DIRS not set. Will not be able to use function requiring this variable. To set it you may:
+  (1) add the line 'export VAR_NAME=path/to/variable' to your .bashrc or .zshrc file
+  (2) set it in your current shell with 'export VAR_NAME=path/to/variable'
+  (3) write it to a .env file in the root of the atomworks.io repository
+Traceback (most recent call last):
+  File "/public/home/yinyifan/protein_design/envs/foundry-rfd3/lib/python3.12/site-packages/hydra/_internal/instantiate/_instantiate2.py", line 92, in _call_target
+    return _target_(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/public/home/yinyifan/protein_design/envs/foundry-rfd3/lib/python3.12/site-packages/rf3/inference_engines/rf3.py", line 299, in __init__
+    super().__init__(
+  File "/public/home/yinyifan/protein_design/envs/foundry-rfd3/lib/python3.12/site-packages/foundry/inference_engines/base.py", line 86, in __init__
+    assert os.path.exists(
+           ^^^^^^^^^^^^^^^
+AssertionError: Invalid checkpoint: rf3. And could not find checkpoint in default installation location: /public/home/yinyifan/protein_design/weights/foundry/rf3_foundry_01_24_latest_remapped.ckpt
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/public/home/yinyifan/protein_design/envs/foundry-rfd3/bin/rf3", line 6, in <module>
+    sys.exit(app())
+             ^^^^^
+  File "/public/home/yinyifan/protein_design/envs/foundry-rfd3/lib/python3.12/site-packages/typer/main.py", line 1154, in __call__
+    raise e
+  File "/public/home/yinyifan/protein_design/envs/foundry-rfd3/lib/python3.12/site-packages/typer/main.py", line 1137, in __call__
+    return get_command(self)(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/public/home/yinyifan/protein_design/envs/foundry-rfd3/lib/python3.12/site-packages/typer/_click/core.py", line 807, in __call__
+    return self.main(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/public/home/yinyifan/protein_design/envs/foundry-rfd3/lib/python3.12/site-packages/typer/core.py", line 1193, in main
+    return _main(
+           ^^^^^^
+  File "/public/home/yinyifan/protein_design/envs/foundry-rfd3/lib/python3.12/site-packages/typer/core.py", line 183, in _main
+    rv = self.invoke(ctx)
+         ^^^^^^^^^^^^^^^^
+  File "/public/home/yinyifan/protein_design/envs/foundry-rfd3/lib/python3.12/site-packages/typer/core.py", line 1115, in invoke
+    return _process_result(sub_ctx.command.invoke(sub_ctx))
+                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/public/home/yinyifan/protein_design/envs/foundry-rfd3/lib/python3.12/site-packages/typer/_click/core.py", line 746, in invoke
+    return ctx.invoke(self.callback, **ctx.params)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/public/home/yinyifan/protein_design/envs/foundry-rfd3/lib/python3.12/site-packages/typer/_click/core.py", line 489, in invoke
+    return callback(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/public/home/yinyifan/protein_design/envs/foundry-rfd3/lib/python3.12/site-packages/typer/main.py", line 1515, in wrapper
+    return callback(**use_params)
+           ^^^^^^^^^^^^^^^^^^^^^^
+  File "/public/home/yinyifan/protein_design/envs/foundry-rfd3/lib/python3.12/site-packages/rf3/cli.py", line 69, in fold
+    run_inference(cfg)
+  File "/public/home/yinyifan/protein_design/envs/foundry-rfd3/lib/python3.12/site-packages/hydra/main.py", line 83, in decorated_main
+    return task_function(cfg_passthrough)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/public/home/yinyifan/protein_design/envs/foundry-rfd3/lib/python3.12/site-packages/rf3/inference.py", line 63, in run_inference
+    inference_engine = instantiate(init_cfg, _convert_="partial", _recursive_=False)
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/public/home/yinyifan/protein_design/envs/foundry-rfd3/lib/python3.12/site-packages/hydra/_internal/instantiate/_instantiate2.py", line 226, in instantiate
+    return instantiate_node(
+           ^^^^^^^^^^^^^^^^^
+  File "/public/home/yinyifan/protein_design/envs/foundry-rfd3/lib/python3.12/site-packages/hydra/_internal/instantiate/_instantiate2.py", line 347, in instantiate_node
+    return _call_target(_target_, partial, args, kwargs, full_key)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/public/home/yinyifan/protein_design/envs/foundry-rfd3/lib/python3.12/site-packages/hydra/_internal/instantiate/_instantiate2.py", line 97, in _call_target
+    raise InstantiationException(msg) from e
+hydra.errors.InstantiationException: Error in call to target 'rf3.inference_engines.rf3.RF3InferenceEngine':
+AssertionError('Invalid checkpoint: rf3. And could not find checkpoint in default installation location: /public/home/yinyifan/protein_design/weights/foundry/rf3_foundry_01_24_latest_remapped.ckpt')

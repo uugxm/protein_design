@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Collect AF3 prediction outputs into flat JSON/PDB files for filtering."""
+"""Collect predictor outputs into flat JSON/PDB/CIF files for filtering."""
 
 import argparse
 import json
@@ -7,6 +7,7 @@ import os
 import re
 import shutil
 import shlex
+import gzip
 from pathlib import Path
 
 
@@ -24,7 +25,10 @@ def first_existing(paths):
 def choose_json(root):
     patterns = [
         "**/*confidences*.json",
+        "**/*confidence*.json",
         "**/*summary*.json",
+        "**/*scores*.json",
+        "**/*.score",
         "**/ranking*.json",
         "**/*.json",
     ]
@@ -39,11 +43,20 @@ def choose_json(root):
 
 
 def choose_structure(root):
-    for pattern in ("**/*model*.cif", "**/*.cif", "**/*.pdb"):
+    for pattern in ("**/*model*.cif", "**/*model*.cif.gz", "**/*.cif", "**/*.cif.gz", "**/*.pdb"):
         hits = [p for p in sorted(root.glob(pattern)) if p.is_file()]
         if hits:
             return hits[0]
     return None
+
+
+def copy_json_like(json_path, flat_json):
+    if json_path.suffix.lower() == ".score":
+        payload = {"score_file": str(json_path), "raw_score": json_path.read_text(errors="ignore")}
+        flat_json.write_text(json.dumps(payload, indent=2, sort_keys=True) + "\n")
+        return "wrapped_score_as_json"
+    shutil.copy2(json_path, flat_json)
+    return "copied_json"
 
 
 def cif_tokens(line):
@@ -51,7 +64,11 @@ def cif_tokens(line):
 
 
 def parse_cif_atom_site(cif_path):
-    lines = cif_path.read_text(errors="ignore").splitlines()
+    if str(cif_path).endswith(".gz"):
+        with gzip.open(cif_path, "rt", errors="ignore") as handle:
+            lines = handle.read().splitlines()
+    else:
+        lines = cif_path.read_text(errors="ignore").splitlines()
     atoms = []
     i = 0
     while i < len(lines):
@@ -135,13 +152,22 @@ def collect_one(job_root, out_dir, flat_id, predictor):
         "source_structure": str(structure_path) if structure_path else "",
         "flat_json": "",
         "flat_pdb": "",
+        "flat_cif": "",
     }
 
     if json_path:
         flat_json = out_dir / (flat_id + ".json")
-        shutil.copy2(json_path, flat_json)
+        manifest["json_action"] = copy_json_like(json_path, flat_json)
         manifest["flat_json"] = str(flat_json)
     if structure_path:
+        if ".cif" in "".join(structure_path.suffixes).lower():
+            flat_cif = out_dir / (flat_id + ".cif")
+            if str(structure_path).endswith(".gz"):
+                with gzip.open(structure_path, "rb") as src, flat_cif.open("wb") as dst:
+                    shutil.copyfileobj(src, dst)
+            else:
+                shutil.copy2(structure_path, flat_cif)
+            manifest["flat_cif"] = str(flat_cif)
         flat_pdb = out_dir / (flat_id + ".pdb")
         manifest["structure_action"] = convert_structure_to_pdb(structure_path, flat_pdb)
         manifest["flat_pdb"] = str(flat_pdb)
@@ -150,7 +176,7 @@ def collect_one(job_root, out_dir, flat_id, predictor):
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument("--predictor", default="af3", choices=["af3", "boltz"])
+    parser.add_argument("--predictor", default="af3", choices=["af3", "rf3", "boltz"])
     parser.add_argument("--input_dir", required=True, help="Raw predictor output directory.")
     parser.add_argument("--out_dir", required=True, help="Flat output directory for filter_designs.py.")
     parser.add_argument("--design_id", required=True)

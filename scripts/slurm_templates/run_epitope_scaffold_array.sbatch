@@ -13,7 +13,7 @@
 set -euo pipefail
 
 BASE="${PROTEIN_DESIGN_HOME:-$HOME/protein_design}"
-PYTHON_BIN="${PYTHON_BIN:-python}"
+PYTHON_BIN="${PYTHON_BIN:-python3}"
 STAGE="${STAGE:-mpnn}"
 TASK_LIST="${TASK_LIST:-$PWD/backbone_list.txt}"
 WORK_ROOT="${WORK_ROOT:-$PWD/array_work}"
@@ -34,6 +34,10 @@ AF3_MODEL_DIR="${AF3_MODEL_DIR:-/public/shared/alphafold3/models}"
 AF3_DB_DIR="${AF3_DB_DIR:-/public/shared/alphafold3}"
 AF3_EXTRA_ARGS="${AF3_EXTRA_ARGS:---run_data_pipeline=False}"
 AF3_BIND="${AF3_BIND:-/public/shared/alphafold3:/public/shared/alphafold3}"
+RF3_CMD="${RF3_CMD:-rf3}"
+RF3_EXTRA_ARGS="${RF3_EXTRA_ARGS:-}"
+BOLTZ_CMD="${BOLTZ_CMD:-boltz}"
+BOLTZ_EXTRA_ARGS="${BOLTZ_EXTRA_ARGS:-}"
 
 mkdir -p logs "$WORK_ROOT"
 module purge || true
@@ -61,6 +65,7 @@ MPNN_DIR="$TASK_DIR/mpnn_outputs"
 PRED_DIR="$TASK_DIR/predictions"
 PRED_INPUT_DIR="$TASK_DIR/prediction_inputs"
 PRED_FLAT_DIR="$TASK_DIR/predictions_flat"
+CANONICAL_DIR="$PRED_INPUT_DIR/canonical"
 mkdir -p "$BACKBONE_DIR" "$TRB_DIR" "$MPNN_DIR" "$PRED_DIR" "$PRED_INPUT_DIR" "$PRED_FLAT_DIR"
 ln -sfn "$ITEM" "$BACKBONE_DIR/$DESIGN_ID.pdb"
 if [ -s "${ITEM%.pdb}.trb" ]; then
@@ -93,17 +98,19 @@ case "$STAGE" in
       echo "Missing ProteinMPNN FASTA: $FASTA_PATH" >&2
       exit 2
     fi
+    CANONICAL_ARGS=(--fasta "$FASTA_PATH" --out_dir "$CANONICAL_DIR" --design_id "$DESIGN_ID" --reference_pdb "$REFERENCE_PDB" --motif_tsv "$MOTIF_TSV" --backbone_pdb "$BACKBONE_DIR/$DESIGN_ID.pdb" --max_records "$PREDICT_MAX_RECORDS" --name_prefix "$DESIGN_ID")
+    if [ "$PREDICT_SKIP_FIRST" = "1" ]; then
+      CANONICAL_ARGS+=(--skip_first)
+    fi
+    if [ "$PREDICT_SORT_BY_SCORE" = "1" ]; then
+      CANONICAL_ARGS+=(--sort_by_score)
+    fi
+    "$PYTHON_BIN" "$BASE/scripts/make_canonical_prediction_inputs.py" "${CANONICAL_ARGS[@]}"
     case "$PREDICTOR" in
       af3)
         AF3_INPUT_DIR="$PRED_INPUT_DIR/af3"
         mkdir -p "$AF3_INPUT_DIR"
-        AF3_JSON_ARGS=(--fasta "$FASTA_PATH" --out_dir "$AF3_INPUT_DIR" --max_records "$PREDICT_MAX_RECORDS" --name_prefix "$DESIGN_ID" --manifest "$AF3_INPUT_DIR/manifest.tsv" --query_only)
-        if [ "$PREDICT_SKIP_FIRST" = "1" ]; then
-          AF3_JSON_ARGS+=(--skip_first)
-        fi
-        if [ "$PREDICT_SORT_BY_SCORE" = "1" ]; then
-          AF3_JSON_ARGS+=(--sort_by_score)
-        fi
+        AF3_JSON_ARGS=(--canonical_manifest "$CANONICAL_DIR/canonical_manifest.tsv" --out_dir "$AF3_INPUT_DIR" --manifest "$AF3_INPUT_DIR/manifest.tsv" --query_only)
         "$PYTHON_BIN" "$BASE/scripts/make_af3_json_inputs.py" "${AF3_JSON_ARGS[@]}"
         if [ ! -e "$AF3_SIF" ]; then
           echo "Missing AF3 container: $AF3_SIF" >&2
@@ -122,15 +129,36 @@ case "$STAGE" in
           --out_dir "$PRED_FLAT_DIR" \
           --design_id "$DESIGN_ID"
         ;;
+      rf3)
+        RF3_INPUT_DIR="$PRED_INPUT_DIR/rf3"
+        mkdir -p "$RF3_INPUT_DIR"
+        "$PYTHON_BIN" "$BASE/scripts/make_rf3_json_inputs.py" \
+          --canonical_manifest "$CANONICAL_DIR/canonical_manifest.tsv" \
+          --out_dir "$RF3_INPUT_DIR" \
+          --manifest "$RF3_INPUT_DIR/manifest.tsv"
+        if ! command -v "$RF3_CMD" >/dev/null 2>&1; then
+          echo "RF3 input prepared at $RF3_INPUT_DIR, but RF3_CMD=$RF3_CMD is not installed in this environment." >&2
+          exit 2
+        fi
+        "$RF3_CMD" fold inputs="$RF3_INPUT_DIR" out_dir="$PRED_DIR" $RF3_EXTRA_ARGS
+        "$PYTHON_BIN" "$BASE/scripts/collect_prediction_outputs.py" \
+          --predictor rf3 \
+          --input_dir "$PRED_DIR" \
+          --out_dir "$PRED_FLAT_DIR" \
+          --design_id "$DESIGN_ID"
+        ;;
       boltz)
         BOLTZ_INPUT_DIR="$PRED_INPUT_DIR/boltz"
         mkdir -p "$BOLTZ_INPUT_DIR"
-        cp "$FASTA_PATH" "$BOLTZ_INPUT_DIR/$DESIGN_ID.fa"
-        if ! command -v boltz >/dev/null 2>&1; then
-          echo "Boltz input prepared at $BOLTZ_INPUT_DIR/$DESIGN_ID.fa, but boltz command is not installed in this environment." >&2
+        "$PYTHON_BIN" "$BASE/scripts/make_boltz_inputs.py" \
+          --canonical_manifest "$CANONICAL_DIR/canonical_manifest.tsv" \
+          --out_dir "$BOLTZ_INPUT_DIR" \
+          --manifest "$BOLTZ_INPUT_DIR/manifest.tsv"
+        if ! command -v "$BOLTZ_CMD" >/dev/null 2>&1; then
+          echo "Boltz input prepared at $BOLTZ_INPUT_DIR, but BOLTZ_CMD=$BOLTZ_CMD is not installed in this environment." >&2
           exit 2
         fi
-        boltz predict "$BOLTZ_INPUT_DIR/$DESIGN_ID.fa" --out_dir "$PRED_DIR"
+        "$BOLTZ_CMD" predict "$BOLTZ_INPUT_DIR" --out_dir "$PRED_DIR" $BOLTZ_EXTRA_ARGS
         "$PYTHON_BIN" "$BASE/scripts/collect_prediction_outputs.py" \
           --predictor boltz \
           --input_dir "$PRED_DIR" \
@@ -138,7 +166,7 @@ case "$STAGE" in
           --design_id "$DESIGN_ID"
         ;;
       *)
-        echo "Unknown PREDICTOR=$PREDICTOR; use af3 or boltz." >&2
+        echo "Unknown PREDICTOR=$PREDICTOR; use af3, rf3, or boltz." >&2
         exit 2
         ;;
     esac
