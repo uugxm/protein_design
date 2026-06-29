@@ -372,11 +372,14 @@ ranking 时建议综合：
 
 ## 15. 参考资料与内部文档
 
+- Functional site scaffolding: Wang et al., scaffolding protein functional sites using deep learning.
 - RFdiffusion: Watson et al., de novo design of protein structure and function with RFdiffusion.
 - ProteinMPNN: Dauparas et al., robust deep learning-based protein sequence design.
+- LigandMPNN: RosettaCommons LigandMPNN documentation and current release notes for ligand/non-protein-aware inverse folding.
 - AlphaFold 3: Abramson et al., accurate structure prediction of biomolecular interactions.
-- Foundry / RFdiffusion3 / RF3: RosettaCommons Foundry documentation and installed backend reports.
-- Boltz: use as optional cross-model signal unless calibrated for the current MSA/template setting.
+- Foundry / RFdiffusion3 / RF3: RosettaCommons Foundry documentation, RFdiffusion3 model notes, RF3 folding notes, AtomWorks/RF3 release notes, and installed backend reports.
+- Boltz: Boltz documentation and model reports; use as optional cross-model signal unless calibrated for the current MSA/template setting.
+- Chai: Chai model documentation and model reports if a workflow enables Chai as an additional predictor.
 - Repository docs: `docs/foundry_rfd3_backend_report.md`, `docs/rf3_backend_report.md`, `docs/final_candidate_selection_report.md`, and the reusable skill at `skills/epitope_scaffold_design/SKILL.md`.
 
 ## 16. 历史经验边界
