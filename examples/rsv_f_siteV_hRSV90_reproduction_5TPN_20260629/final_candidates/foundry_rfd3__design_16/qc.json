@@ -1,0 +1,31 @@
+{
+  "af3": {
+    "clash_count": "0",
+    "motif_atoms_missing": "0",
+    "motif_rmsd": "0.9903385578420466",
+    "pae_mean": "5.1382060424094576",
+    "pass": "PASS",
+    "plddt_mean": "77.45096899224806"
+  },
+  "backend": "foundry_rfd3",
+  "design_id": "foundry_rfd3__design_16",
+  "order_blockers": [
+    "expression_system_unspecified",
+    "vector_unspecified",
+    "tag_signal_peptide_linker_policy_unspecified",
+    "codon_optimization_policy_unspecified"
+  ],
+  "order_now": false,
+  "rf3": {
+    "clash_count": "0",
+    "motif_atoms_missing": "0",
+    "motif_rmsd": "1.6766914171485596",
+    "pae_mean": "4.453394633139426",
+    "pass": "PASS",
+    "plddt_mean": "82.21747572815534"
+  },
+  "selection_role": "comparison_backup",
+  "sequence_warnings": [
+    "NXS/T_motif"
+  ]
+}

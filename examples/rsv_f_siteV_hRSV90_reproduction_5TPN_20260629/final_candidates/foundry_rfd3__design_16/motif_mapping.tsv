@@ -1,0 +1,2 @@
+chain	start	end	description	provenance
+A	163	181	Benchmark motif for RFdiffusion v1 vs Foundry RFD3 reproduction; reconciled from official RFdiffusion example after 5TPN contact extraction	RosettaCommons_RFdiffusion_A163_181_plus_5TPN_contact_validation_20260629

@@ -1,0 +1,31 @@
+{
+  "af3_predictions_per_backbone": 1,
+  "backends": [
+    "rfdiffusion_v1",
+    "foundry_rfd3"
+  ],
+  "benchmark_root": "/public/home/yinyifan/protein_design/examples/rsv_f_siteV_hRSV90_reproduction_5TPN_20260629",
+  "compare_root": "/public/home/yinyifan/protein_design/examples/rsv_f_siteV_hRSV90_reproduction_5TPN_20260629/phase1_smoke",
+  "filters": {
+    "max_clashes": 20,
+    "max_motif_rmsd": 2.5,
+    "max_pae": 10.0,
+    "min_plddt": 70.0
+  },
+  "foundry_batch_size": 2,
+  "foundry_cterm_range": "10-40",
+  "foundry_nterm_range": "10-40",
+  "input_pdb": "/public/home/yinyifan/protein_design/examples/rsv_f_siteV_hRSV90_reproduction_5TPN_20260629/inputs/5TPN.pdb",
+  "motif_tsv": "/public/home/yinyifan/protein_design/examples/rsv_f_siteV_hRSV90_reproduction_5TPN_20260629/inputs/motif_residues_benchmark.tsv",
+  "notes": [
+    "5TPN contact4/contact5 extraction is provenance for motif choice.",
+    "RF3 confirmation and final packaging run after AF3 summary selects top candidates.",
+    "Boltz no-MSA is a warning layer only."
+  ],
+  "num_backbones": 20,
+  "num_proteinmpnn_sequences_per_backbone": 4,
+  "phase": "smoke",
+  "reference_pdb": "/public/home/yinyifan/protein_design/examples/rsv_f_siteV_hRSV90_reproduction_5TPN_20260629/inputs/5TPN.pdb",
+  "rf3_top_n_per_backend": 5,
+  "v1_contigs": "[10-40/A163-181/10-40]"
+}

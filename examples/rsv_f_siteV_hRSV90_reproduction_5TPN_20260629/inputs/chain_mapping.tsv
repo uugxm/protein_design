@@ -1,0 +1,4 @@
+pdb_chain	author_chain	role	observed_residue_start	observed_residue_end	observed_residue_count	dbref	notes	seqadv_count
+A	A	antigen	27	544	490	UNP:P03420:27-513->27-513;UNP:Q38650:518-544->458-484	RSV F residues 27-513; fibritin foldon residues 518-544 if present; expression tag noted by SEQADV	55
+H	H	antibody_heavy	2	228	212	PDB:5TPN:1-228->1-228	hRSV90 heavy chain	0
+L	L	antibody_light	1	230	214	PDB:5TPN:1-230->1-230	hRSV90 light chain	0

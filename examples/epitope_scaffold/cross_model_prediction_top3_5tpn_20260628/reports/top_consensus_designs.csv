@@ -1,4 +1,0 @@
-rank,design_id,recommendation,af3_pass,rf3_pass,af3_motif_rmsd,rf3_motif_rmsd,max_af3_rf3_motif_rmsd,mean_af3_rf3_motif_rmsd,af3_plddt,rf3_plddt,mean_af3_rf3_plddt,af3_pae,rf3_pae,mean_af3_rf3_pae,af3_clash_count,rf3_clash_count,boltz_status,boltz_pass,boltz_plddt,boltz_ptm,boltz_motif_rmsd,boltz_warning
-1,design_1,RECOMMENDED,PASS,PASS,0.721181,0.750603,0.750603,0.735892,90.439,86.3269,88.3829,2.72235,1.72056,2.22146,0,1,SUCCESS,FAIL,65.4649,0.2995,552.226,BOLTZ_SINGLE_SEQUENCE_DISAGREEMENT:low_plddt;high_motif_rmsd
-2,design_9,RECOMMENDED,PASS,PASS,1.04193,1.04981,1.04981,1.04587,91.4301,89.6143,90.5222,2.6374,1.37633,2.00686,0,0,SUCCESS,FAIL,69.1138,0.297341,549.851,BOLTZ_SINGLE_SEQUENCE_DISAGREEMENT:low_plddt;high_motif_rmsd
-3,design_4,RECOMMENDED,PASS,PASS,1.84953,1.67975,1.84953,1.76464,87.2266,73.9715,80.5991,3.35261,7.40633,5.37947,0,0,SUCCESS,FAIL,59.2929,0.28141,546.501,BOLTZ_SINGLE_SEQUENCE_DISAGREEMENT:low_plddt;high_motif_rmsd;motif_atoms_missing

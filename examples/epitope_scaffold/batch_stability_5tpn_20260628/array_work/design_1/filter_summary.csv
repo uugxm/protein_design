@@ -1,2 +1,0 @@
-design_id,confidence_file,model_pdb,plddt_mean,ptm,iptm,pae_mean,ranking_score,prediction_has_clash,motif_rmsd,motif_atoms_compared,motif_atoms_missing,clash_count,pass,parse_error
-design_1,/public/home/yinyifan/protein_design/examples/epitope_scaffold/batch_stability_20260628_182526/array_work/design_1/predictions_flat/design_1.json,/public/home/yinyifan/protein_design/examples/epitope_scaffold/batch_stability_20260628_182526/array_work/design_1/predictions_flat/design_1.pdb,86.10791011235955,,,2.998341836734694,,,0.8981193742809949,76,0,0,PASS,

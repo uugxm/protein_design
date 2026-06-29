@@ -44,6 +44,19 @@ srun -p Interactive -N1 -n1 --gres=gpu:rtx3090:1 --time=00:05:00 nvidia-smi -L
 
 Goal: stabilize and display a known motif/epitope on a new scaffold. This is not the same as binder design.
 
+Current reusable entrypoint: `skills/epitope_scaffold_design/SKILL.md`.
+
+Current official benchmark: `examples/rsv_f_siteV_hRSV90_reproduction_5TPN_20260629/`.
+
+Run the Phase 1 smoke benchmark wrapper from the repository root:
+
+```bash
+cd ~/protein_design
+bash examples/rsv_f_siteV_hRSV90_reproduction_5TPN_20260629/run_smoke_benchmark.sh
+```
+
+The old smoke-test directory `examples/epitope_scaffold/` has been removed after migration. Historical report paths that mention it are provenance only and are not current runnable entrypoints.
+
 Primary path:
 
 1. RFdiffusion motif scaffolding or partial diffusion.

@@ -1,0 +1,27 @@
+# Final Candidate Selection Report
+
+Phase 1 smoke benchmark completed on the reconciled RFdiffusion site V motif `A163-181` from PDB 5TPN.
+
+## Backend result
+- rfdiffusion_v1: 19/20 AF3 PASS, 5/5 RF3 confirmed, AF3 median motif RMSD 0.995017, RF3 median motif RMSD 0.815762, backbone walltime 00:09:34, GPU-minutes 52.733, success/GPU-hour 21.6183.
+- foundry_rfd3: 7/20 AF3 PASS, 5/5 RF3 confirmed, AF3 median motif RMSD 2.72062, RF3 median motif RMSD 1.67669, backbone walltime 00:11:45, GPU-minutes 54.350, success/GPU-hour 7.72769.
+
+## Primary benchmark candidates
+- rfdiffusion_v1__design_15: benchmark_candidate, order_now=no.
+- rfdiffusion_v1__design_9: benchmark_candidate, order_now=no.
+- rfdiffusion_v1__design_7: benchmark_candidate, order_now=no.
+- rfdiffusion_v1__design_18: benchmark_candidate, order_now=no.
+- rfdiffusion_v1__design_4: benchmark_candidate, order_now=no.
+
+## Foundry RFD3 comparison backups
+- foundry_rfd3__design_6: comparison_backup, order_now=no.
+- foundry_rfd3__design_14: comparison_backup, order_now=no.
+- foundry_rfd3__design_16: comparison_backup, order_now=no.
+- foundry_rfd3__design_0: comparison_backup, order_now=no.
+- foundry_rfd3__design_4: comparison_backup, order_now=no.
+
+## Ordering policy
+No cloning-ready construct table was generated. Expression system, vector, tags, signal peptide/linker, restriction or assembly policy, and codon optimization policy remain unspecified.
+
+## Conclusion
+In Phase 1, RFdiffusion v1 was faster in backbone generation and produced higher AF3 pass rate, lower AF3/RF3 motif RMSD, and more AF3-pass candidates than Foundry RFD3. RFD3 is retained as a comparison backend, not the primary experimental source for this benchmark run.

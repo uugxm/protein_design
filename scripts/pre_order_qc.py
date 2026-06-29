@@ -23,9 +23,14 @@ from pdb_metrics import (
 )
 
 
-MOTIF_SEQUENCE = "EVNKIKSALLSTNKAVVSL"
 CANONICAL_AA = set("ACDEFGHIKLMNPQRSTVWY")
 HYDROPHOBIC_AA = set("AVILMFWY")
+AA3_TO_1 = {
+    "ALA": "A", "ARG": "R", "ASN": "N", "ASP": "D", "CYS": "C",
+    "GLN": "Q", "GLU": "E", "GLY": "G", "HIS": "H", "ILE": "I",
+    "LEU": "L", "LYS": "K", "MET": "M", "PHE": "F", "PRO": "P",
+    "SER": "S", "THR": "T", "TRP": "W", "TYR": "Y", "VAL": "V",
+}
 AA_MASS = {
     "A": 89.0935, "R": 174.2017, "N": 132.1184, "D": 133.1032, "C": 121.1590,
     "E": 147.1299, "Q": 146.1451, "G": 75.0669, "H": 155.1552, "I": 131.1736,
@@ -174,7 +179,17 @@ def parse_float(value: str) -> Optional[float]:
         return None
 
 
-def sequence_qc(design_rows: List[Dict[str, str]], sequences: Dict[str, str]) -> List[Dict[str, object]]:
+def motif_sequence_from_reference(reference_pdb: Path, motif_tsv: Path) -> str:
+    motif = read_motif_tsv(str(motif_tsv))
+    atoms = read_pdb_atoms(str(reference_pdb))
+    residue_names = {}
+    for atom in atoms:
+        key = (atom["chain"], atom["resseq"])
+        residue_names.setdefault(key, atom["resname"])
+    return "".join(AA3_TO_1.get(residue_names.get(key, ""), "X") for key in motif)
+
+
+def sequence_qc(design_rows: List[Dict[str, str]], sequences: Dict[str, str], motif_sequence: str) -> List[Dict[str, object]]:
     rows = []
     best_identity = {}
     for a in design_rows:
@@ -190,7 +205,7 @@ def sequence_qc(design_rows: List[Dict[str, str]], sequences: Dict[str, str]) ->
     for row in design_rows:
         design_id = row["design_id"]
         seq = sequences.get(design_id, "")
-        motif_start = seq.find(MOTIF_SEQUENCE)
+        motif_start = seq.find(motif_sequence) if motif_sequence else -1
         noncanonical = sorted(set(seq) - CANONICAL_AA)
         hydrophobic = hydrophobic_stretches(seq)
         low_complexity = low_complexity_regions(seq)
@@ -226,10 +241,10 @@ def sequence_qc(design_rows: List[Dict[str, str]], sequences: Dict[str, str]) ->
             "amino_acid_sequence": seq,
             "sequence_length": len(seq),
             "noncanonical_residues": ";".join(noncanonical),
-            "motif_sequence": MOTIF_SEQUENCE,
+            "motif_sequence": motif_sequence,
             "motif_intact": "yes" if motif_start >= 0 else "no",
             "motif_start": motif_start + 1 if motif_start >= 0 else "",
-            "motif_end": motif_start + len(MOTIF_SEQUENCE) if motif_start >= 0 else "",
+            "motif_end": motif_start + len(motif_sequence) if motif_start >= 0 else "",
             "cysteine_count": seq.count("C"),
             "nxs_t_glycosylation_motifs": ";".join(glyco),
             "long_hydrophobic_stretches": ";".join(hydrophobic),
@@ -489,6 +504,7 @@ def main() -> int:
     parser.add_argument("--backend_root", required=True)
     parser.add_argument("--reference_pdb", required=True)
     parser.add_argument("--motif_tsv", required=True)
+    parser.add_argument("--motif_sequence", default="", help="Optional expected motif sequence. Defaults to reference_pdb + motif_tsv.")
     parser.add_argument("--out_dir", default="")
     args = parser.parse_args()
 
@@ -499,8 +515,9 @@ def main() -> int:
     final_rows = read_csv(final_dir / "reports" / "final_expression_shortlist.csv")
     paths = {row["design_id"]: load_design_paths(final_dir, backup_dir, backend_root, row["design_id"]) for row in final_rows}
     sequences = {design_id: read_fasta(p["sequence_fasta"]) for design_id, p in paths.items()}
+    motif_sequence = args.motif_sequence or motif_sequence_from_reference(Path(args.reference_pdb), Path(args.motif_tsv))
 
-    seq_rows = sequence_qc(final_rows, sequences)
+    seq_rows = sequence_qc(final_rows, sequences, motif_sequence)
     struct_rows = structure_qc(final_rows, paths, Path(args.reference_pdb), Path(args.motif_tsv))
     decision_rows = qc_decisions(seq_rows, struct_rows, final_rows)
     cloning_rows = cloning_ready(final_rows, decision_rows, sequences)

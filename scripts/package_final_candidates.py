@@ -23,9 +23,6 @@ from pdb_metrics import (
 )
 
 
-PRIMARY_ORDER = ["design_1", "design_9", "design_4"]
-
-
 def read_csv(path: Path) -> List[Dict[str, str]]:
     if not path.exists():
         return []
@@ -37,6 +34,14 @@ def write_csv(path: Path, rows: List[Dict[str, str]], fieldnames: List[str]) -> 
     path.parent.mkdir(parents=True, exist_ok=True)
     with path.open("w", newline="") as handle:
         writer = csv.DictWriter(handle, fieldnames=fieldnames, extrasaction="ignore", lineterminator="\n")
+        writer.writeheader()
+        writer.writerows(rows)
+
+
+def write_tsv(path: Path, rows: List[Dict[str, str]], fieldnames: List[str]) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    with path.open("w", newline="") as handle:
+        writer = csv.DictWriter(handle, fieldnames=fieldnames, extrasaction="ignore", delimiter="\t", lineterminator="\n")
         writer.writeheader()
         writer.writerows(rows)
 
@@ -66,6 +71,22 @@ def copy_if_exists(src: Optional[Path], dst: Path) -> str:
     dst.parent.mkdir(parents=True, exist_ok=True)
     shutil.copy2(src, dst)
     return str(dst)
+
+
+def parse_candidate_ids(text: str) -> List[str]:
+    return [item for item in re.split(r"[,\s]+", text.strip()) if item]
+
+
+def choose_candidate_ids(args: argparse.Namespace, shortlist_rows: List[Dict[str, str]], top_rows: List[Dict[str, str]]) -> List[str]:
+    explicit = parse_candidate_ids(args.candidate_ids)
+    if explicit:
+        return explicit
+    ranked = []
+    for row in top_rows + shortlist_rows:
+        design_id = row.get("design_id", "")
+        if design_id and design_id not in ranked:
+            ranked.append(design_id)
+    return ranked[:args.max_candidates]
 
 
 def parse_mpnn_header(path: Optional[Path]) -> Dict[str, str]:
@@ -291,16 +312,23 @@ def make_package(args: argparse.Namespace) -> None:
     reports_dir.mkdir(parents=True, exist_ok=True)
     visualization_dir.mkdir(parents=True, exist_ok=True)
 
-    shortlist = row_by_design(read_csv(Path(args.shortlist_csv)))
+    shortlist_rows = read_csv(Path(args.shortlist_csv))
+    top_rows = read_csv(Path(args.top_consensus_csv))
+    shortlist = row_by_design(shortlist_rows)
     consensus = consensus_by_design(read_csv(Path(args.consensus_csv)))
-    top_consensus = row_by_design(read_csv(Path(args.top_consensus_csv)))
+    top_consensus = row_by_design(top_rows)
     backend_root = Path(args.backend_root)
     cross_root = Path(args.cross_model_root)
     reference_pdb = Path(args.reference_pdb)
     motif_tsv = Path(args.motif_tsv)
 
+    selected_designs = choose_candidate_ids(args, shortlist_rows, top_rows)
+    if not selected_designs:
+        raise SystemExit("No candidate design IDs found; pass --candidate_ids or provide non-empty shortlist/top consensus CSVs.")
+
     final_rows = []
-    for rank, design_id in enumerate(PRIMARY_ORDER, start=1):
+    manifest_rows = []
+    for rank, design_id in enumerate(selected_designs, start=1):
         design_dir = out_dir / design_id
         design_dir.mkdir(parents=True, exist_ok=True)
         package_paths = {}
@@ -330,15 +358,19 @@ def make_package(args: argparse.Namespace) -> None:
         mpnn_fasta = backend_root / "array_work" / design_id / "mpnn_outputs" / "seqs" / (design_id + ".fa")
 
         package_paths["sequence_fasta"] = copy_if_exists(canonical_fasta, design_dir / (design_id + "_final_sequence.fasta"))
+        package_paths["sequence_fasta_generic"] = copy_if_exists(canonical_fasta, design_dir / "sequence.fasta")
         package_paths["canonical_json"] = copy_if_exists(canonical_json, design_dir / (design_id + "_canonical_input.json"))
         package_paths["canonical_cif"] = copy_if_exists(canonical_cif, design_dir / (design_id + "_canonical_backbone.cif"))
         package_paths["af3_pdb"] = copy_if_exists(af3_pdb, design_dir / (design_id + "_af3_model.pdb"))
+        package_paths["af3_pdb_generic"] = copy_if_exists(af3_pdb, design_dir / "af3_model.pdb")
         package_paths["af3_cif"] = write_minimal_cif_from_pdb(af3_pdb, design_dir / (design_id + "_af3_model.cif"), design_id + "_af3_model")
         package_paths["af3_json"] = copy_if_exists(af3_json, design_dir / (design_id + "_af3_confidence.json"))
         package_paths["rf3_pdb"] = copy_if_exists(rf3_pdb, design_dir / (design_id + "_rf3_model.pdb"))
+        package_paths["rf3_pdb_generic"] = copy_if_exists(rf3_pdb, design_dir / "rf3_model.pdb")
         package_paths["rf3_cif"] = copy_if_exists(rf3_cif, design_dir / (design_id + "_rf3_model.cif"))
         package_paths["rf3_json"] = copy_if_exists(rf3_json, design_dir / (design_id + "_rf3_confidence.json"))
         package_paths["backbone_pdb"] = copy_if_exists(backbone_pdb, design_dir / (design_id + "_rfdiffusion_backbone.pdb"))
+        package_paths["backbone_pdb_generic"] = copy_if_exists(backbone_pdb, design_dir / "backbone.pdb")
         package_paths["backbone_trb"] = copy_if_exists(backbone_trb, design_dir / (design_id + "_rfdiffusion_mapping.trb"))
         package_paths["rf3_trb"] = copy_if_exists(rf3_trb, design_dir / (design_id + "_rf3_mapping.trb"))
         package_paths["mpnn_fasta"] = copy_if_exists(mpnn_fasta, design_dir / (design_id + "_proteinmpnn_all_sequences.fa"))
@@ -354,11 +386,16 @@ def make_package(args: argparse.Namespace) -> None:
             motif_aligned,
         )
         package_paths["motif_only_aligned_pdb"] = str(motif_aligned)
+        copy_if_exists(motif_aligned, design_dir / "motif_aligned.pdb")
+        package_paths["motif_aligned_generic"] = str(design_dir / "motif_aligned.pdb")
         mapping_tsv = design_dir / (design_id + "_motif_mapping.tsv")
         write_motif_mapping_tsv(mapping_tsv, alignment_report)
         package_paths["motif_mapping_tsv"] = str(mapping_tsv)
+        copy_if_exists(mapping_tsv, design_dir / "motif_mapping.tsv")
+        package_paths["motif_mapping_generic"] = str(design_dir / "motif_mapping.tsv")
 
         pymol_path = visualization_dir / (design_id + "_motif_qc.pml")
+        design_pymol_path = design_dir / "motif_qc.pml"
         write_pymol(
             pymol_path,
             design_id,
@@ -370,13 +407,15 @@ def make_package(args: argparse.Namespace) -> None:
             },
         )
         package_paths["pymol_script"] = str(pymol_path)
+        copy_if_exists(pymol_path, design_pymol_path)
+        package_paths["pymol_script_generic"] = str(design_pymol_path)
 
         mpnn = parse_mpnn_header(mpnn_fasta)
         sequence = fasta_sequence(canonical_fasta)
-        priority = "high" if design_id in ("design_1", "design_9") else "medium"
+        priority = "high" if rank <= 2 else "medium"
         qc = {
             "design_id": design_id,
-            "source_backend": "RFdiffusion v1",
+            "source_backend": args.source_backend,
             "job_name": job_name,
             "sequence_length": len(sequence),
             "proteinmpnn": mpnn,
@@ -396,12 +435,14 @@ def make_package(args: argparse.Namespace) -> None:
         }
         qc_path = design_dir / (design_id + "_qc.json")
         qc_path.write_text(json.dumps(qc, indent=2, sort_keys=True) + "\n")
+        (design_dir / "qc.json").write_text(json.dumps(qc, indent=2, sort_keys=True) + "\n")
+        package_paths["qc_json_generic"] = str(design_dir / "qc.json")
 
         summary = [
             "# %s Final Candidate Summary" % design_id,
             "",
             "- design_id: `%s`" % design_id,
-            "- source backend: RFdiffusion v1",
+            "- source backend: %s" % args.source_backend,
             "- recommended experimental priority: `%s`" % priority,
             "- selection reason: %s" % shortlist_row.get("selection_reason", ""),
             "- global fold cluster: `%s`" % shortlist_row.get("global_fold_cluster_id", ""),
@@ -432,6 +473,16 @@ def make_package(args: argparse.Namespace) -> None:
             summary.append("- %s: `%s`" % (key, value))
         summary_path = design_dir / (design_id + "_summary.md")
         summary_path.write_text("\n".join(summary) + "\n")
+        (design_dir / "summary.md").write_text("\n".join(summary) + "\n")
+        package_paths["summary_md_generic"] = str(design_dir / "summary.md")
+
+        for artifact, path_text in package_paths.items():
+            manifest_rows.append({
+                "design_id": design_id,
+                "artifact": artifact,
+                "path": path_text,
+                "exists": "yes" if path_text and Path(path_text).exists() else "no",
+            })
 
         final_rows.append({
             "rank": str(rank),
@@ -450,7 +501,7 @@ def make_package(args: argparse.Namespace) -> None:
             "motif_local_cluster": shortlist_row.get("motif_local_cluster_id", ""),
             "sequence_cluster": shortlist_row.get("sequence_cluster_id", ""),
             "Boltz warning": top_row.get("boltz_warning", shortlist_row.get("Boltz warning", "")),
-            "recommended_action": "small-scale expression and motif-binding QC",
+            "recommended_action": "small-scale expression and motif-binding QC after expression-system and vector policy are specified",
         })
 
     fields = [
@@ -460,6 +511,7 @@ def make_package(args: argparse.Namespace) -> None:
         "sequence_cluster", "Boltz warning", "recommended_action",
     ]
     write_csv(reports_dir / "final_expression_shortlist.csv", final_rows, fields)
+    write_tsv(out_dir / "package_manifest.tsv", manifest_rows, ["design_id", "artifact", "path", "exists"])
     print("Packaged %d final candidates into %s" % (len(final_rows), out_dir))
 
 
@@ -473,6 +525,9 @@ def main() -> int:
     parser.add_argument("--reference_pdb", required=True)
     parser.add_argument("--motif_tsv", required=True)
     parser.add_argument("--out_dir", required=True)
+    parser.add_argument("--candidate_ids", default="", help="Comma/space separated design IDs. Defaults to top consensus and shortlist order.")
+    parser.add_argument("--max_candidates", type=int, default=3)
+    parser.add_argument("--source_backend", default="unspecified")
     args = parser.parse_args()
     make_package(args)
     return 0

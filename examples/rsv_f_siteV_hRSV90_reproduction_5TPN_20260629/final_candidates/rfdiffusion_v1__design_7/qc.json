@@ -1,0 +1,29 @@
+{
+  "af3": {
+    "clash_count": "0",
+    "motif_atoms_missing": "0",
+    "motif_rmsd": "0.8315725055699434",
+    "pae_mean": "2.53401652892562",
+    "pass": "PASS",
+    "plddt_mean": "90.53102040816327"
+  },
+  "backend": "rfdiffusion_v1",
+  "design_id": "rfdiffusion_v1__design_7",
+  "order_blockers": [
+    "expression_system_unspecified",
+    "vector_unspecified",
+    "tag_signal_peptide_linker_policy_unspecified",
+    "codon_optimization_policy_unspecified"
+  ],
+  "order_now": false,
+  "rf3": {
+    "clash_count": "0",
+    "motif_atoms_missing": "0",
+    "motif_rmsd": "0.815761971276433",
+    "pae_mean": "1.979596694214876",
+    "pass": "PASS",
+    "plddt_mean": "84.17954545454546"
+  },
+  "selection_role": "primary",
+  "sequence_warnings": []
+}

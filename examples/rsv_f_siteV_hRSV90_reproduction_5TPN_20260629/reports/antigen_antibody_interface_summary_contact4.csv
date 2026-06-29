@@ -1,0 +1,16 @@
+metric,value
+complex,/public/home/yinyifan/protein_design/examples/rsv_f_siteV_hRSV90_reproduction_5TPN_20260629/inputs/5TPN.pdb
+antigen_chain,A
+antibody_heavy_chain,H
+antibody_light_chain,L
+cutoff_angstrom,4.00
+motif_residue_count,16
+motif_sequence,SALSTNKAVLKDNKKD
+motif_segments,169-170;172-178;188-188;191-191;194-194;197-197;201-201;226-226;263-263
+continuity,discontinuous
+heavy_chain_contact_count,72
+light_chain_contact_count,72
+total_atom_contact_count,144
+contacted_antibody_residue_count,16
+warning,motif_is_fragmented_more_than_3_segments
+recommendation,Use this contact-derived motif for benchmark only after comparing contact4/contact5 and RFdiffusion original A163-181 references. Prefer the smaller contact4 set when it captures the same key site-V residues; use contact5 if contact4 is too sparse.
