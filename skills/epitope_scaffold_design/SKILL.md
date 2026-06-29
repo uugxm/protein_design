@@ -63,6 +63,8 @@ Backend config:
 
 ## Workflow
 
+Current smoke benchmark orchestration is semi-automated: backbone generation, MPNN, AF3, and summary are submitted through workflow wrappers; RF3 confirmation, clustering, pre-order QC, and final packaging may still be run as downstream staged steps unless the full DAG wrapper is explicitly invoked.
+
 Step 0. Validate input complex and chains.
 
 Step 1. Extract or confirm motif residues with `scripts/prepare_epitope_from_complex.py`; record contact cutoff, chain mapping, mutations, missing residues, and motif provenance.

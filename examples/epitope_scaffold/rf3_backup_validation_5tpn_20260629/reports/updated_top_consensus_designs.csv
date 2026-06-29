@@ -1,0 +1,8 @@
+rank,design_id,tier,expression_priority,AF3 pass,RF3 pass,AF3 motif RMSD,RF3 motif RMSD,AF3 pLDDT,RF3 pLDDT,AF3 PAE,RF3 PAE,fold_cluster,motif_local_cluster,sequence_cluster,Boltz warning,recommended_action
+1,design_1,primary,high,PASS,PASS,0.721181,0.750603,90.439,86.3269,2.72235,1.72056,F1,M1,S1,BOLTZ_SINGLE_SEQUENCE_DISAGREEMENT:low_plddt;high_motif_rmsd,small-scale expression and motif-binding QC
+2,design_9,primary,high,PASS,PASS,1.04193,1.04981,91.4301,89.6143,2.6374,1.37633,F3,M3,S3,BOLTZ_SINGLE_SEQUENCE_DISAGREEMENT:low_plddt;high_motif_rmsd,small-scale expression and motif-binding QC
+3,design_4,primary,medium,PASS,PASS,1.84953,1.67975,87.2266,73.9715,3.35261,7.40633,F2,M2,S2,BOLTZ_SINGLE_SEQUENCE_DISAGREEMENT:low_plddt;high_motif_rmsd,small-scale expression after design_1/design_9 or include if capacity allows
+4,design_0,backup,medium,PASS,PASS,0.8296094022656298,0.7876293897087726,79.34049152542373,77.25636672325976,5.802182106724856,4.437607617536203,F1,M1,S1,,backup consensus candidate; include if expanding expression panel
+5,design_7,backup,medium,PASS,PASS,0.890868233368453,0.9039064380430676,84.71767485822306,83.92992424242424,4.671199845679013,3.0255054012345677,F6,M6,S6,,backup consensus candidate; include if expanding expression panel
+6,design_2,backup,medium,PASS,PASS,0.9532936556580662,1.0210449403853716,83.29615062761506,86.15723270440252,3.908546089760817,2.213714055361462,F3,M3,S3,,backup consensus candidate; include if expanding expression panel
+7,design_3,backup,medium,PASS,PASS,1.0391202635184176,0.8623704633593342,85.36316326530613,81.62167689161555,4.017913832199547,2.957226001511716,F4,M4,S4,,backup consensus candidate; include if expanding expression panel

@@ -63,7 +63,7 @@ python3 "$BASE/scripts/run_epitope_scaffold_workflow.py" \
   --motif_tsv "$MOTIF_TSV" \
   --backends "rfdiffusion_v1,foundry_rfd3" \
   --num_backbones "${NUM_BACKBONES:-20}" \
-  --num_seq "${NUM_PROTEINMPNN_SEQUENCES:-4}" \
+  --num_seq "${NUM_PROTEINMPNN_SEQUENCES:-5}" \
   --af3_per_backbone "${AF3_PER_BACKBONE:-1}" \
   --rf3_top_n "${RF3_TOP_N:-5}" \
   --v1_contigs "$V1_CONTIGS" \

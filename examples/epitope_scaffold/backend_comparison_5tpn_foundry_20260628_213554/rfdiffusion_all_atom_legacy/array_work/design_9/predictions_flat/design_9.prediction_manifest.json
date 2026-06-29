@@ -1,0 +1,11 @@
+[
+  {
+    "design_id": "design_9",
+    "flat_json": "/public/home/yinyifan/protein_design/examples/epitope_scaffold/backend_comparison_5tpn_foundry_20260628_213554/rfdiffusion_all_atom_legacy/array_work/design_9/predictions_flat/design_9.json",
+    "flat_pdb": "/public/home/yinyifan/protein_design/examples/epitope_scaffold/backend_comparison_5tpn_foundry_20260628_213554/rfdiffusion_all_atom_legacy/array_work/design_9/predictions_flat/design_9.pdb",
+    "predictor": "af3",
+    "source_json": "/public/home/yinyifan/protein_design/examples/epitope_scaffold/backend_comparison_5tpn_foundry_20260628_213554/rfdiffusion_all_atom_legacy/array_work/design_9/predictions/design_9_t_0.1_sample_1_score_nan_global_score_2.3901_seq_recovery_nan/design_9_t_0.1_sample_1_score_nan_global_score_2.3901_seq_recovery_nan_confidences.json",
+    "source_structure": "/public/home/yinyifan/protein_design/examples/epitope_scaffold/backend_comparison_5tpn_foundry_20260628_213554/rfdiffusion_all_atom_legacy/array_work/design_9/predictions/design_9_t_0.1_sample_1_score_nan_global_score_2.3901_seq_recovery_nan/design_9_t_0.1_sample_1_score_nan_global_score_2.3901_seq_recovery_nan_model.cif",
+    "structure_action": "converted_cif_to_pdb"
+  }
+]

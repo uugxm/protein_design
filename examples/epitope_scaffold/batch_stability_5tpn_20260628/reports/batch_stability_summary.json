@@ -1,0 +1,49 @@
+{
+  "af3_final": {
+    "expected": 10,
+    "failure_rate_final_outputs": 0.0,
+    "missing": 0,
+    "prediction_pdbs": 10
+  },
+  "af3_first_pass": {
+    "completed": 9,
+    "expected": 10,
+    "failed": 1,
+    "failure_rate": 0.1,
+    "job_id": "123137"
+  },
+  "af3_retry": {
+    "completed": 1,
+    "expected": 1,
+    "job_id": "123160"
+  },
+  "filter_array": {
+    "completed": 10,
+    "expected": 10,
+    "job_id": "123161"
+  },
+  "filter_summaries": 10,
+  "final_prediction_pdbs": 10,
+  "merge_job": {
+    "elapsed": "00:00:00",
+    "job_id": "123162",
+    "state": "COMPLETED"
+  },
+  "mpnn_array": {
+    "completed": 10,
+    "expected": 10,
+    "job_id": "123136"
+  },
+  "mpnn_fastas": 10,
+  "notes": [
+    "Original GPU filter job 123138 and merge job 123139 were cancelled before running and replaced with CPU filter job 123161 plus merge 123162.",
+    "AF3 first-pass task 123137_6 failed with JAX no visible GPU inside container on gpu15; targeted retry 123160_6 completed on gpu14."
+  ],
+  "rf_backbone_outputs": 10,
+  "rf_job": {
+    "elapsed": "00:05:11",
+    "job_id": "123135",
+    "state": "COMPLETED"
+  },
+  "run_dir": "/public/home/yinyifan/protein_design/examples/epitope_scaffold/batch_stability_20260628_182526"
+}

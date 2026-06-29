@@ -1,9 +1,0 @@
-backend,stage,job_roots,num_sacct_rows,gpu_minutes
-rfdiffusion_v1,gen,123404,1,9.567
-rfdiffusion_v1,mpnn,123405,20,3.517
-rfdiffusion_v1,af3,123406;123530,23,29.733
-rfdiffusion_v1,rf3,123631;123633;123635;123637;123639,5,9.917
-foundry_rfd3,gen,123409,1,11.750
-foundry_rfd3,mpnn,123410,20,2.600
-foundry_rfd3,af3,123411;123535;123544,24,30.817
-foundry_rfd3,rf3,123642;123644;123646;123648;123650;123653,6,9.183

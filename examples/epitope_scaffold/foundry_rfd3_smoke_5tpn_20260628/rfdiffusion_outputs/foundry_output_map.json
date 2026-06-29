@@ -1,0 +1,9 @@
+[
+  {
+    "design_id": "design_0",
+    "normalized_metadata": "/public/home/yinyifan/protein_design/examples/epitope_scaffold/foundry_rfd3_smoke_5tpn_20260628/rfdiffusion_outputs/design_0.foundry_metadata.json",
+    "normalized_pdb": "/public/home/yinyifan/protein_design/examples/epitope_scaffold/foundry_rfd3_smoke_5tpn_20260628/rfdiffusion_outputs/design_0.pdb",
+    "source_metadata": "/public/home/yinyifan/protein_design/examples/epitope_scaffold/foundry_rfd3_smoke_5tpn_20260628/foundry_rfd3/raw_outputs/input_motif_scaffold_0_model_0.json",
+    "source_structure": "/public/home/yinyifan/protein_design/examples/epitope_scaffold/foundry_rfd3_smoke_5tpn_20260628/foundry_rfd3/raw_outputs/input_motif_scaffold_0_model_0.cif.gz"
+  }
+]

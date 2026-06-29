@@ -1,0 +1,19 @@
+{
+  "dialect": "alphafold3",
+  "modelSeeds": [
+    1
+  ],
+  "name": "design_0_T_0.1_sample_3_score_0.9514_global_score_1.3114_seq_recovery_0.5714",
+  "sequences": [
+    {
+      "protein": {
+        "id": "A",
+        "pairedMsa": "",
+        "sequence": "ADLTGTTVTINGTGNGSTAVDANGNVVALTVGGAHANTATEVNKIKSALLSTNKAVVSLNTGGANNGSVGPGITNPTAANLAAAAAAAA",
+        "templates": [],
+        "unpairedMsa": ""
+      }
+    }
+  ],
+  "version": 1
+}

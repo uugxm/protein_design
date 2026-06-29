@@ -1,0 +1,16 @@
+{
+  "components": [
+    {
+      "chain_id": "A",
+      "seq": "MVTITITENGTTTTVTLTPEEVNKIKSALLSTNKAVVSLSDGTNYTITVTDEQLKKLNAGEPVTINATKTAA"
+    }
+  ],
+  "metadata": {
+    "canonical_json": "/public/home/yinyifan/protein_design/examples/epitope_scaffold/rf3_backup_validation_5tpn_20260629/canonical/design_7/json/design_7_T_0.1_sample_4_score_1.0160_global_score_1.2939_seq_recovery_0.0566.json",
+    "motif_tsv": "/public/home/yinyifan/protein_design/examples/epitope_scaffold/motif_residues.tsv",
+    "note": "Generated from canonical prediction input; no AF3 *_data.json fields were consumed.",
+    "reference_pdb": "/public/home/yinyifan/protein_design/examples/epitope_scaffold/input/5TPN.pdb",
+    "source_schema": "protein_design.canonical_prediction_input.v1"
+  },
+  "name": "design_7_T_0.1_sample_4_score_1.0160_global_score_1.2939_seq_recovery_0.0566"
+}

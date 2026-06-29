@@ -55,16 +55,16 @@ cd ~/protein_design
 bash examples/rsv_f_siteV_hRSV90_reproduction_5TPN_20260629/run_smoke_benchmark.sh
 ```
 
-The old smoke-test directory `examples/epitope_scaffold/` has been removed after migration. Historical report paths that mention it are provenance only and are not current runnable entrypoints.
+The old smoke-test directory `examples/epitope_scaffold/` is retained as historical smoke-test provenance. It is not the current runnable entrypoint; cleanup should be handled in a separate PR if it is still desired.
 
-Primary path:
+Canonical workflow shape:
 
 1. RFdiffusion motif scaffolding or partial diffusion.
 2. ProteinMPNN sequence design with motif positions fixed from RFdiffusion `.trb` mappings.
 3. AF2/AF3/Boltz prediction.
 4. Motif RMSD, pLDDT, pTM/ipTM, PAE and clash filtering to `filter_summary.csv`.
 
-Minimal launch:
+Legacy low-level command snippets, retained only for historical `examples/epitope_scaffold/` reference:
 
 ```bash
 cd ~/protein_design/examples/epitope_scaffold
@@ -88,7 +88,7 @@ export LD_LIBRARY_PATH=~/protein_design/envs/rfdiffusion-se3nv/lib:$LD_LIBRARY_P
 
 ## ProteinMPNN Sequence Design
 
-ProteinMPNN is reused from the existing legacy repo and runs with the cluster PyTorch module:
+ProteinMPNN is reused from the existing legacy repo and runs with the cluster PyTorch module. The command below is a legacy low-level reference; current benchmark runs should use the reusable skill wrapper above.
 
 ```bash
 module purge || true
@@ -119,7 +119,7 @@ Do not download or overwrite AF3 databases/weights. Confirm these paths before p
 --model_dir=/public/home/yinyifan/models
 ```
 
-Unified filtering script:
+Unified filtering script, legacy low-level reference:
 
 ```bash
 python ~/protein_design/scripts/filter_designs.py \

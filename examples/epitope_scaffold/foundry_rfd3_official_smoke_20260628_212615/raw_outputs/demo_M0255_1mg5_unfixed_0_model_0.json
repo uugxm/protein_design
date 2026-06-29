@@ -1,0 +1,74 @@
+{
+    "diffused_index_map": {
+        "A108": "A78",
+        "A139": "A7",
+        "A152": "A8",
+        "A156": "A107"
+    },
+    "metrics": {
+        "join_point_rmsd_by_token": {
+            "A108": 1.8152333498001099,
+            "A152": 4.032742500305176,
+            "A156": 2.9236152172088623
+        },
+        "insertion.mae": 5.082797169685364,
+        "insertion.rmcd": 3.055636763572693,
+        "insertion_rmsd": 3.3427339792251587,
+        "join_point_rmsd": 2.923863689104716,
+        "n_conjoined_residues": 4,
+        "max_ca_deviation": 5.457472801208496,
+        "n_chainbreaks": 86,
+        "n_clashing.interresidue_clashes_w_sidechain": 128,
+        "n_clashing.interresidue_clashes_w_backbone": 16,
+        "n_clashing.ligand_clashes": 0,
+        "n_clashing.ligand_min_distance": 2.2494149208068848,
+        "non_loop_fraction": 0.0670391061452514,
+        "loop_fraction": 0.9329608938547486,
+        "helix_fraction": 0.027932960893854747,
+        "sheet_fraction": 0.03910614525139665,
+        "num_ss_elements": 3,
+        "radius_of_gyration": 13.96234165900687,
+        "alanine_content": 0.0,
+        "glycine_content": 0.03888888888888889,
+        "num_residues": 180,
+        "diffused_com": [
+            1.7763917446136475,
+            0.5499047040939331,
+            1.5030137300491333
+        ],
+        "fixed_com": [
+            -0.00017755682347342372,
+            -0.0007102272938936949,
+            0.00011097301467088982
+        ]
+    },
+    "specification": {
+        "input": "/public/home/yinyifan/protein_design/repos/foundry/models/rfd3/docs/input_pdbs/M0255_1mg5.pdb",
+        "unindex": "A108,A139,A152,A156",
+        "length": "180-200",
+        "ligand": "NAI,ACT",
+        "allow_ligand_on_existing_chain": true,
+        "extra": {
+            "example": "M0255_1mg5_unfixed",
+            "task_name": "demo_M0255_1mg5_unfixed",
+            "sampled_contig": "180P",
+            "num_tokens_in": 186,
+            "num_residues_in": 186,
+            "num_chains": 2,
+            "num_atoms": 958,
+            "num_residues": 188,
+            "example_id": "demo_M0255_1mg5_unfixed_0"
+        },
+        "select_fixed_atoms": {
+            "A108": "ND2,CG",
+            "A139": "OG,CB,CA",
+            "A152": "OH,CZ",
+            "A156": "NZ,CE,CD",
+            "ACT": "OXT",
+            "NAI": ""
+        },
+        "select_unfixed_sequence": false
+    },
+    "ckpt_path": "/public/home/yinyifan/protein_design/weights/foundry/rfd3_latest.ckpt",
+    "seed": null
+}

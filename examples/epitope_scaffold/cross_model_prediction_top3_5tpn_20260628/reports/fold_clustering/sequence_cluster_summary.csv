@@ -1,0 +1,4 @@
+design_id,predictor,sequence_cluster_id,sequence_identity_to_representative,sequence_length,representative_design,model_pdb
+design_1,consensus,S1,1,78,design_1,examples/epitope_scaffold/backend_comparison_5tpn_foundry_20260628_213554/rfdiffusion_v1/array_work/design_1/predictions_flat/design_1.pdb
+design_4,consensus,S2,1,60,design_4,examples/epitope_scaffold/backend_comparison_5tpn_foundry_20260628_213554/rfdiffusion_v1/array_work/design_4/predictions_flat/design_4.pdb
+design_9,consensus,S3,1,59,design_9,examples/epitope_scaffold/backend_comparison_5tpn_foundry_20260628_213554/rfdiffusion_v1/array_work/design_9/predictions_flat/design_9.pdb

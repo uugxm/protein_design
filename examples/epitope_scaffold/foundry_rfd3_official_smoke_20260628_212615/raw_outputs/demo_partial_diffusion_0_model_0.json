@@ -1,0 +1,65 @@
+{
+    "diffused_index_map": {
+        "A572": "A572",
+        "A573": "A573"
+    },
+    "metrics": {
+        "join_point_rmsd_by_token": {},
+        "insertion.mae": 0.0,
+        "insertion.rmcd": 0.0,
+        "insertion_rmsd": 0.0,
+        "join_point_rmsd": NaN,
+        "n_conjoined_residues": 0,
+        "max_ca_deviation": 5.639386177062988,
+        "n_chainbreaks": 104,
+        "n_clashing.interresidue_clashes_w_sidechain": 45,
+        "n_clashing.interresidue_clashes_w_backbone": 8,
+        "n_clashing.ligand_clashes": 1,
+        "n_clashing.ligand_min_distance": 1.376320719718933,
+        "non_loop_fraction": 0.0,
+        "loop_fraction": 1.0,
+        "helix_fraction": 0.0,
+        "sheet_fraction": 0.0,
+        "num_ss_elements": 0,
+        "radius_of_gyration": 16.4836665539046,
+        "alanine_content": 0.038135593220338986,
+        "glycine_content": 0.1016949152542373,
+        "num_residues": 236,
+        "diffused_com": [
+            -0.2046024054288864,
+            -0.14652040600776672,
+            0.09846463054418564
+        ],
+        "fixed_com": [
+            -8.326669692993164,
+            6.689644813537598,
+            0.5545917749404907
+        ]
+    },
+    "specification": {
+        "input": "/public/home/yinyifan/protein_design/repos/foundry/models/rfd3/docs/input_pdbs/7v11.pdb",
+        "contig": "A431",
+        "unindex": "A572-573",
+        "ligand": "OQO",
+        "allow_ligand_on_existing_chain": true,
+        "extra": {
+            "example": "partial_diffusion",
+            "task_name": "demo_partial_diffusion",
+            "num_tokens_in": 239,
+            "num_residues_in": 239,
+            "num_chains": 2,
+            "num_atoms": 1921,
+            "num_residues": 241,
+            "example_id": "demo_partial_diffusion_0"
+        },
+        "select_fixed_atoms": {
+            "A431": "TIP",
+            "A572": "BKBN",
+            "A573": "BKBN"
+        },
+        "select_unfixed_sequence": false,
+        "partial_t": 15.0
+    },
+    "ckpt_path": "/public/home/yinyifan/protein_design/weights/foundry/rfd3_latest.ckpt",
+    "seed": null
+}

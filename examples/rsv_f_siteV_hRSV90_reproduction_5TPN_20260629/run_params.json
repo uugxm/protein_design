@@ -23,7 +23,7 @@
     "Boltz no-MSA is a warning layer only."
   ],
   "num_backbones": 20,
-  "num_proteinmpnn_sequences_per_backbone": 4,
+  "num_proteinmpnn_sequences_per_backbone": 5,
   "phase": "smoke",
   "reference_pdb": "/public/home/yinyifan/protein_design/examples/rsv_f_siteV_hRSV90_reproduction_5TPN_20260629/inputs/5TPN.pdb",
   "rf3_top_n_per_backend": 5,

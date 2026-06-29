@@ -1,0 +1,12 @@
+{
+  "expected_backbones": 1,
+  "failure_rate_rows": 1.0,
+  "failure_rows": 1,
+  "missing_filter_summaries": 0,
+  "output_csv": "/public/home/yinyifan/protein_design/examples/epitope_scaffold/foundry_rfd3_smoke_5tpn_20260628/reports/all_filter_summary.csv",
+  "pass_rows": 0,
+  "rows": 1,
+  "summary_files": 1,
+  "top_csv": "/public/home/yinyifan/protein_design/examples/epitope_scaffold/foundry_rfd3_smoke_5tpn_20260628/reports/top_designs.csv",
+  "work_root": "/public/home/yinyifan/protein_design/examples/epitope_scaffold/foundry_rfd3_smoke_5tpn_20260628/array_work"
+}

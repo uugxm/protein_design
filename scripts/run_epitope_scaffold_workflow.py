@@ -85,7 +85,7 @@ def main() -> int:
     parser.add_argument("--motif_tsv", required=True)
     parser.add_argument("--backends", default="rfdiffusion_v1,foundry_rfd3")
     parser.add_argument("--num_backbones", type=int, default=20)
-    parser.add_argument("--num_seq", type=int, default=4)
+    parser.add_argument("--num_seq", type=int, default=5)
     parser.add_argument("--af3_per_backbone", type=int, default=1)
     parser.add_argument("--rf3_top_n", type=int, default=5)
     parser.add_argument("--v1_contigs", default="")

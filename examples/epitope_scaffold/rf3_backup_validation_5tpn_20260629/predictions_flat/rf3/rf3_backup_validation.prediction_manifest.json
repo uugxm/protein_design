@@ -1,0 +1,46 @@
+[
+  {
+    "design_id": "design_0_T_0.1_sample_1_score_1.1933_global_score_1.4366_seq_recovery_0.0385",
+    "flat_cif": "/public/home/yinyifan/protein_design/examples/epitope_scaffold/rf3_backup_validation_5tpn_20260629/predictions_flat/rf3/design_0_T_0.1_sample_1_score_1.1933_global_score_1.4366_seq_recovery_0.0385.cif",
+    "flat_json": "/public/home/yinyifan/protein_design/examples/epitope_scaffold/rf3_backup_validation_5tpn_20260629/predictions_flat/rf3/design_0_T_0.1_sample_1_score_1.1933_global_score_1.4366_seq_recovery_0.0385.json",
+    "flat_pdb": "/public/home/yinyifan/protein_design/examples/epitope_scaffold/rf3_backup_validation_5tpn_20260629/predictions_flat/rf3/design_0_T_0.1_sample_1_score_1.1933_global_score_1.4366_seq_recovery_0.0385.pdb",
+    "json_action": "copied_json",
+    "predictor": "rf3",
+    "source_json": "/public/home/yinyifan/protein_design/examples/epitope_scaffold/rf3_backup_validation_5tpn_20260629/rf3_predictions/design_0_T_0.1_sample_1_score_1.1933_global_score_1.4366_seq_recovery_0.0385/design_0_T_0.1_sample_1_score_1.1933_global_score_1.4366_seq_recovery_0.0385_confidences.json",
+    "source_structure": "/public/home/yinyifan/protein_design/examples/epitope_scaffold/rf3_backup_validation_5tpn_20260629/rf3_predictions/design_0_T_0.1_sample_1_score_1.1933_global_score_1.4366_seq_recovery_0.0385/design_0_T_0.1_sample_1_score_1.1933_global_score_1.4366_seq_recovery_0.0385_model.cif",
+    "structure_action": "converted_cif_to_pdb"
+  },
+  {
+    "design_id": "design_2_T_0.1_sample_1_score_0.9758_global_score_1.3170_seq_recovery_0.0714",
+    "flat_cif": "/public/home/yinyifan/protein_design/examples/epitope_scaffold/rf3_backup_validation_5tpn_20260629/predictions_flat/rf3/design_2_T_0.1_sample_1_score_0.9758_global_score_1.3170_seq_recovery_0.0714.cif",
+    "flat_json": "/public/home/yinyifan/protein_design/examples/epitope_scaffold/rf3_backup_validation_5tpn_20260629/predictions_flat/rf3/design_2_T_0.1_sample_1_score_0.9758_global_score_1.3170_seq_recovery_0.0714.json",
+    "flat_pdb": "/public/home/yinyifan/protein_design/examples/epitope_scaffold/rf3_backup_validation_5tpn_20260629/predictions_flat/rf3/design_2_T_0.1_sample_1_score_0.9758_global_score_1.3170_seq_recovery_0.0714.pdb",
+    "json_action": "copied_json",
+    "predictor": "rf3",
+    "source_json": "/public/home/yinyifan/protein_design/examples/epitope_scaffold/rf3_backup_validation_5tpn_20260629/rf3_predictions/design_2_T_0.1_sample_1_score_0.9758_global_score_1.3170_seq_recovery_0.0714/design_2_T_0.1_sample_1_score_0.9758_global_score_1.3170_seq_recovery_0.0714_confidences.json",
+    "source_structure": "/public/home/yinyifan/protein_design/examples/epitope_scaffold/rf3_backup_validation_5tpn_20260629/rf3_predictions/design_2_T_0.1_sample_1_score_0.9758_global_score_1.3170_seq_recovery_0.0714/design_2_T_0.1_sample_1_score_0.9758_global_score_1.3170_seq_recovery_0.0714_model.cif",
+    "structure_action": "converted_cif_to_pdb"
+  },
+  {
+    "design_id": "design_3_T_0.1_sample_4_score_1.1938_global_score_1.4224_seq_recovery_0.0227",
+    "flat_cif": "/public/home/yinyifan/protein_design/examples/epitope_scaffold/rf3_backup_validation_5tpn_20260629/predictions_flat/rf3/design_3_T_0.1_sample_4_score_1.1938_global_score_1.4224_seq_recovery_0.0227.cif",
+    "flat_json": "/public/home/yinyifan/protein_design/examples/epitope_scaffold/rf3_backup_validation_5tpn_20260629/predictions_flat/rf3/design_3_T_0.1_sample_4_score_1.1938_global_score_1.4224_seq_recovery_0.0227.json",
+    "flat_pdb": "/public/home/yinyifan/protein_design/examples/epitope_scaffold/rf3_backup_validation_5tpn_20260629/predictions_flat/rf3/design_3_T_0.1_sample_4_score_1.1938_global_score_1.4224_seq_recovery_0.0227.pdb",
+    "json_action": "copied_json",
+    "predictor": "rf3",
+    "source_json": "/public/home/yinyifan/protein_design/examples/epitope_scaffold/rf3_backup_validation_5tpn_20260629/rf3_predictions/design_3_T_0.1_sample_4_score_1.1938_global_score_1.4224_seq_recovery_0.0227/design_3_T_0.1_sample_4_score_1.1938_global_score_1.4224_seq_recovery_0.0227_confidences.json",
+    "source_structure": "/public/home/yinyifan/protein_design/examples/epitope_scaffold/rf3_backup_validation_5tpn_20260629/rf3_predictions/design_3_T_0.1_sample_4_score_1.1938_global_score_1.4224_seq_recovery_0.0227/design_3_T_0.1_sample_4_score_1.1938_global_score_1.4224_seq_recovery_0.0227_model.cif",
+    "structure_action": "converted_cif_to_pdb"
+  },
+  {
+    "design_id": "design_7_T_0.1_sample_4_score_1.0160_global_score_1.2939_seq_recovery_0.0566",
+    "flat_cif": "/public/home/yinyifan/protein_design/examples/epitope_scaffold/rf3_backup_validation_5tpn_20260629/predictions_flat/rf3/design_7_T_0.1_sample_4_score_1.0160_global_score_1.2939_seq_recovery_0.0566.cif",
+    "flat_json": "/public/home/yinyifan/protein_design/examples/epitope_scaffold/rf3_backup_validation_5tpn_20260629/predictions_flat/rf3/design_7_T_0.1_sample_4_score_1.0160_global_score_1.2939_seq_recovery_0.0566.json",
+    "flat_pdb": "/public/home/yinyifan/protein_design/examples/epitope_scaffold/rf3_backup_validation_5tpn_20260629/predictions_flat/rf3/design_7_T_0.1_sample_4_score_1.0160_global_score_1.2939_seq_recovery_0.0566.pdb",
+    "json_action": "copied_json",
+    "predictor": "rf3",
+    "source_json": "/public/home/yinyifan/protein_design/examples/epitope_scaffold/rf3_backup_validation_5tpn_20260629/rf3_predictions/design_7_T_0.1_sample_4_score_1.0160_global_score_1.2939_seq_recovery_0.0566/design_7_T_0.1_sample_4_score_1.0160_global_score_1.2939_seq_recovery_0.0566_confidences.json",
+    "source_structure": "/public/home/yinyifan/protein_design/examples/epitope_scaffold/rf3_backup_validation_5tpn_20260629/rf3_predictions/design_7_T_0.1_sample_4_score_1.0160_global_score_1.2939_seq_recovery_0.0566/design_7_T_0.1_sample_4_score_1.0160_global_score_1.2939_seq_recovery_0.0566_model.cif",
+    "structure_action": "converted_cif_to_pdb"
+  }
+]

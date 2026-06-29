@@ -8,7 +8,9 @@ Phase 1 smoke benchmark is complete. Phase 2 production benchmark has not been s
 
 The previous 5TPN test run is treated only as a skill smoke test. The formal benchmark input was rebuilt from PDB 5TPN and reconciled against the original RFdiffusion motif-scaffolding example.
 
-The old smoke-test directory `examples/epitope_scaffold/` was removed after required inputs, motif definitions, reports, and final candidate package artifacts were migrated into the new benchmark directory. The new skill and benchmark do not depend on the old directory.
+Current smoke benchmark orchestration is semi-automated: backbone generation, MPNN, AF3, and summary are submitted through workflow wrappers; RF3 confirmation, clustering, pre-order QC, and final packaging may still be run as downstream staged steps unless the full DAG wrapper is explicitly invoked.
+
+The old smoke-test directory `examples/epitope_scaffold/` is retained as historical smoke-test provenance. It is not used by the current skill or benchmark entrypoint, and cleanup is deferred to a separate PR.
 
 ## Motif Input Reconstruction
 
@@ -66,13 +68,15 @@ Primary benchmark candidates are the RFdiffusion v1 RF3-confirmed designs:
 - `rfdiffusion_v1__design_18`
 - `rfdiffusion_v1__design_4`
 
-Foundry RFD3 candidates are retained as comparison backups:
+Foundry RFD3 generated comparison backups during the run:
 
 - `foundry_rfd3__design_6`
 - `foundry_rfd3__design_14`
 - `foundry_rfd3__design_16`
 - `foundry_rfd3__design_0`
 - `foundry_rfd3__design_4`
+
+To keep this PR reviewable, the full Foundry backup package is not tracked. The retained PR evidence is `backend_comparison_summary.csv`, `final_candidate_selection_report.md`, and representative AF3/RF3 PDB models for `foundry_rfd3__design_6`.
 
 No cloning-ready construct table was generated. `pre_order_qc_decision.csv` marks all candidates as `order_now=no` because expression system, vector, tag/signal peptide/linker policy, restriction or assembly policy, and codon optimization policy are not specified.
 

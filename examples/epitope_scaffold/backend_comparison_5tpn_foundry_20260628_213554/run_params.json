@@ -1,0 +1,23 @@
+{
+  "af3_predictions_per_backbone": 1,
+  "backends": "rfdiffusion_v1 rfdiffusion_all_atom_legacy foundry_rfd3",
+  "compare_root": "/public/home/yinyifan/protein_design/examples/epitope_scaffold/backend_comparison_5tpn_foundry_20260628_213554",
+  "filter_thresholds": {
+    "max_clashes": 20,
+    "max_motif_rmsd": 2.5,
+    "max_pae": 10.0,
+    "min_plddt": 70.0
+  },
+  "foundry_env_prefix": "/public/home/yinyifan/protein_design/envs/foundry-rfd3",
+  "foundry_rfd3_batch_size": 2,
+  "foundry_rfd3_timesteps": "50",
+  "foundry_runtime": "micromamba",
+  "input_pdb": "/public/home/yinyifan/protein_design/examples/epitope_scaffold/input/5TPN.pdb",
+  "legacy_aa_T": "100",
+  "legacy_aa_contigs": "[\"10-40,A163-181,10-40\"]",
+  "motif_tsv": "/public/home/yinyifan/protein_design/examples/epitope_scaffold/motif_residues.tsv",
+  "num_designs_per_backend": 10,
+  "proteinmpnn_sequences_per_backbone": 4,
+  "reference_pdb": "/public/home/yinyifan/protein_design/examples/epitope_scaffold/input/5TPN.pdb",
+  "v1_contigs": "[10-40/A163-181/10-40]"
+}
