@@ -14,9 +14,9 @@ set -euo pipefail
 BASE="${PROTEIN_DESIGN_HOME:-$HOME/protein_design}"
 RF_REPO="${RF_REPO:-$BASE/repos/RFdiffusion}"
 RF_PY="${RF_PY:-$BASE/envs/rfdiffusion-se3nv/bin/python}"
-INPUT_PDB="${INPUT_PDB:-$BASE/examples/epitope_scaffold/input/5TPN.pdb}"
+INPUT_PDB="${INPUT_PDB:?Set INPUT_PDB to the reference PDB/CIF containing the motif.}"
 OUTPUT_PREFIX="${OUTPUT_PREFIX:-$PWD/rfdiffusion_outputs/design}"
-CONTIGS="${CONTIGS:-[10-40/A163-181/10-40]}"
+CONTIGS="${CONTIGS:?Set CONTIGS to the RFdiffusion motif contig, e.g. [10-40/A10-25/10-40].}"
 NUM_DESIGNS="${NUM_DESIGNS:-1}"
 
 mkdir -p logs "$(dirname "$OUTPUT_PREFIX")"

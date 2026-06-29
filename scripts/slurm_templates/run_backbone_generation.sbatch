@@ -16,7 +16,7 @@ BASE="${PROTEIN_DESIGN_HOME:-$HOME/protein_design}"
 PYTHON_BIN="${PYTHON_BIN:-python}"
 BACKBONE_BACKEND="${BACKBONE_BACKEND:-rfdiffusion_v1}"
 RUN_ROOT="${RUN_ROOT:-$PWD}"
-INPUT_PDB="${INPUT_PDB:-$BASE/examples/epitope_scaffold/input/5TPN.pdb}"
+INPUT_PDB="${INPUT_PDB:?Set INPUT_PDB to the reference PDB/CIF containing the motif.}"
 MOTIF_TSV="${MOTIF_TSV:-$BASE/examples/epitope_scaffold/motif_residues.tsv}"
 OUTPUT_PREFIX="${OUTPUT_PREFIX:-$RUN_ROOT/rfdiffusion_outputs/design}"
 NUM_DESIGNS="${NUM_DESIGNS:-1}"
@@ -24,14 +24,7 @@ DESIGN_STARTNUM="${DESIGN_STARTNUM:-0}"
 
 V1_REPO="${V1_REPO:-$BASE/repos/RFdiffusion}"
 V1_PY="${V1_PY:-$BASE/envs/rfdiffusion-se3nv/bin/python}"
-V1_CONTIGS="${V1_CONTIGS:-[10-40/A163-181/10-40]}"
-
-LEGACY_AA_REPO="${LEGACY_AA_REPO:-$BASE/repos/rf_diffusion_all_atom}"
-LEGACY_AA_SIF="${LEGACY_AA_SIF:-$BASE/containers/rf_se3_diffusion.sif}"
-LEGACY_AA_WEIGHTS="${LEGACY_AA_WEIGHTS:-$BASE/weights/RFDiffusionAA_paper_weights.pt}"
-LEGACY_AA_CONTIGS="${LEGACY_AA_CONTIGS:-[\"10-40,A163-181,10-40\"]}"
-LEGACY_AA_T="${LEGACY_AA_T:-100}"
-LEGACY_AA_ALLOW_UNIDEALIZED_FALLBACK="${LEGACY_AA_ALLOW_UNIDEALIZED_FALLBACK:-1}"
+V1_CONTIGS="${V1_CONTIGS:?Set V1_CONTIGS for RFdiffusion v1, e.g. [10-40/A10-25/10-40].}"
 
 FOUNDRY_REPO="${FOUNDRY_REPO:-$BASE/repos/foundry}"
 FOUNDRY_RUNTIME="${FOUNDRY_RUNTIME:-micromamba}"
@@ -66,52 +59,6 @@ case "$BACKBONE_BACKEND" in
       "contigmap.contigs=$V1_CONTIGS" \
       inference.num_designs="$NUM_DESIGNS" \
       inference.design_startnum="$DESIGN_STARTNUM"
-    ;;
-  rfdiffusion_all_atom_legacy)
-    BACKBONE_BACKEND="rfdiffusion_all_atom_legacy"
-    if [ ! -s "$LEGACY_AA_SIF" ]; then
-      echo "Missing legacy RFDiffusionAA container: $LEGACY_AA_SIF" >&2
-      exit 2
-    fi
-    if [ ! -s "$LEGACY_AA_WEIGHTS" ]; then
-      echo "Missing legacy RFDiffusionAA weights: $LEGACY_AA_WEIGHTS" >&2
-      exit 2
-    fi
-    cd "$LEGACY_AA_REPO"
-    legacy_fallback_used=0
-    legacy_end=$((DESIGN_STARTNUM + NUM_DESIGNS - 1))
-    for design_i in $(seq "$DESIGN_STARTNUM" "$legacy_end"); do
-      set +e
-      apptainer run --nv "$LEGACY_AA_SIF" -u run_inference.py \
-        inference.deterministic=True \
-        diffuser.T="$LEGACY_AA_T" \
-        inference.ckpt_path="$LEGACY_AA_WEIGHTS" \
-        inference.output_prefix="$OUTPUT_PREFIX" \
-        inference.input_pdb="$INPUT_PDB" \
-        "contigmap.contigs=$LEGACY_AA_CONTIGS" \
-        inference.num_designs=1 \
-        inference.design_startnum="$design_i"
-      legacy_status=$?
-      set -e
-      if [ "$legacy_status" -ne 0 ]; then
-        unidealized_pdb="$(dirname "$OUTPUT_PREFIX")/unidealized/design_${design_i}.pdb"
-        if [ "$LEGACY_AA_ALLOW_UNIDEALIZED_FALLBACK" = "1" ] && [ -s "$unidealized_pdb" ]; then
-          echo "WARNING: legacy RFDiffusionAA exited $legacy_status for design_${design_i} after writing an unidealized PDB; using unidealized fallback." >&2
-          cp "$unidealized_pdb" "$(dirname "$OUTPUT_PREFIX")/design_${design_i}.pdb"
-          legacy_fallback_used=1
-        else
-          exit "$legacy_status"
-        fi
-      fi
-    done
-    if [ "$legacy_fallback_used" = "1" ]; then
-      "$PYTHON_BIN" "$BASE/scripts/make_motif_mapping_from_sequence.py" \
-        --reference_pdb "$INPUT_PDB" \
-        --motif_tsv "$MOTIF_TSV" \
-        --pdb_dir "$(dirname "$OUTPUT_PREFIX")" \
-        --out_dir "$(dirname "$OUTPUT_PREFIX")" \
-        --strict
-    fi
     ;;
   foundry_rfd3)
     BACKBONE_BACKEND="foundry_rfd3"
@@ -194,7 +141,7 @@ case "$BACKBONE_BACKEND" in
     esac
     ;;
   *)
-    echo "Unknown BACKBONE_BACKEND=$BACKBONE_BACKEND; use rfdiffusion_v1, rfdiffusion_all_atom_legacy, or foundry_rfd3." >&2
+    echo "Unknown BACKBONE_BACKEND=$BACKBONE_BACKEND; use rfdiffusion_v1 or foundry_rfd3." >&2
     exit 2
     ;;
 esac
@@ -204,7 +151,6 @@ find "$(dirname "$OUTPUT_PREFIX")" -maxdepth 1 -name 'design_*.pdb' | sort > "$R
 RUN_PARAMS_PATH="$RUN_ROOT/run_params.json" "$PYTHON_BIN" - \
   "$RUN_ROOT" "$BACKBONE_BACKEND" "$INPUT_PDB" "$MOTIF_TSV" "$OUTPUT_PREFIX" \
   "$NUM_DESIGNS" "$DESIGN_STARTNUM" "$V1_REPO" "$V1_CONTIGS" \
-  "$LEGACY_AA_REPO" "$LEGACY_AA_SIF" "$LEGACY_AA_WEIGHTS" "$LEGACY_AA_CONTIGS" "$LEGACY_AA_T" \
   "$FOUNDRY_REPO" "$FOUNDRY_RUNTIME" "$FOUNDRY_ENV_PREFIX" "$FOUNDRY_SIF" "$FOUNDRY_CHECKPOINT_DIR" "$FOUNDRY_RFD3_INPUT_JSON" "$FOUNDRY_RFD3_RAW_OUT" "$FOUNDRY_RFD3_TIMESTEPS" "$FOUNDRY_RFD3_BATCH_SIZE" "$FOUNDRY_RFD3_N_BATCHES" \
   "$RUN_ROOT/backbone_list.txt" <<'PY'
 import json
@@ -214,7 +160,6 @@ import sys
 (
     run_root, backend, input_pdb, motif_tsv, output_prefix,
     num_designs, design_startnum, v1_repo, v1_contigs,
-    legacy_aa_repo, legacy_aa_sif, legacy_aa_weights, legacy_aa_contigs, legacy_aa_T,
     foundry_repo, foundry_runtime, foundry_env_prefix, foundry_sif, foundry_checkpoint_dir, foundry_rfd3_input_json,
     foundry_rfd3_raw_out, foundry_rfd3_timesteps, foundry_rfd3_batch_size, foundry_rfd3_n_batches, backbone_list,
 ) = sys.argv[1:]
@@ -228,11 +173,6 @@ data = {
     "design_startnum": int(design_startnum),
     "v1_repo": v1_repo,
     "v1_contigs": v1_contigs,
-    "legacy_aa_repo": legacy_aa_repo,
-    "legacy_aa_sif": legacy_aa_sif,
-    "legacy_aa_weights": legacy_aa_weights,
-    "legacy_aa_contigs": legacy_aa_contigs,
-    "legacy_aa_T": legacy_aa_T,
     "foundry_repo": foundry_repo,
     "foundry_runtime": foundry_runtime,
     "foundry_env_prefix": foundry_env_prefix,
@@ -257,11 +197,6 @@ MOTIF_TSV=$MOTIF_TSV
 OUTPUT_PREFIX=$OUTPUT_PREFIX
 NUM_DESIGNS=$NUM_DESIGNS
 V1_CONTIGS=$V1_CONTIGS
-LEGACY_AA_CONTIGS=$LEGACY_AA_CONTIGS
-LEGACY_AA_T=$LEGACY_AA_T
-LEGACY_AA_SIF=$LEGACY_AA_SIF
-LEGACY_AA_WEIGHTS=$LEGACY_AA_WEIGHTS
-LEGACY_AA_ALLOW_UNIDEALIZED_FALLBACK=$LEGACY_AA_ALLOW_UNIDEALIZED_FALLBACK
 FOUNDRY_RUNTIME=$FOUNDRY_RUNTIME
 FOUNDRY_ENV_PREFIX=$FOUNDRY_ENV_PREFIX
 FOUNDRY_SIF=$FOUNDRY_SIF

@@ -1,2 +1,0 @@
-job_name	source_name	mpnn_score	chain_id	sequence_length	json_path
-design_0_T_0.1_sample_1_score_1.1933_global_score_1.4366_seq_recovery_0.0385	T=0.1, sample=1, score=1.1933, global_score=1.4366, seq_recovery=0.0385	1.1933	A	71	/public/home/yinyifan/protein_design/examples/epitope_scaffold/backend_comparison_5tpn_foundry_20260628_213554/rfdiffusion_v1/array_work/design_0/prediction_inputs/af3/design_0_T_0.1_sample_1_score_1.1933_global_score_1.4366_seq_recovery_0.0385.json

@@ -19,7 +19,6 @@ numpy 1.26.4
 WARN	LigandMPNN	repo not installed; see docs/failure_log.md and retry commands
 WARN	BindCraft	repo not installed; see docs/failure_log.md and retry commands
 WARN	RFantibody	repo not installed; see docs/failure_log.md and retry commands
-WARN	rf_diffusion_all_atom	repo not installed; see docs/failure_log.md and retry commands
 WARN	ColabDesign	repo not installed; see docs/failure_log.md and retry commands
 PASS	boltz	b1ebfc4
 PASS	alphafold3_container	found

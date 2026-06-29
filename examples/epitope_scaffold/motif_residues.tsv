@@ -1,2 +1,2 @@
 chain	start	end	description
-A	163	181	RSV-F site 5 motif from RFdiffusion example 5TPN
+A	10	25	example continuous motif; replace with task-specific residue range

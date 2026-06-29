@@ -1,182 +1,183 @@
 # TYL Protein Design Stack
 
-Root on cluster: `/public/home/yinyifan/protein_design`
+Reusable protein-design workflow repository for the TYL SLURM cluster.
 
-This stack is modular by design. It separates epitope/motif scaffolding, de novo binder design, antibody/nanobody design, sequence design, prediction/filtering, and general structural analysis so that CUDA/JAX/PyTorch/Rosetta dependencies do not collide.
+This repository is intentionally a tools, templates, and documentation repo. It
+does not track benchmark prediction trees, candidate PDB/CIF packages, cluster
+logs, model weights, databases, or other runtime evidence by default.
 
-## Layout
+## What This Repository Does
 
-```text
-~/protein_design/
-  envs/          conda/env symlinks and environment notes
-  repos/         git repositories and symlinks to existing repos
-  weights/       model-weight symlinks only
-  containers/    Apptainer/Singularity SIF symlinks
-  databases/     database symlinks only
-  scripts/       unified launch, filtering, and SLURM templates
-  examples/      minimal task examples
-  docs/          deployment report and failure log
-```
+The stack supports modular protein-design workflows:
 
-## Quick Check
+- Epitope scaffold and motif scaffolding.
+- De novo binder workflow stubs, kept separate from epitope scaffolding.
+- Antibody/nanobody workflow stubs, kept in isolated environments.
+- Sequence design, prediction, filtering, clustering, display QC, pre-order QC,
+  and candidate packaging utilities.
 
-On the login node, only run lightweight checks:
+## Supported Backends
+
+| Stage | Supported backend |
+| --- | --- |
+| Backbone generation | RFdiffusion v1, Foundry RFD3 |
+| Sequence design | ProteinMPNN, optional LigandMPNN |
+| Primary prediction | AlphaFold3 |
+| Optional confirmation | Foundry RF3 |
+| Optional warning cross-check | Boltz |
+
+RFdiffusion v1 is the stable baseline for continuous motif scaffolding. Foundry
+RFD3 is the experimental all-atom/contact-aware generation backend. Foundry RF3
+is a folding/prediction backend, not a backbone generator.
+
+## Recommended Backend Selection
+
+| Task | Recommended route |
+| --- | --- |
+| Continuous short motif | RFdiffusion v1 -> ProteinMPNN -> AF3 |
+| Contact-sensitive continuous motif | RFdiffusion v1 and Foundry RFD3 side by side |
+| Discontinuous epitope/contact core | Foundry RFD3, with explicit motif provenance |
+| Protein-only sequence design | ProteinMPNN |
+| Ligand, cofactor, metal, glycan, nucleic-acid context | LigandMPNN where available |
+| High-priority prediction confirmation | AF3 primary plus RF3 confirmation |
+| Boltz validation | Warning/cross-check only until task-specific MSA/template mode is tested |
+
+## Quick Start
+
+On the login node, run only lightweight checks:
 
 ```bash
 cd ~/protein_design
 bash scripts/check_installation.sh
 ```
 
-If GitHub clone is unstable, use the retry script with mirror/proxy fallbacks:
-
-```bash
-cd ~/protein_design
-bash scripts/clone_with_github_mirrors.sh
-```
-
-GPU checks and model runs must go through SLURM:
+GPU work must go through SLURM:
 
 ```bash
 srun -p Interactive -N1 -n1 --gres=gpu:rtx3090:1 --time=00:05:00 nvidia-smi -L
 ```
 
-## Epitope Scaffold / Motif Scaffolding
-
-Goal: stabilize and display a known motif/epitope on a new scaffold. This is not the same as binder design.
-
-Primary path:
-
-1. RFdiffusion motif scaffolding or partial diffusion.
-2. ProteinMPNN sequence design with motif positions fixed from RFdiffusion `.trb` mappings.
-3. AF2/AF3/Boltz prediction.
-4. Motif RMSD, pLDDT, pTM/ipTM, PAE and clash filtering to `filter_summary.csv`.
-
-Minimal launch:
+Prepare a new epitope scaffold run from a complex:
 
 ```bash
-cd ~/protein_design/examples/epitope_scaffold
-sbatch ../../scripts/slurm_templates/run_rfdiffusion_epitope.sbatch
+python scripts/prepare_epitope_from_complex.py \
+  --complex_pdb /path/to/complex.pdb \
+  --antigen_chain A \
+  --binder_chains H,L \
+  --contact_cutoff 4.5 \
+  --out_dir runs/my_epitope/input
+
+python scripts/validate_motif_definition.py \
+  --reference_pdb runs/my_epitope/input/reference.pdb \
+  --motif_tsv runs/my_epitope/input/motif_residues.tsv \
+  --out_dir runs/my_epitope/input_validation
 ```
 
-Then generate a task list and run fixed-position ProteinMPNN as an array:
+Launch the backbone stage:
 
 ```bash
-find "$PWD/rfdiffusion_outputs" -maxdepth 1 -name '*.pdb' | sort > backbone_list.txt
-TASK_LIST=$PWD/backbone_list.txt STAGE=mpnn \
-  sbatch --array=1-$(wc -l < backbone_list.txt) \
-  ../../scripts/slurm_templates/run_epitope_scaffold_array.sbatch
+BACKBONE_BACKEND=rfdiffusion_v1 \
+INPUT_PDB=/path/to/reference.pdb \
+MOTIF_TSV=/path/to/motif_residues.tsv \
+RUN_ROOT=/path/to/run \
+NUM_DESIGNS=20 \
+  sbatch scripts/slurm_templates/run_backbone_generation.sbatch
 ```
 
-Key environment detail: RFdiffusion must use its env library path:
+For Foundry RFD3:
 
 ```bash
-export LD_LIBRARY_PATH=~/protein_design/envs/rfdiffusion-se3nv/lib:$LD_LIBRARY_PATH
+BACKBONE_BACKEND=foundry_rfd3 \
+FOUNDRY_RFD3_FIXED_ATOMS=ALL \
+INPUT_PDB=/path/to/reference.pdb \
+MOTIF_TSV=/path/to/motif_residues.tsv \
+RUN_ROOT=/path/to/run_rfd3 \
+NUM_DESIGNS=20 \
+  sbatch scripts/slurm_templates/run_backbone_generation.sbatch
 ```
 
-## ProteinMPNN Sequence Design
-
-ProteinMPNN is reused from the existing legacy repo and runs with the cluster PyTorch module:
+For a full reusable orchestration wrapper, use:
 
 ```bash
-module purge || true
-module load pytorch/2.3.1 cuda/12.4 || true
-cd ~/protein_design/examples/epitope_scaffold
-PDB_DIR=$PWD/backbones OUT_DIR=$PWD/mpnn_outputs \
-  sbatch ../../scripts/slurm_templates/run_proteinmpnn.sbatch
+python scripts/run_epitope_scaffold_workflow.py --help
 ```
 
-For fixed motif residues, generate ProteinMPNN fixed-position JSONL with the helper scripts in `repos/ProteinMPNN/helper_scripts/`.
-This stack adds `scripts/make_fixed_positions_jsonl.py`, which reads the motif
-TSV plus RFdiffusion `.trb` files and writes ProteinMPNN-compatible fixed
-positions automatically.
-
-## Structure Prediction / Filtering
-
-AlphaFold3 is available as a site container interface:
-
-```bash
-apptainer exec ~/protein_design/containers/alphafold3.sif \
-  python /app/alphafold/run_alphafold.py --help
-```
-
-Do not download or overwrite AF3 databases/weights. Confirm these paths before production:
+## Directory Layout
 
 ```text
---db_dir=/public/home/yinyifan/public_databases
---model_dir=/public/home/yinyifan/models
+~/protein_design/
+  envs/          environment notes, not full env directories
+  repos/         external source repositories, not committed here
+  weights/       model-weight symlinks or README notes only
+  containers/    Apptainer/Singularity image symlinks or README notes only
+  databases/     database symlinks or README notes only
+  scripts/       workflow tools, adapters, QC, and SLURM templates
+  examples/      minimal templates, not benchmark result trees
+  docs/          method docs, deployment reports, training material
+  skills/        reusable Codex workflow skill instructions
 ```
 
-Unified filtering script:
+## Required External Tools And Weights
 
-```bash
-python ~/protein_design/scripts/filter_designs.py \
-  --input_dir predictions \
-  --pdb_dir predictions \
-  --reference_pdb examples/epitope_scaffold/input/5TPN.pdb \
-  --motif_tsv examples/epitope_scaffold/motif_residues.tsv \
-  --trb_dir examples/epitope_scaffold/rfdiffusion_outputs \
-  --output_csv filter_summary.csv
-```
+Weights and databases are site-local and should be configured by path:
 
-The current script extracts common JSON confidence fields and computes motif RMSD
-and clash count from predicted PDB files.
+- RFdiffusion v1 repository and checkpoint.
+- Foundry RFD3/RF3 environment and checkpoints.
+- ProteinMPNN repository or module.
+- AlphaFold3 container, model directory, and database directory.
+- Optional Boltz runtime/cache.
+- Optional LigandMPNN, Rosetta/PyRosetta, Foldseek/MMseqs2, US-align.
 
-## Binder Design
+Do not download or overwrite large shared AF3 databases, model weights, or
+cluster-managed software from this repository.
 
-Goal: design a new protein binder against a target surface/hotspot. This must stay separate from epitope scaffolding.
+## Minimal Example Inputs
 
-Template:
+The tracked `examples/` directory contains small templates only:
 
-```bash
-cd ~/protein_design/examples/binder_design
-TARGET_PDB=input/target.pdb TARGET_CHAIN=A HOTSPOTS=A45,A46,A47 \
-  sbatch ../../scripts/slurm_templates/run_bindcraft.sbatch
-```
+- `examples/epitope_scaffold/motif_residues.tsv`
+- `examples/epitope_scaffold/rfdiffusion_params.env`
+- `examples/epitope_scaffold/filter_thresholds.env`
+- `examples/binder_design/hotspots.tsv`
+- `examples/antibody_design/epitope_residues.tsv`
 
-Current status: BindCraft source is cloned under `~/protein_design/repos/BindCraft`; its isolated runtime environment is not installed yet. The SLURM template records the expected target-chain-hotspot interface and exits with a clear message until the repo environment is configured.
+Bring your own reference PDB/CIF or generate a motif definition from a complex
+with `scripts/prepare_epitope_from_complex.py`.
 
-## Antibody / Nanobody Design
+## Outputs
 
-Goal: support VHH/scFv/CDR loop design against an antigen epitope while preserving antibody numbering/framework constraints.
+Production runs should write into an untracked run directory. Standard outputs
+include:
 
-Template:
+- `run_params.json`
+- `input_validation.csv` and `motif_definition_report.md`
+- `rfdiffusion_outputs/design_*.pdb` and mapping files
+- ProteinMPNN/LigandMPNN sequence outputs
+- canonical prediction inputs
+- AF3/RF3/Boltz model-specific inputs and prediction outputs
+- `filter_summary.csv` or `all_filter_summary.csv`
+- `contact_face_qc.csv`
+- `fold_clustering/diverse_shortlist.csv`
+- `phage_display_qc.csv` when relevant
+- `pre_order_qc.csv`
+- final candidate summaries/packages when explicitly requested
 
-```bash
-cd ~/protein_design/examples/antibody_design
-ANTIGEN_PDB=input/antigen.pdb EPITOPE=A100,A101,A102 \
-  sbatch ../../scripts/slurm_templates/run_rfantibody.sbatch
-```
+These outputs are runtime artifacts and are ignored by default.
 
-Current status: RFantibody source is cloned under `~/protein_design/repos/RFantibody`; its isolated runtime environment is not installed yet. Recommended auxiliary isolated env: ANARCI/AbNumber, ImmuneBuilder or ABodyBuilder2, Biopython, pdb-tools, and PyMOL-open-source or ChimeraX if available.
+## Human Training And Skill Docs
 
-## Optional Modules To Install Later
+- Human training guide: `docs/training_epitope_scaffold_workflow_for_humans.md`
+- Codex workflow skill: `skills/epitope_scaffold_design/SKILL.md`
 
-## Backbone Backend Status
+## What Is Intentionally Not Tracked
 
-RFdiffusion v1 is the stable epitope scaffold baseline. The old
-`rf_diffusion_all_atom` integration is retained only as
-`rfdiffusion_all_atom_legacy`; it is not Foundry RF3/RFD3. Foundry RFD3 is
-available as experimental `BACKBONE_BACKEND=foundry_rfd3` through the unified
-backbone launcher. The 5TPN three-way comparison is saved under
-`examples/epitope_scaffold/backend_comparison_5tpn_foundry_20260628_213554/`;
-details are in `docs/foundry_rfd3_backend_report.md`.
+The repository ignores runtime outputs such as `logs/`, `raw_outputs/`,
+`predictions/`, AF3/RF3/Boltz/Foundry/ProteinMPNN output trees, final candidate
+packages, benchmark run directories, SLURM logs, `.cif`, `.cif.gz`, `.trb`,
+`.pkl`, `.npz`, checkpoint files, containers, weights, and databases.
 
-Use separate envs/containers:
+## Deprecated / Removed
 
-| Module | Suggested isolation |
-| --- | --- |
-| LigandMPNN | own conda/env or Apptainer image |
-| RFDiffusionAA legacy / Foundry RFD3 | separate from original RFdiffusion |
-| ColabDesign | separate JAX/AF2 env/container |
-| BindCraft | container or project env pinned to its release |
-| RFantibody | antibody-specific env/container |
-| Boltz | fresh env, e.g. `pip install boltz[cuda]` after testing package access |
-| Rosetta/PyRosetta | license-managed installation only |
-
-## Reproducibility Notes
-
-- No sudo was used.
-- System Python and base conda were not modified.
-- Large weights/databases are symlinked, not duplicated.
-- Actual test outputs and failures are recorded in `docs/protein_design_env_report.md`.
-- Use `sbatch` for production and `Interactive` only for short probes.
+The old Baker RFDiffusionAA / all-atom legacy integration has been removed from
+the supported workflow. Use Foundry RFD3 for all-atom/contact-aware backbone
+generation and Foundry RF3 for folding/prediction confirmation.

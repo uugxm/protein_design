@@ -1,2 +1,0 @@
-job_name	chain_id	molecule_type	role	sequence	sequence_length	source_fasta_header	mpnn_score
-design_0_T_0.1_sample_1_score_1.1933_global_score_1.4366_seq_recovery_0.0385	A	protein	designed_scaffold	KPVHKEFTEEEKKKFKELLKKFSEEEVNKIKSALLSTNKAVVSLEKDGKLYELLIELKDGEYYCLSKTLYE	71	T=0.1, sample=1, score=1.1933, global_score=1.4366, seq_recovery=0.0385	1.1933

@@ -6,7 +6,7 @@ TEMPLATE_DIR="${TEMPLATE_DIR:-$BASE/scripts/slurm_templates}"
 STAMP="$(date +%Y%m%d_%H%M%S)"
 COMPARE_ROOT="${COMPARE_ROOT:-$BASE/examples/epitope_scaffold/backend_comparison_${STAMP}}"
 
-INPUT_PDB="${INPUT_PDB:-$BASE/examples/epitope_scaffold/input/5TPN.pdb}"
+INPUT_PDB="${INPUT_PDB:?Set INPUT_PDB to the reference PDB/CIF containing the motif.}"
 REFERENCE_PDB="${REFERENCE_PDB:-$INPUT_PDB}"
 MOTIF_TSV="${MOTIF_TSV:-$BASE/examples/epitope_scaffold/motif_residues.tsv}"
 NUM_DESIGNS="${NUM_DESIGNS:-10}"
@@ -17,10 +17,8 @@ MIN_PLDDT="${MIN_PLDDT:-70}"
 MAX_PAE="${MAX_PAE:-10}"
 MAX_MOTIF_RMSD="${MAX_MOTIF_RMSD:-2.5}"
 MAX_CLASHES="${MAX_CLASHES:-20}"
-BACKENDS="${BACKENDS:-rfdiffusion_v1 rfdiffusion_all_atom_legacy foundry_rfd3}"
-V1_CONTIGS="${V1_CONTIGS:-[10-40/A163-181/10-40]}"
-LEGACY_AA_CONTIGS="${LEGACY_AA_CONTIGS:-[\"10-40,A163-181,10-40\"]}"
-LEGACY_AA_T="${LEGACY_AA_T:-100}"
+BACKENDS="${BACKENDS:-rfdiffusion_v1 foundry_rfd3}"
+V1_CONTIGS="${V1_CONTIGS:?Set V1_CONTIGS for RFdiffusion v1, e.g. [10-40/A10-25/10-40].}"
 FOUNDRY_RUNTIME="${FOUNDRY_RUNTIME:-micromamba}"
 FOUNDRY_ENV_PREFIX="${FOUNDRY_ENV_PREFIX:-$BASE/envs/foundry-rfd3}"
 FOUNDRY_RFD3_TIMESTEPS="${FOUNDRY_RFD3_TIMESTEPS:-50}"
@@ -36,7 +34,7 @@ submit_backend() {
   GEN_JOB="$(sbatch --parsable \
     --output="$run_dir/logs/backbone_gen-%j.out" \
     --error="$run_dir/logs/backbone_gen-%j.err" \
-    --export=ALL,PROTEIN_DESIGN_HOME="$BASE",RUN_ROOT="$run_dir",BACKBONE_BACKEND="$backend",INPUT_PDB="$INPUT_PDB",MOTIF_TSV="$MOTIF_TSV",OUTPUT_PREFIX="$run_dir/rfdiffusion_outputs/design",NUM_DESIGNS="$NUM_DESIGNS",V1_CONTIGS="$V1_CONTIGS",LEGACY_AA_CONTIGS="$LEGACY_AA_CONTIGS",LEGACY_AA_T="$LEGACY_AA_T",FOUNDRY_RUNTIME="$FOUNDRY_RUNTIME",FOUNDRY_ENV_PREFIX="$FOUNDRY_ENV_PREFIX",FOUNDRY_RFD3_TIMESTEPS="$FOUNDRY_RFD3_TIMESTEPS",FOUNDRY_RFD3_BATCH_SIZE="$FOUNDRY_RFD3_BATCH_SIZE" \
+    --export=ALL,PROTEIN_DESIGN_HOME="$BASE",RUN_ROOT="$run_dir",BACKBONE_BACKEND="$backend",INPUT_PDB="$INPUT_PDB",MOTIF_TSV="$MOTIF_TSV",OUTPUT_PREFIX="$run_dir/rfdiffusion_outputs/design",NUM_DESIGNS="$NUM_DESIGNS",V1_CONTIGS="$V1_CONTIGS",FOUNDRY_RUNTIME="$FOUNDRY_RUNTIME",FOUNDRY_ENV_PREFIX="$FOUNDRY_ENV_PREFIX",FOUNDRY_RFD3_TIMESTEPS="$FOUNDRY_RFD3_TIMESTEPS",FOUNDRY_RFD3_BATCH_SIZE="$FOUNDRY_RFD3_BATCH_SIZE" \
     "$TEMPLATE_DIR/run_backbone_generation.sbatch")"
 
   TASK_LIST="$run_dir/backbone_list.txt"
@@ -111,7 +109,7 @@ COMPARE_JOB="$(sbatch --parsable \
 RUN_PARAMS_PATH="$COMPARE_ROOT/run_params.json" python3 - \
   "$COMPARE_ROOT" "$INPUT_PDB" "$REFERENCE_PDB" "$MOTIF_TSV" "$BACKENDS" \
   "$NUM_DESIGNS" "$NUM_SEQ" "$PREDICT_MAX_RECORDS" "$V1_CONTIGS" \
-  "$LEGACY_AA_CONTIGS" "$LEGACY_AA_T" "$FOUNDRY_RUNTIME" "$FOUNDRY_ENV_PREFIX" "$FOUNDRY_RFD3_TIMESTEPS" "$FOUNDRY_RFD3_BATCH_SIZE" \
+  "$FOUNDRY_RUNTIME" "$FOUNDRY_ENV_PREFIX" "$FOUNDRY_RFD3_TIMESTEPS" "$FOUNDRY_RFD3_BATCH_SIZE" \
   "$MIN_PLDDT" "$MAX_PAE" "$MAX_MOTIF_RMSD" "$MAX_CLASHES" <<'PY'
 import json
 import os
@@ -120,7 +118,7 @@ import sys
 (
     compare_root, input_pdb, reference_pdb, motif_tsv, backends,
     num_designs, num_seq, predict_max_records, v1_contigs,
-    legacy_aa_contigs, legacy_aa_T, foundry_runtime, foundry_env_prefix, foundry_rfd3_timesteps, foundry_rfd3_batch_size,
+    foundry_runtime, foundry_env_prefix, foundry_rfd3_timesteps, foundry_rfd3_batch_size,
     min_plddt, max_pae, max_motif_rmsd, max_clashes,
 ) = sys.argv[1:]
 data = {
@@ -133,8 +131,6 @@ data = {
     "proteinmpnn_sequences_per_backbone": int(num_seq),
     "af3_predictions_per_backbone": int(predict_max_records),
     "v1_contigs": v1_contigs,
-    "legacy_aa_contigs": legacy_aa_contigs,
-    "legacy_aa_T": legacy_aa_T,
     "foundry_runtime": foundry_runtime,
     "foundry_env_prefix": foundry_env_prefix,
     "foundry_rfd3_timesteps": foundry_rfd3_timesteps,

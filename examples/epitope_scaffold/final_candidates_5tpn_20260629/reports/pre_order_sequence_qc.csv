@@ -1,8 +1,0 @@
-design_id,tier,amino_acid_sequence,sequence_length,noncanonical_residues,motif_sequence,motif_intact,motif_start,motif_end,cysteine_count,nxs_t_glycosylation_motifs,long_hydrophobic_stretches,low_complexity_repetitive_regions,predicted_molecular_weight_da,predicted_pI,max_sequence_identity_to_other_candidate,most_similar_candidate,obvious_cloning_gene_synthesis_concerns
-design_1,primary,VVYKGEFEYKGKKYELKVSKSGKGTITNKETGEKYELSEEEVNKIKSALLSTNKAVVSLTLNFKEKVEVDVLVEKIIE,78,,EVNKIKSALLSTNKAVVSL,yes,41,59,0,,,,8829.11,9.03,0.1282,design_3,none_detected_at_protein_sequence_level
-design_9,primary,MEIKEIYYDDLVEYLKKTFSPKKYKKEVNKIKSALLSTNKAVVSLEINGKKKKYLVIKK,59,,EVNKIKSALLSTNKAVVSL,yes,27,45,0,,,,6968.33,10.20,0.3934,design_2,none_detected_at_protein_sequence_level
-design_4,primary,AAKVITVKGKSLDEVIEKLKKKYNLTEEEVNKIKSALLSTNKAVVSLSSTGELINVEIVP,60,,EVNKIKSALLSTNKAVVSL,yes,29,47,0,NLT24-26,,,6511.59,9.65,0.1111,design_3,nxs_t_glycosylation_motif
-design_0,backup,KPVHKEFTEEEKKKFKELLKKFSEEEVNKIKSALLSTNKAVVSLEKDGKLYELLIELKDGEYYCLSKTLYE,71,,EVNKIKSALLSTNKAVVSL,yes,26,44,1,,,,8371.65,7.17,0.1282,design_1,none_detected_at_protein_sequence_level
-design_7,backup,MVTITITENGTTTTVTLTPEEVNKIKSALLSTNKAVVSLSDGTNYTITVTDEQLKKLNAGEPVTINATKTAA,72,,EVNKIKSALLSTNKAVVSL,yes,21,39,0,NGT9-11;NYT44-46;NAT66-68,,,7567.53,4.94,0.0972,design_2,nxs_t_glycosylation_motif
-design_2,backup,MKVIVIEGDLDSIFEKLKKEYGLTEEEVNKIKSALLSTNKAVVSLSDGRKALVSKKKIVIY,61,,EVNKIKSALLSTNKAVVSL,yes,27,45,0,,,,6811.03,9.78,0.3934,design_9,none_detected_at_protein_sequence_level
-design_3,backup,DKIILTLTIKTPKKTETIVKTLEEANLSEEEVNKIKSALLSTNKAVVSLEIDGKTYEVLVSKE,63,,EVNKIKSALLSTNKAVVSL,yes,31,49,0,NLS26-28,,,6988.07,5.20,0.1282,design_1,nxs_t_glycosylation_motif

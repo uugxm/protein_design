@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 """Build expression-ready candidate packages for epitope scaffold designs."""
 
+from __future__ import annotations
+
 import argparse
 import csv
 import json
@@ -10,7 +12,10 @@ import shutil
 from pathlib import Path
 from typing import Dict, Iterable, List, Optional, Tuple
 
-import numpy as np
+try:
+    import numpy as np
+except ImportError:
+    np = None
 
 from pdb_metrics import (
     BACKBONE_ATOMS,
@@ -24,6 +29,11 @@ from pdb_metrics import (
 
 
 PRIMARY_ORDER = ["design_1", "design_9", "design_4"]
+
+
+def require_numpy(feature: str) -> None:
+    if np is None:
+        raise RuntimeError("%s requires NumPy; run in the protein-design Python environment" % feature)
 
 
 def read_csv(path: Path) -> List[Dict[str, str]]:
@@ -95,6 +105,7 @@ def fasta_sequence(path: Optional[Path]) -> str:
 
 
 def kabsch_transform(reference_coords: np.ndarray, model_coords: np.ndarray) -> Tuple[np.ndarray, np.ndarray]:
+    require_numpy("motif alignment packaging")
     ref = np.asarray(reference_coords, dtype=float)
     mob = np.asarray(model_coords, dtype=float)
     ref_centroid = ref.mean(axis=0)
@@ -279,6 +290,10 @@ def consensus_by_design(rows: List[Dict[str, str]]) -> Dict[str, Dict[str, Dict[
     return out
 
 
+def parse_csv_list(text: str) -> List[str]:
+    return [item.strip() for item in text.split(",") if item.strip()]
+
+
 def relpath(path: Path, start: Path) -> str:
     return os.path.relpath(path, start)
 
@@ -299,8 +314,15 @@ def make_package(args: argparse.Namespace) -> None:
     reference_pdb = Path(args.reference_pdb)
     motif_tsv = Path(args.motif_tsv)
 
+    candidate_ids = parse_csv_list(args.candidate_ids) or PRIMARY_ORDER
+    priority_map = {}
+    for item in parse_csv_list(args.priority_map):
+        if ":" in item:
+            design_id, priority = item.split(":", 1)
+            priority_map[design_id.strip()] = priority.strip()
+
     final_rows = []
-    for rank, design_id in enumerate(PRIMARY_ORDER, start=1):
+    for rank, design_id in enumerate(candidate_ids, start=1):
         design_dir = out_dir / design_id
         design_dir.mkdir(parents=True, exist_ok=True)
         package_paths = {}
@@ -373,10 +395,10 @@ def make_package(args: argparse.Namespace) -> None:
 
         mpnn = parse_mpnn_header(mpnn_fasta)
         sequence = fasta_sequence(canonical_fasta)
-        priority = "high" if design_id in ("design_1", "design_9") else "medium"
+        priority = priority_map.get(design_id, "high" if rank <= args.high_priority_count else "medium")
         qc = {
             "design_id": design_id,
-            "source_backend": "RFdiffusion v1",
+            "source_backend": args.source_backend,
             "job_name": job_name,
             "sequence_length": len(sequence),
             "proteinmpnn": mpnn,
@@ -401,7 +423,7 @@ def make_package(args: argparse.Namespace) -> None:
             "# %s Final Candidate Summary" % design_id,
             "",
             "- design_id: `%s`" % design_id,
-            "- source backend: RFdiffusion v1",
+            "- source backend: %s" % args.source_backend,
             "- recommended experimental priority: `%s`" % priority,
             "- selection reason: %s" % shortlist_row.get("selection_reason", ""),
             "- global fold cluster: `%s`" % shortlist_row.get("global_fold_cluster_id", ""),
@@ -436,7 +458,7 @@ def make_package(args: argparse.Namespace) -> None:
         final_rows.append({
             "rank": str(rank),
             "design_id": design_id,
-            "tier": "primary",
+            "tier": args.tier,
             "expression_priority": priority,
             "AF3 pass": af3.get("pass", ""),
             "RF3 pass": rf3.get("pass", ""),
@@ -450,7 +472,7 @@ def make_package(args: argparse.Namespace) -> None:
             "motif_local_cluster": shortlist_row.get("motif_local_cluster_id", ""),
             "sequence_cluster": shortlist_row.get("sequence_cluster_id", ""),
             "Boltz warning": top_row.get("boltz_warning", shortlist_row.get("Boltz warning", "")),
-            "recommended_action": "small-scale expression and motif-binding QC",
+            "recommended_action": args.recommended_action,
         })
 
     fields = [
@@ -464,15 +486,21 @@ def make_package(args: argparse.Namespace) -> None:
 
 
 def main() -> int:
-    parser = argparse.ArgumentParser()
-    parser.add_argument("--shortlist_csv", required=True)
-    parser.add_argument("--consensus_csv", required=True)
-    parser.add_argument("--top_consensus_csv", required=True)
-    parser.add_argument("--backend_root", required=True)
-    parser.add_argument("--cross_model_root", required=True)
-    parser.add_argument("--reference_pdb", required=True)
-    parser.add_argument("--motif_tsv", required=True)
-    parser.add_argument("--out_dir", required=True)
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--shortlist_csv", required=True, help="Diversity shortlist CSV.")
+    parser.add_argument("--consensus_csv", required=True, help="Consensus predictor metrics CSV.")
+    parser.add_argument("--top_consensus_csv", required=True, help="Top consensus design CSV with warning columns.")
+    parser.add_argument("--backend_root", required=True, help="Backend workflow root containing backbones, mappings, and array_work.")
+    parser.add_argument("--cross_model_root", required=True, help="Cross-predictor canonical/predictions_flat asset root.")
+    parser.add_argument("--reference_pdb", required=True, help="Reference PDB for motif alignment package assets.")
+    parser.add_argument("--motif_tsv", required=True, help="Motif TSV with chain/start/end or chain/residue rows.")
+    parser.add_argument("--out_dir", required=True, help="Candidate package output directory.")
+    parser.add_argument("--candidate_ids", default=",".join(PRIMARY_ORDER), help="Comma-separated design IDs to package, in rank order.")
+    parser.add_argument("--source_backend", default="RFdiffusion v1", help="Human-readable source backbone backend label.")
+    parser.add_argument("--tier", default="primary", help="Tier value written to final_expression_shortlist.csv.")
+    parser.add_argument("--high_priority_count", type=int, default=2, help="Number of leading candidates marked high priority unless overridden.")
+    parser.add_argument("--priority_map", default="", help="Optional comma list like design_7:high,design_4:medium.")
+    parser.add_argument("--recommended_action", default="small-scale expression and motif-binding QC")
     args = parser.parse_args()
     make_package(args)
     return 0

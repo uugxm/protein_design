@@ -1,1 +1,1 @@
-/public/home/yinyifan/protein_design/examples/epitope_scaffold/rfdiffusion_outputs/design_0.pdb
+/path/to/run/rfdiffusion_outputs/design_0.pdb
