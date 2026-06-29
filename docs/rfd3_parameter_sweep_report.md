@@ -6,7 +6,7 @@ Benchmark directory: `examples/rsv_f_siteV_hRSV90_reproduction_5TPN_20260629/rfd
 
 RFD3 parameter calibration is complete for the first three 20-backbone conditions. No 100-200 backbone Phase 2 production benchmark was started, and the RFdiffusion v1 baseline was not expanded.
 
-The updated RFD3 usage strategy is recorded in `docs/rfd3_paper_usage_review.md`: Foundry RFD3 should not be treated as a simple RFdiffusion v1 contig replacement, and RFD3 Phase 2 production should wait until contact-core and discontinuous/contact-derived pilots are reviewed.
+The updated RFD3 usage strategy is recorded in `docs/rfd3_paper_usage_review.md`: Foundry RFD3 should not be treated as a simple RFdiffusion v1 contig replacement. The follow-up contact-motif pilot is recorded in `docs/rfd3_contact_motif_pilot_report.md`; RFD3 Phase 2 production remains blocked.
 
 The completed conditions were:
 
@@ -14,7 +14,7 @@ The completed conditions were:
 - `rfd3_c02_a163_181_all_10_40`: A163-181, all motif heavy atoms fixed, 10-40/motif/10-40.
 - `rfd3_c03_a163_181_all_20_30`: A163-181, all motif heavy atoms fixed, 20-30/motif/20-30.
 
-The core A169-178 and contact-derived discontinuous conditions remain documented in `condition_manifest.tsv` but were not run in this pass.
+The core A169-178 and contact-derived discontinuous conditions were moved to a separate RFD3 contact-motif pilot. In that pilot, c04 A169-178 validation and 20-backbone mini evaluation completed, while c05 discontinuous contact4 was held before GPU submission because the current normalization/TRB/fixed-position audit wrapper cannot cleanly support the discontinuous unindex representation.
 
 ## Raw Motif Audit
 
@@ -81,7 +81,7 @@ Partly yes. The raw motif is intact, but AF3 pass rate and AF3 motif RMSD vary s
 
 Not as an immediate replacement for RFdiffusion v1 on this continuous A163-181 motif. The calibrated best RFD3 condition is substantially better than the initial RFD3 setting, but it still does not clearly exceed the Phase 1 v1 result, which had 19/20 AF3 pass and lower RF3 median motif RMSD.
 
-Recommended next step is not a 100-200 backbone production run. If RFD3 is pursued, run one more small validation focused on `all-heavy + 20-30` and the contact-core/discontinuous motif cases before allocating Phase 2 production resources.
+Recommended next step is not a 100-200 backbone production run. The contact-motif pilot has now completed the small validation focused on contact-core/discontinuous motif cases. Its result does not justify production: c04 raw motif conditioning was strong, but AF3 pass rate was 9/20 and contact-face QC found 0 pass candidates; c05 remains a validation hold in the current wrapper. RFD3 production should stay blocked until auditable discontinuous/unindex mapping and contact-face pass candidates are demonstrated.
 
 7. If still weaker than v1, should RFD3 be positioned differently?
 

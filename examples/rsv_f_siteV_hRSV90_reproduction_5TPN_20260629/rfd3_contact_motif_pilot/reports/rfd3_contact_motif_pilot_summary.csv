@@ -1,0 +1,4 @@
+condition_id,motif_definition,continuous_or_discontinuous,input_validation_status,n_backbones,raw_motif_rmsd_median,AF3_PASS,AF3_pass_rate,AF3_motif_RMSD_median,RF3_confirmed,RF3_motif_RMSD_median,AF3_contact_face_RMSD_median,RF3_contact_face_RMSD_median,contact_face_pass_count,contact_face_caution_count,contact_face_hold_count,mean_pLDDT,mean_PAE,fold_clusters,motif_local_clusters,sequence_clusters,interpretation
+c03_a163_181_all_20_30,A163-181,,legacy_or_reference,20,0.0125411,14,0.7,1.73598,5,0.945571,2.14943,1.66391,0,25,0,81.8621,5.73862,5,5,5,scaffold_or_contact_face_qc_limited
+c04_contact_core_a169_178_all_20_30,A169-178_contact_core,continuous,valid_ready_to_run,20,0.00861781,9,0.45,2.55529,5,0.819113,3.16841,1.37023,0,25,0,72.2099,7.59225,5,5,5,scaffold_or_contact_face_qc_limited
+c05_discontinuous_contact_unindex_all,contact4_discontinuous_siteV,discontinuous,hold_not_cleanly_supported_in_current_wrapper,0,,0,,,0,,,,0,0,0,,,,,,validation_hold_no_gpu_run

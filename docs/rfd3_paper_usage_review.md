@@ -34,15 +34,18 @@ length_bin: 20-30/motif/20-30
 
 This setting produced the best mini-sweep result among the first three RFD3 conditions. It improved over the initial RFD3 condition, but it did not justify moving directly into a 100-200 backbone RFD3 production benchmark.
 
-## Next RFD3 Pilot Priority
+## Contact-Motif Pilot Result
 
-Before any RFD3 Phase 2 production allocation, run and review small pilots for:
+The contact-motif pilot is recorded in `docs/rfd3_contact_motif_pilot_report.md`.
 
-- A169-178 contact core.
-- Curated discontinuous contact-derived site V set.
-- `unindex` motif mode if supported by the installed Foundry version and if the input can be audited cleanly.
+Pilot conclusions:
 
-These pilots better match RFD3's expected strengths than the A163-181 continuous reproduction alone.
+- A169-178 contact core with all motif heavy atoms and 20-30/motif/20-30 was cleanly validated and run for 20 backbones.
+- The c04 raw motif RMSD median was low, supporting effective RFD3 raw motif conditioning.
+- c04 did not produce contact-face pass candidates: AF3 pass rate was 9/20, RF3 confirmed 5/5 selected candidates, and contact-face QC was 0 pass / 25 caution / 0 hold.
+- The contact4 discontinuous site V condition was held before GPU submission because the current local wrapper cannot cleanly audit discontinuous unindex normalization, TRB mapping, and fixed-position propagation.
+
+These results better match RFD3's expected development path than the A163-181 continuous reproduction alone, but they still do not justify RFD3 Phase 2 production for this benchmark.
 
 ## Required RFD3 Parameter Record
 
@@ -78,6 +81,6 @@ The contact-face metrics should be reported next to whole-motif RMSD because a d
 
 ## Decision Policy
 
-Do not start RFD3 Phase 2 production for the current site V benchmark until the contact-core and discontinuous/contact-derived pilots are reviewed.
+Do not start RFD3 Phase 2 production for the current site V benchmark. The contact-core pilot did not produce contact-face pass candidates, and the discontinuous/contact-derived condition is still blocked by auditable wrapper support.
 
 For the current benchmark, RFD3 should be positioned as a calibrated secondary backend for all-atom, contact-core, complex, and discontinuous-motif exploration. RFdiffusion v1 remains the default continuous-motif scaffold reproduction baseline.

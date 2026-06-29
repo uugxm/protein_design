@@ -66,7 +66,8 @@ RFD3 usage policy:
 - Do not treat Foundry RFD3 as a simple RFdiffusion v1 contig replacement; use the atom-level Foundry input model intentionally.
 - For epitope scaffold work, default RFD3 fixed motif conditioning to `ALL` motif heavy atoms unless running an explicit `BKBN` ablation.
 - For the RSV F site V benchmark, the calibrated continuous RFD3 setting is `A163-181 + all_motif_heavy_atoms + 20-30/motif/20-30`.
-- Do not start RFD3 Phase 2 production for site V until contact-core and discontinuous/contact-derived pilots are reviewed.
+- The RSV F site V contact-motif pilot found strong c04 raw motif conditioning but no contact-face pass candidates, and c05 discontinuous contact4 remains blocked by auditable wrapper support.
+- Do not start RFD3 Phase 2 production for site V until discontinuous/unindex normalization is auditable and a contact-face pilot produces pass candidates.
 - See `docs/rfd3_paper_usage_review.md` for the full strategy and required RFD3 parameter/QC record.
 
 ## Workflow
@@ -99,11 +100,13 @@ Step 8. Run Boltz only as a warning layer unless MSA/template-enabled validation
 
 Step 9. Filter on motif atoms present, motif RMSD, pLDDT, PAE, and clash count.
 
-Step 10. Cluster global fold, motif-local geometry, and sequence diversity.
+Step 10. Run contact-face QC for epitope-scaffold tasks. Whole-motif RMSD is not sufficient when antibody-facing atoms can be buried or locally occluded.
 
-Step 11. Run pre-order QC with no expression-system assumptions.
+Step 11. Cluster global fold, motif-local geometry, and sequence diversity.
 
-Step 12. Package final candidates with sequences, structures, QC JSON, motif mapping, and PyMOL views.
+Step 12. Run pre-order QC with no expression-system assumptions.
+
+Step 13. Package final candidates with sequences, structures, QC JSON, motif mapping, and PyMOL views.
 
 ## Required scripts
 
@@ -170,6 +173,7 @@ Primary quality gate:
 - motif RMSD below the run threshold
 - pLDDT and PAE thresholds pass
 - clash count acceptable
+- for epitope scaffold runs, contact-face QC must not be `contact_face_hold`; final experimental candidates should normally require `contact_face_pass`
 
 Confirmation gate:
 

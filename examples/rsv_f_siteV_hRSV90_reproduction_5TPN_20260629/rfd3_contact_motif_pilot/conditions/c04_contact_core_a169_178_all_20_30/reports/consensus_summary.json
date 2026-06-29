@@ -1,0 +1,37 @@
+{
+  "af3_only_positive_designs": [
+    "design_11",
+    "design_12",
+    "design_14",
+    "design_4"
+  ],
+  "all_three_motif_rmsd_pass_count": 0,
+  "all_three_motif_rmsd_pass_designs": [],
+  "boltz_success_count": 0,
+  "high_confidence_consensus_designs": [],
+  "model_conflict_designs": [],
+  "predictors": {
+    "af3": {
+      "failed": 0,
+      "missing": 0,
+      "pass": 9,
+      "success": 20,
+      "total_designs": 20
+    },
+    "boltz": {
+      "failed": 0,
+      "missing": 20,
+      "pass": 0,
+      "success": 0,
+      "total_designs": 20
+    },
+    "rf3": {
+      "failed": 0,
+      "missing": 15,
+      "pass": 5,
+      "success": 5,
+      "total_designs": 20
+    }
+  },
+  "rf3_success_count": 5
+}

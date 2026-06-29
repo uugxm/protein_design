@@ -1,0 +1,12 @@
+{
+  "expected_backbones": 5,
+  "failure_rate_rows": 0.0,
+  "failure_rows": 0,
+  "missing_filter_summaries": 0,
+  "output_csv": "/public/home/yinyifan/protein_design/examples/rsv_f_siteV_hRSV90_reproduction_5TPN_20260629/rfd3_contact_motif_pilot/conditions/c04_contact_core_a169_178_all_20_30/reports/rf3_filter_summary.csv",
+  "pass_rows": 5,
+  "rows": 5,
+  "summary_files": 5,
+  "top_csv": "/public/home/yinyifan/protein_design/examples/rsv_f_siteV_hRSV90_reproduction_5TPN_20260629/rfd3_contact_motif_pilot/conditions/c04_contact_core_a169_178_all_20_30/reports/rf3_top_designs.csv",
+  "work_root": "/public/home/yinyifan/protein_design/examples/rsv_f_siteV_hRSV90_reproduction_5TPN_20260629/rfd3_contact_motif_pilot/conditions/c04_contact_core_a169_178_all_20_30/rf3_confirmations_final"
+}

@@ -46,6 +46,14 @@ FOUNDRY_RFD3_NTERM_RANGE="${FOUNDRY_RFD3_NTERM_RANGE:-10-40}"
 FOUNDRY_RFD3_CTERM_RANGE="${FOUNDRY_RFD3_CTERM_RANGE:-10-40}"
 FOUNDRY_RFD3_FIXED_ATOMS="${FOUNDRY_RFD3_FIXED_ATOMS:-BKBN}"
 FOUNDRY_RFD3_TIMESTEPS="${FOUNDRY_RFD3_TIMESTEPS:-50}"
+FOUNDRY_RFD3_STEP_SCALE="${FOUNDRY_RFD3_STEP_SCALE:-1.5}"
+FOUNDRY_RFD3_ETA="${FOUNDRY_RFD3_ETA:-not_supported_or_not_exposed}"
+FOUNDRY_RFD3_GAMMA_0="${FOUNDRY_RFD3_GAMMA_0:-0.6}"
+FOUNDRY_RFD3_CFG_SCALE="${FOUNDRY_RFD3_CFG_SCALE:-1.5}"
+FOUNDRY_RFD3_CENTER_OPTION="${FOUNDRY_RFD3_CENTER_OPTION:-all}"
+FOUNDRY_RFD3_ALLOW_REALIGNMENT="${FOUNDRY_RFD3_ALLOW_REALIGNMENT:-False}"
+FOUNDRY_RFD3_IS_NON_LOOPY="${FOUNDRY_RFD3_IS_NON_LOOPY:-True}"
+FOUNDRY_RFD3_PARTIAL_T="${FOUNDRY_RFD3_PARTIAL_T:-not_set}"
 FOUNDRY_RFD3_LOW_MEMORY_MODE="${FOUNDRY_RFD3_LOW_MEMORY_MODE:-True}"
 FOUNDRY_RFD3_BATCH_SIZE="${FOUNDRY_RFD3_BATCH_SIZE:-$NUM_DESIGNS}"
 FOUNDRY_RFD3_N_BATCHES="${FOUNDRY_RFD3_N_BATCHES:-$(((NUM_DESIGNS + FOUNDRY_RFD3_BATCH_SIZE - 1) / FOUNDRY_RFD3_BATCH_SIZE))}"
@@ -152,6 +160,11 @@ case "$BACKBONE_BACKEND" in
           diffusion_batch_size="$FOUNDRY_RFD3_BATCH_SIZE" \
           n_batches="$FOUNDRY_RFD3_N_BATCHES" \
           inference_sampler.num_timesteps="$FOUNDRY_RFD3_TIMESTEPS" \
+          inference_sampler.step_scale="$FOUNDRY_RFD3_STEP_SCALE" \
+          inference_sampler.gamma_0="$FOUNDRY_RFD3_GAMMA_0" \
+          inference_sampler.cfg_scale="$FOUNDRY_RFD3_CFG_SCALE" \
+          inference_sampler.center_option="$FOUNDRY_RFD3_CENTER_OPTION" \
+          inference_sampler.allow_realignment="$FOUNDRY_RFD3_ALLOW_REALIGNMENT" \
           low_memory_mode="$FOUNDRY_RFD3_LOW_MEMORY_MODE"
         "$FOUNDRY_PYTHON" "$BASE/scripts/normalize_foundry_rfd3_outputs.py" \
           --input_dir "$FOUNDRY_RFD3_RAW_OUT" \
@@ -177,6 +190,11 @@ case "$BACKBONE_BACKEND" in
               diffusion_batch_size="$FOUNDRY_RFD3_BATCH_SIZE" \
               n_batches="$FOUNDRY_RFD3_N_BATCHES" \
               inference_sampler.num_timesteps="$FOUNDRY_RFD3_TIMESTEPS" \
+              inference_sampler.step_scale="$FOUNDRY_RFD3_STEP_SCALE" \
+              inference_sampler.gamma_0="$FOUNDRY_RFD3_GAMMA_0" \
+              inference_sampler.cfg_scale="$FOUNDRY_RFD3_CFG_SCALE" \
+              inference_sampler.center_option="$FOUNDRY_RFD3_CENTER_OPTION" \
+              inference_sampler.allow_realignment="$FOUNDRY_RFD3_ALLOW_REALIGNMENT" \
               low_memory_mode="$FOUNDRY_RFD3_LOW_MEMORY_MODE"
         apptainer exec --bind "$BASE:$BASE","$RUN_ROOT:$RUN_ROOT" "$FOUNDRY_SIF" \
           python "$BASE/scripts/normalize_foundry_rfd3_outputs.py" \
@@ -205,22 +223,39 @@ RUN_PARAMS_PATH="$RUN_ROOT/run_params.json" "$PYTHON_BIN" - \
   "$RUN_ROOT" "$BACKBONE_BACKEND" "$INPUT_PDB" "$MOTIF_TSV" "$OUTPUT_PREFIX" \
   "$NUM_DESIGNS" "$DESIGN_STARTNUM" "$V1_REPO" "$V1_CONTIGS" \
   "$LEGACY_AA_REPO" "$LEGACY_AA_SIF" "$LEGACY_AA_WEIGHTS" "$LEGACY_AA_CONTIGS" "$LEGACY_AA_T" \
-  "$FOUNDRY_REPO" "$FOUNDRY_RUNTIME" "$FOUNDRY_ENV_PREFIX" "$FOUNDRY_SIF" "$FOUNDRY_CHECKPOINT_DIR" "$FOUNDRY_RFD3_INPUT_JSON" "$FOUNDRY_RFD3_RAW_OUT" "$FOUNDRY_RFD3_TIMESTEPS" "$FOUNDRY_RFD3_BATCH_SIZE" "$FOUNDRY_RFD3_N_BATCHES" \
+  "$FOUNDRY_REPO" "$FOUNDRY_RUNTIME" "$FOUNDRY_ENV_PREFIX" "$FOUNDRY_SIF" "$FOUNDRY_CHECKPOINT_DIR" "$FOUNDRY_RFD3_INPUT_JSON" "$FOUNDRY_RFD3_RAW_OUT" "$FOUNDRY_RFD3_TIMESTEPS" "$FOUNDRY_RFD3_BATCH_SIZE" "$FOUNDRY_RFD3_N_BATCHES" "$FOUNDRY_RFD3_NTERM_RANGE" "$FOUNDRY_RFD3_CTERM_RANGE" "$FOUNDRY_RFD3_FIXED_ATOMS" "$FOUNDRY_RFD3_STEP_SCALE" "$FOUNDRY_RFD3_ETA" "$FOUNDRY_RFD3_GAMMA_0" "$FOUNDRY_RFD3_CFG_SCALE" "$FOUNDRY_RFD3_CENTER_OPTION" "$FOUNDRY_RFD3_ALLOW_REALIGNMENT" "$FOUNDRY_RFD3_IS_NON_LOOPY" "$FOUNDRY_RFD3_PARTIAL_T" \
   "$RUN_ROOT/backbone_list.txt" <<'PY'
 import json
 import os
 import sys
+from pathlib import Path
 
 (
     run_root, backend, input_pdb, motif_tsv, output_prefix,
     num_designs, design_startnum, v1_repo, v1_contigs,
     legacy_aa_repo, legacy_aa_sif, legacy_aa_weights, legacy_aa_contigs, legacy_aa_T,
     foundry_repo, foundry_runtime, foundry_env_prefix, foundry_sif, foundry_checkpoint_dir, foundry_rfd3_input_json,
-    foundry_rfd3_raw_out, foundry_rfd3_timesteps, foundry_rfd3_batch_size, foundry_rfd3_n_batches, backbone_list,
+    foundry_rfd3_raw_out, foundry_rfd3_timesteps, foundry_rfd3_batch_size, foundry_rfd3_n_batches,
+    foundry_rfd3_nterm_range, foundry_rfd3_cterm_range, foundry_rfd3_fixed_atoms,
+    foundry_rfd3_step_scale, foundry_rfd3_eta, foundry_rfd3_gamma_0, foundry_rfd3_cfg_scale,
+    foundry_rfd3_center_option, foundry_rfd3_allow_realignment, foundry_rfd3_is_non_loopy,
+    foundry_rfd3_partial_t, backbone_list,
 ) = sys.argv[1:]
+input_spec = {}
+try:
+    payload = json.loads(Path(foundry_rfd3_input_json).read_text())
+    if isinstance(payload, dict) and payload:
+        input_spec = next(iter(payload.values()))
+except Exception:
+    input_spec = {}
 data = {
     "run_root": run_root,
     "backend": backend,
+    "condition_id": input_spec.get("extra", {}).get("condition_id", ""),
+    "motif_definition": input_spec.get("extra", {}).get("motif_definition", ""),
+    "continuous_or_discontinuous": input_spec.get("extra", {}).get("continuous_or_discontinuous", ""),
+    "fixed_atom_level": input_spec.get("extra", {}).get("fixed_atom_level", ""),
+    "length_bin": input_spec.get("extra", {}).get("length_bin", ""),
     "input_pdb": input_pdb,
     "motif_tsv": motif_tsv,
     "output_prefix": output_prefix,
@@ -243,11 +278,35 @@ data = {
     "foundry_rfd3_timesteps": foundry_rfd3_timesteps,
     "foundry_rfd3_batch_size": int(foundry_rfd3_batch_size),
     "foundry_rfd3_n_batches": int(foundry_rfd3_n_batches),
+    "foundry_rfd3_nterm_range": foundry_rfd3_nterm_range,
+    "foundry_rfd3_cterm_range": foundry_rfd3_cterm_range,
+    "foundry_rfd3_fixed_atoms": foundry_rfd3_fixed_atoms,
+    "foundry_rfd3_select_fixed_atoms": input_spec.get("select_fixed_atoms", "not_supported_or_not_exposed"),
+    "foundry_rfd3_contig": input_spec.get("contig", "not_supported_or_not_exposed"),
+    "foundry_rfd3_unindex": input_spec.get("unindex", "not_supported_or_not_exposed"),
+    "foundry_rfd3_length": input_spec.get("length", "not_supported_or_not_exposed"),
+    "foundry_rfd3_select_unfixed_sequence": input_spec.get("select_unfixed_sequence", "not_supported_or_not_exposed"),
+    "foundry_rfd3_step_scale": foundry_rfd3_step_scale,
+    "foundry_rfd3_eta": foundry_rfd3_eta,
+    "foundry_rfd3_gamma_0": foundry_rfd3_gamma_0,
+    "foundry_rfd3_cfg_scale": foundry_rfd3_cfg_scale,
+    "foundry_rfd3_center_option": foundry_rfd3_center_option,
+    "foundry_rfd3_allow_realignment": foundry_rfd3_allow_realignment,
+    "foundry_rfd3_is_non_loopy": input_spec.get("is_non_loopy", foundry_rfd3_is_non_loopy),
+    "foundry_rfd3_partial_t": input_spec.get("partial_t", foundry_rfd3_partial_t),
+    "foundry_rfd3_command_sampler_overrides": [
+        "inference_sampler.num_timesteps=%s" % foundry_rfd3_timesteps,
+        "inference_sampler.step_scale=%s" % foundry_rfd3_step_scale,
+        "inference_sampler.gamma_0=%s" % foundry_rfd3_gamma_0,
+        "inference_sampler.cfg_scale=%s" % foundry_rfd3_cfg_scale,
+        "inference_sampler.center_option=%s" % foundry_rfd3_center_option,
+        "inference_sampler.allow_realignment=%s" % foundry_rfd3_allow_realignment,
+    ],
     "backbone_list": backbone_list,
 }
 with open(os.environ["RUN_PARAMS_PATH"], "w") as handle:
     json.dump(data, handle, indent=2, sort_keys=True)
-    handle.write("\\n")
+    handle.write("\n")
 PY
 
 cat > "$RUN_ROOT/backend_logs/backend.env" <<EOF
@@ -268,6 +327,14 @@ FOUNDRY_SIF=$FOUNDRY_SIF
 FOUNDRY_CHECKPOINT_DIR=$FOUNDRY_CHECKPOINT_DIR
 FOUNDRY_RFD3_INPUT_JSON=$FOUNDRY_RFD3_INPUT_JSON
 FOUNDRY_RFD3_TIMESTEPS=$FOUNDRY_RFD3_TIMESTEPS
+FOUNDRY_RFD3_STEP_SCALE=$FOUNDRY_RFD3_STEP_SCALE
+FOUNDRY_RFD3_ETA=$FOUNDRY_RFD3_ETA
+FOUNDRY_RFD3_GAMMA_0=$FOUNDRY_RFD3_GAMMA_0
+FOUNDRY_RFD3_CFG_SCALE=$FOUNDRY_RFD3_CFG_SCALE
+FOUNDRY_RFD3_CENTER_OPTION=$FOUNDRY_RFD3_CENTER_OPTION
+FOUNDRY_RFD3_ALLOW_REALIGNMENT=$FOUNDRY_RFD3_ALLOW_REALIGNMENT
+FOUNDRY_RFD3_IS_NON_LOOPY=$FOUNDRY_RFD3_IS_NON_LOOPY
+FOUNDRY_RFD3_PARTIAL_T=$FOUNDRY_RFD3_PARTIAL_T
 FOUNDRY_RFD3_BATCH_SIZE=$FOUNDRY_RFD3_BATCH_SIZE
 FOUNDRY_RFD3_N_BATCHES=$FOUNDRY_RFD3_N_BATCHES
 EOF
