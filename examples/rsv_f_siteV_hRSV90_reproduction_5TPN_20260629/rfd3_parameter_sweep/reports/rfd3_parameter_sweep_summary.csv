@@ -1,0 +1,4 @@
+condition_id,motif_definition,fixed_atom_level,length_bin,num_raw_outputs,num_selected_for_mpnn,raw_motif_rmsd_median,AF3_PASS,AF3_pass_rate,AF3_motif_RMSD_median,RF3_confirmed,RF3_motif_RMSD_median,mean_pLDDT,mean_PAE,num_fold_clusters,success_per_gpu_hour,failure_interpretation
+rfd3_c01_a163_181_bkbn_10_40,A163-181,backbone_atoms_N_CA_C_O,10-40/motif/10-40,20,20,0.0110098,5,0.25,2.4411,4,2.11287,71.0505,10.3607,4,,raw_motif_ok_but_downstream_mpnn_or_af3_instability
+rfd3_c02_a163_181_all_10_40,A163-181,all_motif_heavy_atoms,10-40/motif/10-40,20,20,0.0125411,9,0.45,3.85149,5,0.953701,77.2864,8.0285,5,,raw_motif_ok_but_downstream_mpnn_or_af3_instability
+rfd3_c03_a163_181_all_20_30,A163-181,all_motif_heavy_atoms,20-30/motif/20-30,20,20,0.0125411,14,0.7,1.73598,5,0.945571,81.8621,5.73862,5,,no_primary_failure_detected_in_mini_sweep

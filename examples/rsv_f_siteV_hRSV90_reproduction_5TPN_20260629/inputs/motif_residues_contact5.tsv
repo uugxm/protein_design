@@ -1,0 +1,22 @@
+chain	residue	icode	resname	aa	motif_index	min_contact_distance_angstrom	heavy_chain_contacts	light_chain_contacts	total_atom_contacts	antibody_contact_residues	provenance
+A	169		SER	S	1	3.095	10	3	13	H64;L109;L110	heavy_atom_contact_cutoff
+A	170		ALA	A	2	2.885	0	16	16	L107;L108;L109	heavy_atom_contact_cutoff
+A	171		LEU	L	3	4.036	4	0	4	H109	heavy_atom_contact_cutoff
+A	172		LEU	L	4	3.322	26	28	54	H107;H109;H64;L110	heavy_atom_contact_cutoff
+A	173		SER	S	5	2.521	34	38	72	H107;H109;H113;H40;L107;L110;L112	heavy_atom_contact_cutoff
+A	174		THR	T	6	2.715	52	33	85	H109;H113;L107;L108;L38	heavy_atom_contact_cutoff
+A	175		ASN	N	7	2.938	41	4	45	H109;H112A;H113;L38	heavy_atom_contact_cutoff
+A	176		LYS	K	8	2.839	0	9	9	L108;L37;L38	heavy_atom_contact_cutoff
+A	177		ALA	A	9	3.233	0	20	20	L108;L36;L38	heavy_atom_contact_cutoff
+A	178		VAL	V	10	2.770	0	33	33	L108;L109;L28;L36	heavy_atom_contact_cutoff
+A	188		LEU	L	11	3.628	0	4	4	L36	heavy_atom_contact_cutoff
+A	191		LYS	K	12	3.276	7	0	7	H109;H111;H112A	heavy_atom_contact_cutoff
+A	194		ASP	D	13	2.278	21	0	21	H111;H111A	heavy_atom_contact_cutoff
+A	196		LYS	K	14	4.882	2	0	2	H59	heavy_atom_contact_cutoff
+A	197		ASN	N	15	3.900	11	0	11	H111;H111A;H58	heavy_atom_contact_cutoff
+A	200		ASP	D	16	4.424	4	0	4	H58	heavy_atom_contact_cutoff
+A	201		LYS	K	17	3.148	35	0	35	H110;H36;H58	heavy_atom_contact_cutoff
+A	226		LYS	K	18	3.665	5	0	5	H111A;H112C	heavy_atom_contact_cutoff
+A	262		ASN	N	19	4.399	0	1	1	L83	heavy_atom_contact_cutoff
+A	263		ASP	D	20	3.074	0	34	34	L36;L37;L83	heavy_atom_contact_cutoff
+A	271		LYS	K	21	4.956	0	1	1	L83	heavy_atom_contact_cutoff

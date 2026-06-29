@@ -1,0 +1,3 @@
+condition_id	motif_definition	motif_tsv	input_pdb	continuous_or_discontinuous	rfd3_mode	fixed_atom_level	fixed_atoms	nterm_range	cterm_range	length	length_bin	n_backbones	num_mpnn_sequences	af3_per_backbone	rf3_top_n	is_non_loopy	select_unfixed_sequence	partial_t
+c04_contact_core_a169_178_all_20_30	A169-178_contact_core	inputs/motif_residues_core_A169_178.tsv	inputs/5TPN.pdb	continuous	indexed	all_motif_heavy_atoms	ALL	20-30	20-30		20-30/motif/20-30	20	5	1	5	true		
+c05_discontinuous_contact_unindex_all	contact4_discontinuous_siteV	inputs/motif_residues_contact4.tsv	inputs/5TPN.pdb	discontinuous	unindex	all_motif_heavy_atoms	ALL			70-120	unindexed_contact4_length_70-120	20	5	1	5	true		

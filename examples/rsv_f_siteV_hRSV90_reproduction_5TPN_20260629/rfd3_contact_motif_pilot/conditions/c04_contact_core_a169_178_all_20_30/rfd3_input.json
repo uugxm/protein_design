@@ -1,0 +1,21 @@
+{
+  "c04_contact_core_a169_178_all_20_30": {
+    "contig": "20-30,A169-178,20-30",
+    "dialect": 2,
+    "extra": {
+      "condition_id": "c04_contact_core_a169_178_all_20_30",
+      "continuous_or_discontinuous": "continuous",
+      "fixed_atom_level": "all_motif_heavy_atoms",
+      "length_bin": "20-30/motif/20-30",
+      "motif_definition": "A169-178_contact_core",
+      "motif_selection": "A169-178",
+      "motif_source": "/public/home/yinyifan/protein_design/examples/rsv_f_siteV_hRSV90_reproduction_5TPN_20260629/rfd3_contact_motif_pilot/inputs/motif_residues_core_A169_178.tsv",
+      "pilot": "rfd3_contact_motif"
+    },
+    "input": "/public/home/yinyifan/protein_design/examples/rsv_f_siteV_hRSV90_reproduction_5TPN_20260629/inputs/5TPN.pdb",
+    "is_non_loopy": true,
+    "select_fixed_atoms": {
+      "A169-178": "ALL"
+    }
+  }
+}

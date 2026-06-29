@@ -1,0 +1,14 @@
+{
+  "condition_id": "rfd3_c03_a163_181_all_20_30",
+  "cterm_range": "20-30",
+  "fixed_atom_level": "all_motif_heavy_atoms",
+  "foundry_fixed_atoms": "ALL",
+  "length_bin": "20-30/motif/20-30",
+  "motif_definition": "A163-181",
+  "motif_tsv": "/public/home/yinyifan/protein_design/examples/rsv_f_siteV_hRSV90_reproduction_5TPN_20260629/inputs/motif_residues_benchmark.tsv",
+  "nterm_range": "20-30",
+  "num_proteinmpnn_sequences_per_backbone": 5,
+  "num_raw_outputs": 20,
+  "num_selected_for_mpnn": 20,
+  "phase2_production_started": false
+}

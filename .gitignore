@@ -9,8 +9,16 @@ weights/*
 repos/*
 envs/*/
 logs/
+**/logs/
+**/predictions/
+**/predictions_flat/
+**/rf3_predictions/
+**/predictions_boltz/
+**/array_work/
+**/raw_outputs/
 *.out
 *.err
+*.cif.gz
 *.pt
 *.pth
 *.ckpt
@@ -24,3 +32,8 @@ logs/
 __pycache__/
 .DS_Store
 
+# Runtime-heavy workflow outputs; keep small reports and selected evidence files explicit.
+phase*_smoke/
+phase*_production/
+**/phase*_smoke/
+**/phase*_production/
