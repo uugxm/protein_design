@@ -1,0 +1,5 @@
+design_id,predictor,motif_local_cluster_id,motif_rmsd_to_reference,local_support_residue_count,motif_atoms_missing,representative_design,model_pdb
+design_13,consensus,M1,2.0856,56,0,design_13,/public/home/yinyifan/protein_design/examples/rsv_f_siteV_hRSV90_reproduction_5TPN_20260629/rfd3_parameter_sweep/conditions/rfd3_c01_a163_181_bkbn_10_40/array_work/design_13/predictions_flat/design_13.pdb
+design_16,consensus,M2,1.87639,55,0,design_16,/public/home/yinyifan/protein_design/examples/rsv_f_siteV_hRSV90_reproduction_5TPN_20260629/rfd3_parameter_sweep/conditions/rfd3_c01_a163_181_bkbn_10_40/array_work/design_16/predictions_flat/design_16.pdb
+design_17,consensus,M3,2.34052,50,0,design_17,/public/home/yinyifan/protein_design/examples/rsv_f_siteV_hRSV90_reproduction_5TPN_20260629/rfd3_parameter_sweep/conditions/rfd3_c01_a163_181_bkbn_10_40/array_work/design_17/predictions_flat/design_17.pdb
+design_2,consensus,M4,0.913073,48,0,design_2,/public/home/yinyifan/protein_design/examples/rsv_f_siteV_hRSV90_reproduction_5TPN_20260629/rfd3_parameter_sweep/conditions/rfd3_c01_a163_181_bkbn_10_40/array_work/design_2/predictions_flat/design_2.pdb

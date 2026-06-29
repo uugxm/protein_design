@@ -8,6 +8,8 @@ Phase 1 smoke benchmark is complete. Phase 2 production benchmark has not been s
 
 The previous 5TPN test run is treated only as a skill smoke test. The formal benchmark input was rebuilt from PDB 5TPN and reconciled against the original RFdiffusion motif-scaffolding example.
 
+Follow-up RFD3 parameter calibration is recorded in `docs/rfd3_parameter_sweep_report.md`; the Phase 1 Foundry RFD3 result should be interpreted as an initial-setting result, not as evidence that the RFD3 backend is intrinsically weaker.
+
 Current smoke benchmark orchestration is semi-automated: backbone generation, MPNN, AF3, and summary are submitted through workflow wrappers; RF3 confirmation, clustering, pre-order QC, and final packaging may still be run as downstream staged steps unless the full DAG wrapper is explicitly invoked.
 
 The old smoke-test directory `examples/epitope_scaffold/` is retained as historical smoke-test provenance. It is not used by the current skill or benchmark entrypoint, and cleanup is deferred to a separate PR.
@@ -68,7 +70,7 @@ Primary benchmark candidates are the RFdiffusion v1 RF3-confirmed designs:
 - `rfdiffusion_v1__design_18`
 - `rfdiffusion_v1__design_4`
 
-Foundry RFD3 generated comparison backups during the run:
+Foundry RFD3 generated comparison backups during the initial Phase 1 run:
 
 - `foundry_rfd3__design_6`
 - `foundry_rfd3__design_14`
@@ -85,7 +87,7 @@ No cloning-ready construct table was generated. `pre_order_qc_decision.csv` mark
 - Successfully rebuilt RSV F/hRSV90/site V motif input: yes.
 - Motif definition matches the original RFdiffusion example: yes for the reconciled benchmark motif `A163-181`; no for purely contact-derived 5TPN epitope sets, which are discontinuous.
 - RFdiffusion v1 performance: strong Phase 1 result, with 19/20 AF3 pass and 5/5 RF3 confirmation on selected candidates.
-- Foundry RFD3 performance: generated all requested backbones but had lower AF3 pass rate and worse AF3/RF3 motif RMSD in this run.
+- Foundry RFD3 performance: generated all requested backbones but had lower AF3 pass rate and worse AF3/RF3 motif RMSD under the initial Phase 1 settings. Parameter calibration later showed that all-heavy motif fixing and a narrower 20-30 length bin substantially improve RFD3 on this motif.
 - RFD3 faster than v1: no, 11:45 versus 9:34 backbone walltime.
 - RFD3 more accurate than v1: no, higher AF3/RF3 motif RMSD and lower mean pLDDT.
 - RFD3 produced more experimental candidates: no, fewer AF3-pass candidates and fewer clusters.

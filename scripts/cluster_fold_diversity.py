@@ -364,7 +364,7 @@ def normalize_summary_rows(args) -> List[Dict[str, str]]:
                     "rf3_motif_atoms_missing": rf3.get("motif_atoms_missing", ""),
                     "boltz_warning": "",
                 }
-                if boltz and boltz.get("pass") != "PASS":
+                if boltz and boltz.get("prediction_status") == "SUCCESS" and boltz.get("pass") != "PASS":
                     reasons = []
                     if to_float(boltz.get("plddt_mean")) is not None and to_float(boltz.get("plddt_mean")) < args.min_plddt:
                         reasons.append("low_plddt")

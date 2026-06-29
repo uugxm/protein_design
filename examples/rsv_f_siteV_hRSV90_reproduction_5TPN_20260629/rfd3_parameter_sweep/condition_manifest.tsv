@@ -1,0 +1,6 @@
+condition_id	motif_definition	motif_tsv	fixed_atom_level	foundry_fixed_atoms	length_bin	num_raw_outputs	num_selected_for_mpnn	default_submit	notes
+rfd3_c01_a163_181_bkbn_10_40	A163-181	../inputs/motif_residues_benchmark.tsv	backbone_atoms_N_CA_C_O	BKBN	10-40/motif/10-40	20	20	yes	Baseline Foundry RFD3 continuous motif condition matched to Phase 1 length bin.
+rfd3_c02_a163_181_all_10_40	A163-181	../inputs/motif_residues_benchmark.tsv	all_motif_heavy_atoms	ALL	10-40/motif/10-40	20	20	yes	Tests whether stronger motif atom fixing rescues raw conditioning and downstream stability.
+rfd3_c03_a163_181_all_20_30	A163-181	../inputs/motif_residues_benchmark.tsv	all_motif_heavy_atoms	ALL	20-30/motif/20-30	20	20	yes	Tests whether narrower scaffold length bins improve RFD3 motif preservation.
+rfd3_c04_a169_178_core_all_10_40	A169-178_contact_core	inputs/motif_residues_core_A169_178.tsv	all_motif_heavy_atoms	ALL	10-40/motif/10-40	20	20	no	Core contact motif; run after A163-181 mapping and raw conditioning audit are interpretable.
+rfd3_c05_contact5_curated_all_10_40	contact5_discontinuous	../inputs/motif_residues_contact5.tsv	all_motif_heavy_atoms	ALL	10-40/discontinuous_motif/10-40	20	20	no	Discontinuous contact-derived set; run only after RFD3/normalizer support for discontinuous motifs is verified.
