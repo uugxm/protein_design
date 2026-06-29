@@ -19,7 +19,6 @@ numpy 1.26.4
 PASS	LigandMPNN	26ec57a
 PASS	BindCraft	b971db4
 PASS	RFantibody	8fe3114
-PASS	rf_diffusion_all_atom	f913a19
 PASS	ColabDesign	e31a56f
 PASS	boltz	b1ebfc4
 PASS	alphafold3_container	found

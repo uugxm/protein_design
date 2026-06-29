@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 """Pre-order sequence and structure QC for expression candidates."""
 
+from __future__ import annotations
+
 import argparse
 import csv
 import json
@@ -10,7 +12,10 @@ from collections import defaultdict
 from pathlib import Path
 from typing import Dict, Iterable, List, Optional, Tuple
 
-import numpy as np
+try:
+    import numpy as np
+except ImportError:
+    np = None
 
 from pdb_metrics import (
     BACKBONE_ATOMS,
@@ -23,7 +28,7 @@ from pdb_metrics import (
 )
 
 
-MOTIF_SEQUENCE = "EVNKIKSALLSTNKAVVSL"
+DEFAULT_MOTIF_SEQUENCE = "EVNKIKSALLSTNKAVVSL"
 CANONICAL_AA = set("ACDEFGHIKLMNPQRSTVWY")
 HYDROPHOBIC_AA = set("AVILMFWY")
 AA_MASS = {
@@ -37,6 +42,11 @@ PKA = {
     "H": 6.00, "K": 10.50, "R": 12.40, "Y": 10.07,
 }
 VDW = {"H": 1.20, "C": 1.70, "N": 1.55, "O": 1.52, "S": 1.80, "P": 1.80}
+
+
+def require_numpy(feature: str) -> None:
+    if np is None:
+        raise RuntimeError("%s requires NumPy; run in the protein-design Python environment" % feature)
 
 
 def read_csv(path: Path) -> List[Dict[str, str]]:
@@ -174,7 +184,7 @@ def parse_float(value: str) -> Optional[float]:
         return None
 
 
-def sequence_qc(design_rows: List[Dict[str, str]], sequences: Dict[str, str]) -> List[Dict[str, object]]:
+def sequence_qc(design_rows: List[Dict[str, str]], sequences: Dict[str, str], motif_sequence: str) -> List[Dict[str, object]]:
     rows = []
     best_identity = {}
     for a in design_rows:
@@ -190,7 +200,7 @@ def sequence_qc(design_rows: List[Dict[str, str]], sequences: Dict[str, str]) ->
     for row in design_rows:
         design_id = row["design_id"]
         seq = sequences.get(design_id, "")
-        motif_start = seq.find(MOTIF_SEQUENCE)
+        motif_start = seq.find(motif_sequence) if motif_sequence else -1
         noncanonical = sorted(set(seq) - CANONICAL_AA)
         hydrophobic = hydrophobic_stretches(seq)
         low_complexity = low_complexity_regions(seq)
@@ -203,7 +213,7 @@ def sequence_qc(design_rows: List[Dict[str, str]], sequences: Dict[str, str]) ->
             concerns.append("missing_sequence")
         if noncanonical:
             concerns.append("noncanonical_residues")
-        if motif_start < 0:
+        if motif_sequence and motif_start < 0:
             concerns.append("motif_sequence_missing")
         if hydrophobic:
             concerns.append("long_hydrophobic_stretch")
@@ -226,10 +236,10 @@ def sequence_qc(design_rows: List[Dict[str, str]], sequences: Dict[str, str]) ->
             "amino_acid_sequence": seq,
             "sequence_length": len(seq),
             "noncanonical_residues": ";".join(noncanonical),
-            "motif_sequence": MOTIF_SEQUENCE,
-            "motif_intact": "yes" if motif_start >= 0 else "no",
-            "motif_start": motif_start + 1 if motif_start >= 0 else "",
-            "motif_end": motif_start + len(MOTIF_SEQUENCE) if motif_start >= 0 else "",
+            "motif_sequence": motif_sequence,
+            "motif_intact": "yes" if motif_sequence and motif_start >= 0 else ("not_checked" if not motif_sequence else "no"),
+            "motif_start": motif_start + 1 if motif_sequence and motif_start >= 0 else "",
+            "motif_end": motif_start + len(motif_sequence) if motif_sequence and motif_start >= 0 else "",
             "cysteine_count": seq.count("C"),
             "nxs_t_glycosylation_motifs": ";".join(glyco),
             "long_hydrophobic_stretches": ";".join(hydrophobic),
@@ -248,6 +258,7 @@ def heavy_atoms(path: Path):
 
 
 def fibonacci_sphere(n: int = 96) -> np.ndarray:
+    require_numpy("motif exposure QC")
     points = []
     phi = math.pi * (3.0 - math.sqrt(5.0))
     for idx in range(n):
@@ -259,6 +270,7 @@ def fibonacci_sphere(n: int = 96) -> np.ndarray:
 
 
 def motif_sasa_proxy(model_pdb: Path, motif_tsv: Path, trb_path: Optional[Path], sphere_points: int = 96) -> Dict[str, object]:
+    require_numpy("motif exposure QC")
     atoms = heavy_atoms(model_pdb)
     motif_ref = read_motif_tsv(str(motif_tsv))
     motif_model = set(map_motif_residues(motif_ref, str(trb_path) if trb_path else None))
@@ -300,6 +312,7 @@ def motif_sasa_proxy(model_pdb: Path, motif_tsv: Path, trb_path: Optional[Path],
 
 
 def local_support_count(model_pdb: Path, motif_tsv: Path, trb_path: Optional[Path], radius: float = 8.0) -> int:
+    require_numpy("local support QC")
     atoms = read_pdb_atoms(str(model_pdb))
     motif_model = set(map_motif_residues(read_motif_tsv(str(motif_tsv)), str(trb_path) if trb_path else None))
     motif_ca = [np.asarray(atom["coord"], dtype=float) for atom in atoms if atom["atom"] == "CA" and (atom["chain"], atom["resseq"]) in motif_model]
@@ -483,13 +496,14 @@ def load_design_paths(final_dir: Path, backup_dir: Path, backend_root: Path, des
 
 
 def main() -> int:
-    parser = argparse.ArgumentParser()
-    parser.add_argument("--final_dir", required=True)
-    parser.add_argument("--backup_dir", required=True)
-    parser.add_argument("--backend_root", required=True)
-    parser.add_argument("--reference_pdb", required=True)
-    parser.add_argument("--motif_tsv", required=True)
-    parser.add_argument("--out_dir", default="")
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--final_dir", required=True, help="Final candidate package directory containing reports/final_expression_shortlist.csv.")
+    parser.add_argument("--backup_dir", required=True, help="Fallback candidate asset directory.")
+    parser.add_argument("--backend_root", required=True, help="Workflow backend root containing array_work and backbone outputs.")
+    parser.add_argument("--reference_pdb", required=True, help="Reference PDB for motif geometry checks.")
+    parser.add_argument("--motif_tsv", required=True, help="Motif TSV with chain/start/end or chain/residue rows.")
+    parser.add_argument("--motif_sequence", default=DEFAULT_MOTIF_SEQUENCE, help="Expected motif amino-acid sequence; set empty to skip sequence-presence check.")
+    parser.add_argument("--out_dir", default="", help="Output report directory. Defaults to final_dir/reports.")
     args = parser.parse_args()
 
     final_dir = Path(args.final_dir)
@@ -500,7 +514,7 @@ def main() -> int:
     paths = {row["design_id"]: load_design_paths(final_dir, backup_dir, backend_root, row["design_id"]) for row in final_rows}
     sequences = {design_id: read_fasta(p["sequence_fasta"]) for design_id, p in paths.items()}
 
-    seq_rows = sequence_qc(final_rows, sequences)
+    seq_rows = sequence_qc(final_rows, sequences, args.motif_sequence)
     struct_rows = structure_qc(final_rows, paths, Path(args.reference_pdb), Path(args.motif_tsv))
     decision_rows = qc_decisions(seq_rows, struct_rows, final_rows)
     cloning_rows = cloning_ready(final_rows, decision_rows, sequences)

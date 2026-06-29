@@ -90,7 +90,7 @@ else
   fail proteinmpnn_repo "missing"
 fi
 
-for tool in LigandMPNN BindCraft RFantibody rf_diffusion_all_atom ColabDesign boltz; do
+for tool in LigandMPNN BindCraft RFantibody ColabDesign boltz; do
   if [ -d "$BASE/repos/$tool/.git" ]; then
     pass "$tool" "$(git -C "$BASE/repos/$tool" rev-parse --short HEAD 2>/dev/null || echo cloned)"
   else

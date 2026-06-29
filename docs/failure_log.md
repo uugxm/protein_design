@@ -10,13 +10,12 @@ GitHub homepage was reachable by `curl -I`, but repository `ls-remote`/clone was
 git clone --depth=1 https://github.com/dauparas/LigandMPNN ~/protein_design/repos/LigandMPNN
 git clone --depth=1 https://github.com/martinpacesa/BindCraft ~/protein_design/repos/BindCraft
 git clone --depth=1 https://github.com/RosettaCommons/RFantibody ~/protein_design/repos/RFantibody
-git clone --depth=1 https://github.com/baker-laboratory/rf_diffusion_all_atom ~/protein_design/repos/rf_diffusion_all_atom
 git clone --depth=1 https://github.com/sokrypton/ColabDesign ~/protein_design/repos/ColabDesign
 ```
 
 Observed symptoms included `Empty reply from server`, timeout, or failed `ls-remote`.
 
-Update at 2026-06-28 16:54 Asia/Shanghai: added `~/protein_design/scripts/clone_with_github_mirrors.sh`, which tries direct GitHub first and then mirror/proxy URLs. On this retry, direct GitHub recovered before mirror fallback was needed, and all source repositories cloned successfully. See `docs/github_mirror_clone_20260628_165404.log` and `docs/repo_commits.tsv`.
+Update at 2026-06-28 16:54 Asia/Shanghai: added `~/protein_design/scripts/clone_with_github_mirrors.sh`, which tries direct GitHub first and then mirror/proxy URLs. On this retry, direct GitHub recovered before mirror fallback was needed, and all source repositories cloned successfully. Repository commits are recorded in `docs/repo_commits.tsv`; raw clone logs are not tracked.
 
 ## HuggingFace
 

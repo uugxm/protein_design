@@ -7,7 +7,6 @@ mkdir -p "$BASE/repos" "$BASE/docs"
 repos="dauparas/LigandMPNN LigandMPNN
 martinpacesa/BindCraft BindCraft
 RosettaCommons/RFantibody RFantibody
-baker-laboratory/rf_diffusion_all_atom rf_diffusion_all_atom
 sokrypton/ColabDesign ColabDesign"
 mirrors="https://github.com/%s.git
 https://gh.llkk.cc/https://github.com/%s.git
