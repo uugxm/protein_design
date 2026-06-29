@@ -6,6 +6,8 @@ Benchmark directory: `examples/rsv_f_siteV_hRSV90_reproduction_5TPN_20260629/rfd
 
 RFD3 parameter calibration is complete for the first three 20-backbone conditions. No 100-200 backbone Phase 2 production benchmark was started, and the RFdiffusion v1 baseline was not expanded.
 
+The updated RFD3 usage strategy is recorded in `docs/rfd3_paper_usage_review.md`: Foundry RFD3 should not be treated as a simple RFdiffusion v1 contig replacement, and RFD3 Phase 2 production should wait until contact-core and discontinuous/contact-derived pilots are reviewed.
+
 The completed conditions were:
 
 - `rfd3_c01_a163_181_bkbn_10_40`: A163-181, backbone atoms fixed, 10-40/motif/10-40.

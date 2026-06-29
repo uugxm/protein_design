@@ -61,6 +61,14 @@ Backend config:
 - number of ProteinMPNN sequences per backbone
 - AF3 and RF3 prediction limits
 
+RFD3 usage policy:
+
+- Do not treat Foundry RFD3 as a simple RFdiffusion v1 contig replacement; use the atom-level Foundry input model intentionally.
+- For epitope scaffold work, default RFD3 fixed motif conditioning to `ALL` motif heavy atoms unless running an explicit `BKBN` ablation.
+- For the RSV F site V benchmark, the calibrated continuous RFD3 setting is `A163-181 + all_motif_heavy_atoms + 20-30/motif/20-30`.
+- Do not start RFD3 Phase 2 production for site V until contact-core and discontinuous/contact-derived pilots are reviewed.
+- See `docs/rfd3_paper_usage_review.md` for the full strategy and required RFD3 parameter/QC record.
+
 ## Workflow
 
 Current smoke benchmark orchestration is semi-automated: backbone generation, MPNN, AF3, and summary are submitted through workflow wrappers; RF3 confirmation, clustering, pre-order QC, and final packaging may still be run as downstream staged steps unless the full DAG wrapper is explicitly invoked.
